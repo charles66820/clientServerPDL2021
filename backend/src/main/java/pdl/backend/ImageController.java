@@ -39,18 +39,23 @@ public class ImageController {
   @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
   public ResponseEntity<byte[]> getImage(@PathVariable("id") long id) {
     Optional<Image> image = imageDao.retrieve(id);
-    byte[] bytes = image.get().getData();
-    return ResponseEntity
+    if (image.isPresent()) {
+      byte[] bytes = image.get().getData();
+      return ResponseEntity
             .ok()
             .contentType(MediaType.IMAGE_JPEG)
             .body(bytes);
+    } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
   }
 
   @RequestMapping(value = "/images/delete/{id}", method = RequestMethod.GET)
   public ResponseEntity<byte[]> deleteImage(@PathVariable("id") long id) {
     Optional<Image> image = imageDao.retrieve(id);
-    imageDao.delete(image.get());
-    return new ResponseEntity<>(HttpStatus.OK);
+    if (image.isPresent()) {
+      imageDao.delete(image.get());
+      return new ResponseEntity<>(HttpStatus.OK);
+    }
+    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
   }
 
   @RequestMapping(value = "/images", method = RequestMethod.POST)
@@ -60,7 +65,11 @@ public class ImageController {
       Image image = new Image(file.getName(), file.getBytes());
       imageDao.create(image);
       redirectAttributes.addAttribute("message", "Successfully added !");
-      return new ResponseEntity<>(HttpStatus.OK);
+
+      // Return new image id
+      ObjectNode jsonNode = mapper.createObjectNode();
+      jsonNode.put("id", image.getId());
+      return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.valueOf(MediaType.APPLICATION_JSON_UTF8_VALUE)).body(jsonNode);
 
     } catch (IOException e) {
       e.printStackTrace();
@@ -78,7 +87,7 @@ public class ImageController {
       ObjectNode im = mapper.createObjectNode();
       im.put("id", image.getId());
       im.put("name", image.getName());
-      im.put("bytes", image.getData());
+      im.put("bytes", image.getData()); // FIXME: Not send image data
       nodes.add(im);
     }
 
