@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>frontend</module>
+        <!-- <module>frontend</module> TODO: Uncomment when frontend is set-->
         <module>backend</module>
     </modules>
 </project>
