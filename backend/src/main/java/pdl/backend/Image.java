@@ -10,7 +10,7 @@ public class Image {
   private MediaType type;
   private String size;
 
-  public Image(String name, byte[] data) {
+  public Image(final String name, final byte[] data) {
     id = count++;
     this.name = name;
     this.data = data;
