@@ -48,7 +48,7 @@ public class ImageController {
     } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
   }
 
-  @RequestMapping(value = "/images/delete/{id}", method = RequestMethod.GET)
+  @RequestMapping(value = "/images/delete/{id}", method = RequestMethod.DELETE)
   public ResponseEntity<byte[]> deleteImage(@PathVariable("id") long id) {
     Optional<Image> image = imageDao.retrieve(id);
     if (image.isPresent()) {
@@ -88,6 +88,8 @@ public class ImageController {
       im.put("id", image.getId());
       im.put("name", image.getName());
       im.put("bytes", image.getData()); // FIXME: Not send image data
+      im.put("type", image.getType().toString());
+      im.put("size", image.getSize());
       nodes.add(im);
     }
 
