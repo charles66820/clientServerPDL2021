@@ -23,32 +23,30 @@ public class ImageDao implements Dao<Image> {
   private final Map<Long, Image> images = new HashMap<>();
 
   public ImageDao() {
-    // placez une image test.jpg dans le dossier "src/main/resources" du projet
-    //final ClassPathResource imgFile = new ClassPathResource("test.jpg");
-
-    File path = new File("src/main/resources/images");
-    if (path.exists()) {
-      try {
-        ArrayList<File> allImg = new ArrayList<>();
-        List<Path> paths = Files.walk(Paths.get(path.getAbsolutePath()))
-                .filter(Files::isRegularFile)
-                .filter(p -> isValidFile(p.getFileName().toString()))
-                .collect(Collectors.toList());
-        paths.forEach(p -> allImg.add(new File(p.toString())));
-        byte[] fileContent;
-        if (!allImg.isEmpty()) {
-          for (File image : allImg) {
-            fileContent = Files.readAllBytes(image.toPath());
-            Image img = new Image(image.getName(), fileContent);
-            images.put(img.getId(), img);
+      if (getClass().getResource("/images") != null) {
+          String pathName = getClass().getResource("/images").getPath();
+          File path = new File(pathName);
+          try {
+              ArrayList<File> allImg = new ArrayList<>();
+              List<Path> paths = Files.walk(Paths.get(path.getAbsolutePath()))
+                      .filter(Files::isRegularFile)
+                      .filter(p -> isValidFile(p.getFileName().toString()))
+                      .collect(Collectors.toList());
+              paths.forEach(p -> allImg.add(new File(p.toString())));
+              byte[] fileContent;
+              if (!allImg.isEmpty()) {
+                  for (File image : allImg) {
+                      fileContent = Files.readAllBytes(image.toPath());
+                      Image img = new Image(image.getName(), fileContent);
+                      images.put(img.getId(), img);
+                  }
+              }
+          } catch (IOException e) {
+              e.printStackTrace();
           }
-        }
-      } catch (IOException e) {
-        e.printStackTrace();
+      } else {
+          System.out.println("WARN : Directory images doesn't exist ! \n");
       }
-    } else {
-      System.out.println("WARN : Images directory doesn't exist\n");
-    }
   }
 
   public boolean isValidFile(String fileName) {
