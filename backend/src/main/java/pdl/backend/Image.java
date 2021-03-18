@@ -7,18 +7,18 @@ public class Image {
   private Long id;
   private String name;
   private byte[] data;
-  private MediaType type;
+  private String type;  //when initialize use toString() with our MediaType
   private String size;
 
   public Image(final String name, final byte[] data) {
     id = count++;
     this.name = name;
     this.data = data;
-    this.type = MediaType.IMAGE_JPEG;
-    this.size = "default";
+    this.type = null;
+    this.size = null;
   }
 
-  public Image(final String name, final byte[] data, final MediaType type, final String size) {
+  public Image(final String name, final byte[] data, final String type, final String size) {
     id = count++;
     this.name = name;
     this.data = data;
@@ -42,16 +42,11 @@ public class Image {
     return data;
   }
 
-  public MediaType getType() {
+  public String getType() {
     return type;
   }
 
   public String getSize() {
     return size;
-  }
-
-  @Override
-  public String toString() {
-    return "MediaType." + type;
   }
 }
