@@ -87,7 +87,7 @@ public class ImageController {
       ObjectNode im = mapper.createObjectNode();
       im.put("id", image.getId());
       im.put("name", image.getName());
-      im.put("bytes", image.getData()); // FIXME: Not send image data
+      im.put("original file name", image.getFile_name());
       im.put("type", image.getType());
       im.put("size", image.getSize());
       nodes.add(im);
