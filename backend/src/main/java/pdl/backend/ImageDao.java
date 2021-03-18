@@ -1,12 +1,16 @@
 package pdl.backend;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Repository;
@@ -20,15 +24,35 @@ public class ImageDao implements Dao<Image> {
 
   public ImageDao() {
     // placez une image test.jpg dans le dossier "src/main/resources" du projet
-    final ClassPathResource imgFile = new ClassPathResource("test.jpg");
-    byte[] fileContent;
-    try {
-      fileContent = Files.readAllBytes(imgFile.getFile().toPath());
-      Image img = new Image("logo.jpg", fileContent);
-      images.put(img.getId(), img);
-    } catch (final IOException e) {
-      e.printStackTrace();
+    //final ClassPathResource imgFile = new ClassPathResource("test.jpg");
+
+    File path = new File("src/main/resources/images");
+    if (path.exists()) {
+      try {
+        ArrayList<File> allImg = new ArrayList<>();
+        List<Path> paths = Files.walk(Paths.get(path.getAbsolutePath()))
+                .filter(Files::isRegularFile)
+                .filter(p -> isValidFile(p.getFileName().toString()))
+                .collect(Collectors.toList());
+        paths.forEach(p -> allImg.add(new File(p.toString())));
+        byte[] fileContent;
+        if (!allImg.isEmpty()) {
+          for (File image : allImg) {
+            fileContent = Files.readAllBytes(image.toPath());
+            Image img = new Image(image.getName(), fileContent);
+            images.put(img.getId(), img);
+          }
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    } else {
+      System.out.println("WARN : Images directory doesn't exist\n");
     }
+  }
+
+  public boolean isValidFile(String fileName) {
+    return fileName.contains(".jpg") || fileName.contains(".tif") || fileName.contains(".jpeg");
   }
 
   @Override
