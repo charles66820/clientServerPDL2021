@@ -21,10 +21,8 @@ public class Image {
   }
 
   public Image(final String name, final String file_name, final byte[] data, final String type, final String size) {
-    id = count++;
-    this.name = name;
+    this(name,data);
     this.file_name = file_name;
-    this.data = data;
     this.type = type;
     this.size = size;
   }

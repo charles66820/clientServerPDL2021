@@ -88,7 +88,6 @@ public class ImageController {
       im.put("id", image.getId());
       im.put("name", image.getName());
       im.put("original file name", image.getFile_name());
-      im.put("bytes", image.getData()); // FIXME: Not send image data
       im.put("type", image.getType());
       im.put("size", image.getSize());
       nodes.add(im);
