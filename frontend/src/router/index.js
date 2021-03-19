@@ -10,7 +10,7 @@ const routes = [
     component: Home
   },
   {
-    path: '/image/{id}',
+    path: '/image/:id',
     name: 'Image',
     component: Image
   },
