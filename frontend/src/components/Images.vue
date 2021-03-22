@@ -4,7 +4,9 @@
     <h2>Image list</h2>
     <ul class="imageList">
       <li v-for="image in images" :key="image.id">
+        <a :href="'/image/' + image.id" title="Informations de l'image">
         <span class="imageTitle">{{ image.name }}</span>
+        </a>
         <img :src="'/images/' + image.id" />
       </li>
     </ul>
