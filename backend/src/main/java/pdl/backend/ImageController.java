@@ -1,6 +1,10 @@
 package pdl.backend;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -8,7 +12,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import imageProcessing.AlgorithmNames;
+import imageProcessing.AlgorithmProcess;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -87,6 +94,7 @@ public class ImageController {
       ObjectNode im = mapper.createObjectNode();
       im.put("id", image.getId());
       im.put("name", image.getName());
+      im.put("original file name", image.getFile_name());
       im.put("type", image.getType());
       im.put("size", image.getSize());
       nodes.add(im);
@@ -94,5 +102,22 @@ public class ImageController {
 
     return nodes;
   }
+
+  @RequestMapping(value = "/algorithms", method = RequestMethod.GET, produces = "text/plain; charset=UTF-8")
+  @ResponseBody
+  public String getAlgorithmsList() {
+    StringBuilder algoNames = new StringBuilder();
+    Arrays.stream(AlgorithmNames.values()).forEach(n -> algoNames.append(n.getName() + "\n"));
+
+    return algoNames.toString();
+  }
+
+  /* route algortihms juste pour lister les algos
+  qui contient title
+  name = nm de la signature de la fonction
+  un enum qui a la liste de tous les algos
+  switch de tous les enums faire ça
+  nouveau package etc..
+   */
 
 }
