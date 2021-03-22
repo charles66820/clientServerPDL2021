@@ -29,8 +29,9 @@ public class ImageControllerTests {
 	@Order(1)
 	public void getImageListShouldReturnSuccess() throws Exception {
 		//testing with only one picture to make it easier
-		this.mockMvc.perform(get("/images")) // .andDo(print())
+		this.mockMvc.perform(get("/images")) //.andDo(print())
 				.andExpect(status().isOk())
+				// at the beginning type and size are null
 				.andExpect(content().json("[{\"id\":0,\"name\":\"test.jpg\",\"type\":\"jpg\",\"size\":\"800x600\"}]"))
 				.andExpect(header().exists("Content-Type"))
 				.andExpect(header().string("Content-Type", "application/json;charset=UTF-8"));
