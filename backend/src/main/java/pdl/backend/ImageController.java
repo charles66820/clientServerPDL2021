@@ -49,7 +49,7 @@ public class ImageController {
     } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
   }
 
-  @RequestMapping(value = "/images/delete/{id}", method = RequestMethod.DELETE)
+  @RequestMapping(value = "/images/{id}", method = RequestMethod.DELETE)
   public ResponseEntity<byte[]> deleteImage(@PathVariable("id") long id) {
     Optional<Image> image = imageDao.retrieve(id);
     if (image.isPresent()) {
@@ -62,7 +62,7 @@ public class ImageController {
   @RequestMapping(value = "/images", method = RequestMethod.POST)
   public ResponseEntity<?> addImage(@RequestParam("file") MultipartFile file,
       RedirectAttributes redirectAttributes) {
-    if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG.toString()) || file.getContentType() != "image/tiff")
+    if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG.toString()) && !Objects.equals(file.getContentType(), "image/tiff"))
       return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     try {
       Image image = new Image(file.getName(), file.getBytes());
@@ -81,7 +81,7 @@ public class ImageController {
     }
   }
 
-  @RequestMapping(value = "/images", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
+  @RequestMapping(value = "/images", method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
   public ArrayNode getImageList() {
     ArrayNode nodes = mapper.createArrayNode();
