@@ -1,9 +1,6 @@
 package pdl.backend;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -12,7 +9,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -60,12 +56,13 @@ public class ImageController {
   }
 
   @RequestMapping(value = "/images", method = RequestMethod.POST)
-  public ResponseEntity<?> addImage(@RequestParam("file") MultipartFile file,
+  public ResponseEntity<?> addImage(@RequestParam("image") MultipartFile file,
       RedirectAttributes redirectAttributes) {
     if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG.toString()) && !Objects.equals(file.getContentType(), "image/tiff"))
       return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     try {
-      Image image = new Image(file.getName(), file.getBytes());
+      // TODO: image size
+      Image image = new Image(file.getOriginalFilename(), file.getBytes(), file.getContentType(), null);
       imageDao.create(image);
       redirectAttributes.addAttribute("message", "Successfully added !");
 
@@ -90,7 +87,6 @@ public class ImageController {
       ObjectNode im = mapper.createObjectNode();
       im.put("id", image.getId());
       im.put("name", image.getName());
-      im.put("original file name", image.getFile_name());
       im.put("type", image.getType());
       im.put("size", image.getSize());
       nodes.add(im);

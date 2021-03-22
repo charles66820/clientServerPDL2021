@@ -12,10 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Repository;
-
-import javax.swing.text.html.Option;
 
 @Repository
 public class ImageDao implements Dao<Image> {
@@ -37,6 +34,7 @@ public class ImageDao implements Dao<Image> {
               if (!allImg.isEmpty()) {
                   for (File image : allImg) {
                       fileContent = Files.readAllBytes(image.toPath());
+                      // TODO: type and size
                       Image img = new Image(image.getName(), fileContent);
                       images.put(img.getId(), img);
                   }
