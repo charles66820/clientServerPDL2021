@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,6 +62,8 @@ public class ImageController {
   @RequestMapping(value = "/images", method = RequestMethod.POST)
   public ResponseEntity<?> addImage(@RequestParam("file") MultipartFile file,
       RedirectAttributes redirectAttributes) {
+    if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG.toString()) || file.getContentType() != "image/tiff")
+      return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     try {
       Image image = new Image(file.getName(), file.getBytes());
       imageDao.create(image);
@@ -69,12 +72,12 @@ public class ImageController {
       // Return new image id
       ObjectNode jsonNode = mapper.createObjectNode();
       jsonNode.put("id", image.getId());
-      return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.valueOf(MediaType.APPLICATION_JSON_UTF8_VALUE)).body(jsonNode);
+      return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE)).body(jsonNode);
 
     } catch (IOException e) {
       e.printStackTrace();
       redirectAttributes.addAttribute("message", "Error ! ");
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
