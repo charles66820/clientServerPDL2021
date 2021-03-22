@@ -1,14 +1,51 @@
 <template>
   <div class="main">
     <header>
-      <nav>
-        <router-link to="/">Home</router-link> |
-        <router-link to="/about">About</router-link>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Image manager ?</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#mainNavbarToggler"
+          aria-controls="mainNavbarToggler"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNavbarToggler">
+          <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+            <li class="nav-item">
+              <router-link class="nav-link" to="/">Home</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/about">About</router-link>
+            </li>
+            <li class="nav-item">
+              <button class="btn btn-sm nav-link" type="button">
+                Upload new image
+              </button>
+            </li>
+          </ul>
+        </div>
       </nav>
     </header>
     <router-view />
+    <UploadImage />
   </div>
 </template>
+
+<script>
+import UploadImage from "@/components/UploadImage.vue";
+
+export default {
+  name: "App",
+  components: {
+    UploadImage,
+  },
+};
+</script>
 
 <style>
 body {
@@ -30,11 +67,7 @@ body {
 }
 
 header {
-  height: 62px;
-  width: 100%;
+  height: 56px;
   position: relative;
-  z-index: 2;
-  background-color: #2a2a2a;
-  box-shadow: 0 5px 15px 0 rgb(0 0 0 / 50%);
 }
 </style>

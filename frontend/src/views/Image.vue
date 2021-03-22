@@ -80,7 +80,7 @@ div.imgContainer * {
 }
 
 .page-wrapper.main {
-  height: calc(100% - 62px);
+  height: calc(100% - 56px);
 }
 
 .page-wrapper .page-content {
