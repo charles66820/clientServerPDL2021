@@ -30,7 +30,6 @@ public class ImageControllerTests {
     @Test
     @Order(1)
     public void getImageListShouldReturnSuccess() throws Exception {
-        //testing with only one picture to make it easier
         this.mockMvc.perform(get("/images")) // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Content-Type"))
@@ -124,4 +123,26 @@ public class ImageControllerTests {
                 .andExpect(status().isUnsupportedMediaType());
     }
 
+    @Test
+    @Order(10)
+    public void getAlgorithmListShouldReturnSuccess() throws Exception {
+        this.mockMvc.perform(get("/algorithms")) // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", "application/json"))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", everyItem(allOf(
+                        hasKey("title"),
+                        hasKey("name")
+                ))));
+    }
+
+    @Test
+    @Order(11)
+    public void getImageAfterAlgorithmApplyShouldReturnSuccess() throws Exception {
+        this.mockMvc.perform(get("/images/23?algorithm=increaseLuminosity&gain=25")) // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", "image/jpeg"));
+    }
 }
