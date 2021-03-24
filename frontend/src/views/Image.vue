@@ -14,6 +14,11 @@
       <!-- Panel content -->
       <div class="sidePanel-content" style="word-wrap: break-word">
         <!-- TODO: algorithms list  -->
+        <ul style="list-style-type:none;padding: 0;margin: 0;">
+          <li v-for="algo in algos" :key="algo.name">
+            <AlgorithmMenuItem :algo="algo" />
+          </li>
+        </ul>
       </div>
     </nav>
     <div class="page-content" style="word-wrap: break-word">
@@ -46,8 +51,25 @@
 </template>
 
 <script>
+import AlgorithmMenuItem from "@/components/AlgorithmMenuItem.vue";
 export default {
   name: "Image",
+  data() {
+    return {
+      // TODO: get algos form backend
+      algos: [
+        { name: "toto", title: "le Toto 0", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
+        { name: "toto1", title: "le Toto 1", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
+        { name: "toto2", title: "le Toto 2", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
+        { name: "toto3", title: "le Toto 3", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
+        { name: "toto4", title: "le Toto 4", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
+        { name: "toto5", title: "le Toto 5", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
+      ],
+    }
+  },
+  components: {
+    AlgorithmMenuItem,
+  },
 };
 </script>
 
@@ -100,7 +122,7 @@ div.imgContainer * {
 .sidePanel-wrapper.left,
 .sidePanel-wrapper.right {
   width: 260px;
-  height: 100%;
+  height: calc(100% - 40px);
   top: 0;
 }
 
