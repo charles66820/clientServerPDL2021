@@ -81,7 +81,11 @@ public class ImageControllerTests {
         this.mockMvc.perform(get("/images/16").accept(MediaType.APPLICATION_JSON)) // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", "application/json"));
+                .andExpect(header().string("Content-Type", "application/json"))
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").exists())
+                .andExpect(jsonPath("$.type").exists())
+                .andExpect(jsonPath("$.size").exists());
     }
 
     @Test
