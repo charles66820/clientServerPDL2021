@@ -36,7 +36,7 @@
         </nav>
         <div class="page-content" style="word-wrap: break-word">
           <div class="imgContainer">
-            <!-- TODO: image -->
+            <!-- Image -->
             <img :src="'/images/' + $route.params.id" />
           </div>
         </div>

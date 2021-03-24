@@ -71,14 +71,14 @@ public class ImageControllerTests {
     @Test
     @Order(5)
     public void getImageDataShouldReturnNotFound() throws Exception {
-        this.mockMvc.perform(get("/images/90").accept(MediaType.APPLICATION_JSON)) // .andDo(print())
+        this.mockMvc.perform(get("/images/-1").accept(MediaType.APPLICATION_JSON)) // .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @Order(6)
     public void getImageDataShouldReturnSuccess() throws Exception {
-        this.mockMvc.perform(get("/images/16").accept(MediaType.APPLICATION_JSON)) // .andDo(print())
+        this.mockMvc.perform(get("/images/2").accept(MediaType.APPLICATION_JSON)) // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Content-Type"))
                 .andExpect(header().string("Content-Type", "application/json"))
