@@ -103,21 +103,16 @@ public class ImageController {
     return nodes;
   }
 
-  @RequestMapping(value = "/algorithms", method = RequestMethod.GET, produces = "text/plain; charset=UTF-8")
+  @RequestMapping(value = "/algorithms", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
   @ResponseBody
-  public String getAlgorithmsList() {
-    StringBuilder algoNames = new StringBuilder();
-    Arrays.stream(AlgorithmNames.values()).forEach(n -> algoNames.append(n.getName() + "\n"));
-
-    return algoNames.toString();
+  public ArrayNode getAlgorithmsList() {
+    ArrayNode algoNames = mapper.createArrayNode();
+    Arrays.stream(AlgorithmNames.values()).forEach(n -> {
+      ObjectNode node = mapper.createObjectNode();
+      node.put("title", n.getTitle());
+      algoNames.add(node);
+    });
+    return algoNames;
   }
-
-  /* route algortihms juste pour lister les algos
-  qui contient title
-  name = nm de la signature de la fonction
-  un enum qui a la liste de tous les algos
-  switch de tous les enums faire ça
-  nouveau package etc..
-   */
 
 }
