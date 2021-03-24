@@ -38,7 +38,6 @@ public class ImageControllerTests {
                 .andExpect(jsonPath("$", everyItem(allOf(
                         hasKey("id"),
                         hasKey("name"),
-                        hasKey("originalFileName"),
                         hasKey("type"),
                         hasKey("size")
                 ))));
@@ -71,6 +70,31 @@ public class ImageControllerTests {
 
     @Test
     @Order(5)
+    public void getImageDataShouldReturnNotFound() throws Exception {
+        this.mockMvc.perform(get("/images/90").accept(MediaType.APPLICATION_JSON)) // .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Order(6)
+    public void getImageDataShouldReturnSuccess() throws Exception {
+        this.mockMvc.perform(get("/images/16").accept(MediaType.APPLICATION_JSON)) // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", "application/json"));
+    }
+
+    @Test
+    @Order(7)
+    public void getImageDataShouldReturnBadRequest() throws Exception {
+        this.mockMvc.perform(get("/images/badParams").accept(MediaType.APPLICATION_JSON)) // .andDo(print())
+                .andExpect(status().isBadRequest());
+        this.mockMvc.perform(get("/images/9223372036854775808").accept(MediaType.APPLICATION_JSON)) // java max long + 1
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Order(8)
     public void deleteImageShouldReturnBadRequest() throws Exception {
         this.mockMvc.perform(delete("/images/badParams")) // .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -79,21 +103,21 @@ public class ImageControllerTests {
     }
 
     @Test
-    @Order(6)
+    @Order(9)
     public void deleteImageShouldReturnNotFound() throws Exception {
         this.mockMvc.perform(delete("/images/90"))  //.andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @Order(7)
+    @Order(10)
     public void deleteImageShouldReturnSuccess() throws Exception {
         this.mockMvc.perform(delete("/images/16")) // .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    @Order(8)
+    @Order(11)
     public void createImageShouldReturnSuccess() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "image",
@@ -110,7 +134,7 @@ public class ImageControllerTests {
     }
 
     @Test
-    @Order(9)
+    @Order(12)
     public void createImageShouldReturnUnsupportedMediaType() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "image",
@@ -124,7 +148,7 @@ public class ImageControllerTests {
     }
 
     @Test
-    @Order(10)
+    @Order(13)
     public void getAlgorithmListShouldReturnSuccess() throws Exception {
         this.mockMvc.perform(get("/algorithms")) // .andDo(print())
                 .andExpect(status().isOk())
@@ -138,7 +162,7 @@ public class ImageControllerTests {
     }
 
     @Test
-    @Order(11)
+    @Order(14)
     public void getImageAfterAlgorithmApplyShouldReturnSuccess() throws Exception {
         this.mockMvc.perform(get("/images/23?algorithm=increaseLuminosity&gain=25")) // .andDo(print())
                 .andExpect(status().isOk())
