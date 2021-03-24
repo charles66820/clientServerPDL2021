@@ -37,7 +37,7 @@
         <div class="page-content" style="word-wrap: break-word">
           <div class="imgContainer">
             <!-- TODO: image -->
-            <img src="https://free4kwallpapers.com/uploads/originals/2020/09/04/neon-background--wallpaper.jpg" alt="Image">
+            <img :src="'/images/' + $route.params.id" />
           </div>
         </div>
       </div>
