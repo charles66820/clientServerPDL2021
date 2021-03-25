@@ -37,6 +37,13 @@
           <!-- Panel content -->
           <div class="sidePanel-content" style="word-wrap: break-word">
             <!-- TODO: image info  -->
+            <h5> Metadata </h5>
+            <ul class="data" v-if="image_data != null">
+              <li> Id : {{image_data.id}} </li>
+              <li> Name : {{image_data.name}} </li>
+              <li> Type : {{image_data.type}} </li>
+              <li> Size : {{image_data.size}} </li>
+            </ul>
           </div>
         </nav>
         <div class="page-content" style="word-wrap: break-word">
@@ -52,6 +59,7 @@
 
 <script>
 import AlgorithmMenuItem from "@/components/AlgorithmMenuItem.vue";
+import httpApi from "../http-api.js";
 export default {
   name: "Image",
   data() {
@@ -65,11 +73,21 @@ export default {
         { name: "toto4", title: "le Toto 4", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
         { name: "toto5", title: "le Toto 5", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
       ],
+      image_data: null,
+      errors: [],
     }
   },
   components: {
     AlgorithmMenuItem,
   },
+  mounted : function () {
+    httpApi
+      .get_imageData(this.$route.params.id)
+      .then((res) => {
+        this.image_data = res.data;
+      })
+      .catch((err) => this.errors.push(err));
+  }
 };
 </script>
 
@@ -94,6 +112,16 @@ div.imgContainer * {
 </style>
 
 <style scoped>
+h5 {
+  position: relative;
+  text-decoration-line: underline;
+  margin-left: 4px;
+}
+
+.data {
+  list-style: circle;
+}
+
 .page-wrapper {
   position: relative;
   overflow: hidden;
