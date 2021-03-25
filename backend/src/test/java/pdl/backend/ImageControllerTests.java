@@ -178,7 +178,7 @@ public class ImageControllerTests {
     @Test
     @Order(14)
     public void getImageAfterAlgorithmApplyShouldReturnSuccess() throws Exception {
-        this.mockMvc.perform(get("/images/23?algorithm=increaseLuminosity&gain=25")) // .andDo(print())
+        this.mockMvc.perform(get("/images/1?algorithm=increaseLuminosity&gain=25")) // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Content-Type"))
                 .andExpect(header().string("Content-Type", "image/jpeg"));
