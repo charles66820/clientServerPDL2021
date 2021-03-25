@@ -3,6 +3,7 @@ package imageProcessing;
 import exceptions.BadParamsException;
 import exceptions.ImageConversionException;
 import io.scif.FormatException;
+import io.scif.ImageMetadata;
 import io.scif.img.SCIFIOImgPlus;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
@@ -10,8 +11,25 @@ import net.imglib2.type.numeric.integer.UnsignedByteType;
 import pdl.backend.Image;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 public class AlgorithmProcess {
+
+    public static HashMap<String, String> getImageMetaData(Image image) throws ImageConversionException {
+        try {
+            SCIFIOImgPlus<UnsignedByteType> img = ImageConverter.imageFromJPEGBytes(image.getData());
+            List<ImageMetadata> metadataList = img.getMetadata().getAll();
+            for (ImageMetadata metadata : metadataList) {
+                System.out.println(metadata.getName());
+                System.out.println(metadata.getSize());
+            }
+            return new HashMap<>();
+        } catch(IOException | FormatException e) {
+            throw new ImageConversionException("Error during conversion !");
+        }
+    }
+
     public static byte[] applyAlgorithm(Image image, String name, Object...params) throws BadParamsException, ImageConversionException {
         AlgorithmNames algoName = AlgorithmNames.valueOf(name);
         byte[] bytes = image.getData();
