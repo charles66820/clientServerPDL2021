@@ -31,15 +31,15 @@ public class AlgorithmProcess {
     }
 
     public static byte[] applyAlgorithm(Image image, String name, Object...params) throws BadParamsException, ImageConversionException {
-        AlgorithmNames algoName = AlgorithmNames.valueOf(name);
+        AlgorithmNames algoName = AlgorithmNames.fromString(name);
         byte[] bytes = image.getData();
         switch (algoName) {
             case LUMINOSITY:
                 try {
                     SCIFIOImgPlus<UnsignedByteType> img = ImageConverter.imageFromJPEGBytes(bytes);
                     SCIFIOImgPlus<UnsignedByteType> output = img.copy();
-                    int luminosity = (int)params[0];
-                    adjustLuminosity(img, output, luminosity);
+                    float luminosity = (float)params[0];
+                    increaseLuminosity(img, output, luminosity);
                     bytes = ImageConverter.imageToJPEGBytes(output);
                 } catch (ClassCastException ex) {
                     throw new BadParamsException("Parameter must be an integer ! \n");
@@ -62,7 +62,7 @@ public class AlgorithmProcess {
         return bytes;
     }
 
-    private static void adjustLuminosity(SCIFIOImgPlus<UnsignedByteType> img, final SCIFIOImgPlus<UnsignedByteType> outp, float luminosity) {
+    private static void increaseLuminosity(SCIFIOImgPlus<UnsignedByteType> img, final SCIFIOImgPlus<UnsignedByteType> outp, float luminosity) {
         final Img<UnsignedByteType> input =  (Img<UnsignedByteType>)img;
         final Img<UnsignedByteType> output = (Img<UnsignedByteType>)outp;
 

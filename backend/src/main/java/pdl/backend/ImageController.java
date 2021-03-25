@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import exceptions.BadParamsException;
+import exceptions.ImageConversionException;
 import imageProcessing.AlgorithmNames;
 import imageProcessing.AlgorithmProcess;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +42,7 @@ public class ImageController {
     this.imageDao = imageDao;
   }
 
-  @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+  /*@RequestMapping(value = "/images/{id}", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
   public ResponseEntity<byte[]> getImage(@PathVariable("id") long id) {
     Optional<Image> image = imageDao.retrieve(id);
     if (image.isPresent()) {
@@ -50,7 +52,7 @@ public class ImageController {
             .contentType(MediaType.IMAGE_JPEG)
             .body(bytes);
     } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-  }
+  }*/
 
   @RequestMapping(value = "/images/{id}", method = RequestMethod.DELETE)
   public ResponseEntity<byte[]> deleteImage(@PathVariable("id") long id) {
@@ -108,11 +110,39 @@ public class ImageController {
     ArrayNode algoNames = mapper.createArrayNode();
     Arrays.stream(AlgorithmNames.values()).forEach(n -> {
       ObjectNode node = mapper.createObjectNode();
-      node.put("name", n.getName());
       node.put("title", n.getTitle());
+      node.put("name", n.getName());
       algoNames.add(node);
     });
     return algoNames;
   }
 
+  @RequestMapping(value = "/images/{id}", method = RequestMethod.GET,  produces = MediaType.IMAGE_JPEG_VALUE)
+  @ResponseBody
+  public ResponseEntity<?> getImage(@PathVariable("id") long id, @RequestParam(value="algorithm", required=false) String algoName,
+                                                                  @RequestParam(value="gain", required = false) Float luminosity) {
+    Optional<Image> image = imageDao.retrieve(id);
+    if (image.isPresent()) {
+      byte[] bytes = image.get().getData();
+      if (algoName == null) {
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(bytes);
+      } else {
+        try {
+          bytes = AlgorithmProcess.applyAlgorithm(image.get(), algoName, luminosity);
+          return ResponseEntity
+                  .ok()
+                  .contentType(MediaType.IMAGE_JPEG)
+                  .body(bytes);
+        } catch (BadParamsException | ImageConversionException e) {
+          return ResponseEntity
+                  .badRequest()
+                  .contentType(MediaType.TEXT_PLAIN)
+                  .body(e.getMessage());
+        }
+      }
+    } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+  }
 }
