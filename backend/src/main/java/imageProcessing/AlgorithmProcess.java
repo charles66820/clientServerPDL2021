@@ -12,9 +12,8 @@ import net.imglib2.type.numeric.integer.UnsignedByteType;
 import pdl.backend.Image;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 public class AlgorithmProcess {
 
@@ -40,15 +39,17 @@ public class AlgorithmProcess {
         }
     }
 
-    public static byte[] applyAlgorithm(Image image, String name, Object...params) throws BadParamsException, ImageConversionException {
-        AlgorithmNames algoName = AlgorithmNames.fromString(name);
+    public static byte[] applyAlgorithm(Image image, Map<String,String> params) throws BadParamsException, ImageConversionException {
+        // TODO: check if algorithm exit in params
+        AlgorithmNames algoName = AlgorithmNames.fromString(params.get("algorithm"));
         byte[] bytes = image.getData();
         switch (algoName) {
             case LUMINOSITY:
                 try {
                     SCIFIOImgPlus<UnsignedByteType> img = ImageConverter.imageFromJPEGBytes(bytes);
                     SCIFIOImgPlus<UnsignedByteType> output = img.copy();
-                    float luminosity = (float)params[0];
+                    // TODO: check params
+                    float luminosity = Float.parseFloat(params.get("gain"));
                     increaseLuminosity(img, output, luminosity);
                     bytes = ImageConverter.imageToJPEGBytes(output);
                 } catch (ClassCastException ex) {
@@ -67,6 +68,7 @@ public class AlgorithmProcess {
                 //TODO Call the right method here
                 break;
                 default:
+                    // TODO: exeption on Algorithm not found for 400 bad request
                     System.out.println("NO ALGORITHM AVAILABLE FOR THAT ! \n");
         }
         return bytes;

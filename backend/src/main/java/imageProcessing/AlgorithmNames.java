@@ -9,6 +9,7 @@ public enum AlgorithmNames {
 
     private final String title;
     private final String name;
+    // TODO: args property
 
     AlgorithmNames(String title, String name) {
         this.title = title;
@@ -20,6 +21,8 @@ public enum AlgorithmNames {
     }
 
     public String getName() { return name; }
+
+    // TODO: get args
 
     public static AlgorithmNames fromString(String name) {
         for (AlgorithmNames algo : AlgorithmNames.values()) {

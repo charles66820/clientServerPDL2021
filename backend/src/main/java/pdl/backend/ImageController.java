@@ -37,24 +37,24 @@ public class ImageController {
 
   @RequestMapping(value = "/images/{id}", method = RequestMethod.GET,  produces = MediaType.IMAGE_JPEG_VALUE)
   @ResponseBody
-  public ResponseEntity<?> getImage(@PathVariable("id") long id, @RequestParam(value="algorithm", required=false) String algoName,
-                                    @RequestParam(value="gain", required = false) Float luminosity) {
+  public ResponseEntity<?> getImage(@PathVariable("id") long id, @RequestParam Map<String,String> allRequestParams) {
     Optional<Image> image = imageDao.retrieve(id);
     if (image.isPresent()) {
       byte[] bytes = image.get().getData();
-      if (algoName == null) {
+
+      if (allRequestParams.get("algorithm") == null) {
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(bytes);
       } else {
         try {
-          bytes = AlgorithmProcess.applyAlgorithm(image.get(), algoName, luminosity);
+          bytes = AlgorithmProcess.applyAlgorithm(image.get(), allRequestParams);
           return ResponseEntity
                   .ok()
                   .contentType(MediaType.IMAGE_JPEG)
                   .body(bytes);
-        } catch (BadParamsException | ImageConversionException e) {
+        } catch (BadParamsException | ImageConversionException e) { // TODO: return the good error for need 8
           return ResponseEntity
                   .badRequest()
                   .contentType(MediaType.TEXT_PLAIN)
@@ -133,6 +133,7 @@ public class ImageController {
       ObjectNode node = mapper.createObjectNode();
       node.put("title", n.getTitle());
       node.put("name", n.getName());
+      // TODO: add args
       algoNames.add(node);
     });
     return algoNames;
