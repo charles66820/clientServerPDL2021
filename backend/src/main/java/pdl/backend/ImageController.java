@@ -94,7 +94,6 @@ public class ImageController {
       ObjectNode im = mapper.createObjectNode();
       im.put("id", image.getId());
       im.put("name", image.getName());
-      im.put("original file name", image.getFile_name());
       im.put("type", image.getType());
       im.put("size", image.getSize());
       nodes.add(im);
@@ -103,12 +102,13 @@ public class ImageController {
     return nodes;
   }
 
-  @RequestMapping(value = "/algorithms", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
+  @RequestMapping(value = "/algorithms", method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
   public ArrayNode getAlgorithmsList() {
     ArrayNode algoNames = mapper.createArrayNode();
     Arrays.stream(AlgorithmNames.values()).forEach(n -> {
       ObjectNode node = mapper.createObjectNode();
+      node.put("name", n.getName());
       node.put("title", n.getTitle());
       algoNames.add(node);
     });
