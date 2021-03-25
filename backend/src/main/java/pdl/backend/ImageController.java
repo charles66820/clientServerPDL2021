@@ -1,21 +1,16 @@
 package pdl.backend;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import exceptions.ImageConversionException;
 import imageProcessing.AlgorithmNames;
 import imageProcessing.AlgorithmProcess;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -68,19 +63,28 @@ public class ImageController {
     if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG.toString()) && !Objects.equals(file.getContentType(), "image/tiff"))
       return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     try {
-      // TODO: image size
-      Image image = new Image(file.getOriginalFilename(), file.getBytes(), file.getContentType(), null);
+      HashMap<String, Object> imageMetaData = AlgorithmProcess.getImageMetaData(file.getBytes());
+      long fileSize = (long) imageMetaData.get("size");
+      long width = (long) imageMetaData.get("width");
+      long height = (long) imageMetaData.get("height");
+      long dimention = (long) imageMetaData.get("dimention");
+      String size = String.format("%d*%d*%d", width, height, dimention);
+
+      Image image = new Image(file.getOriginalFilename(), file.getBytes(), file.getContentType(), size, fileSize);
       imageDao.create(image);
       redirectAttributes.addAttribute("message", "Successfully added !");
 
       // Return new image id
       ObjectNode jsonNode = mapper.createObjectNode();
       jsonNode.put("id", image.getId());
-      return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE)).body(jsonNode);
+      return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
 
+    } catch (ImageConversionException e) {
+      redirectAttributes.addAttribute("message", "Bad image file send !");
+      return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
     } catch (IOException e) {
       e.printStackTrace();
-      redirectAttributes.addAttribute("message", "Error ! ");
+      redirectAttributes.addAttribute("message", "Error !");
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -96,6 +100,7 @@ public class ImageController {
       im.put("name", image.getName());
       im.put("type", image.getType());
       im.put("size", image.getSize());
+      im.put("fileSize", image.getFileSize());
       nodes.add(im);
     }
 

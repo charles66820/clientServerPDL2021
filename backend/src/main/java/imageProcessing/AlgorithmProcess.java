@@ -4,6 +4,7 @@ import exceptions.BadParamsException;
 import exceptions.ImageConversionException;
 import io.scif.FormatException;
 import io.scif.ImageMetadata;
+import io.scif.Metadata;
 import io.scif.img.SCIFIOImgPlus;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
@@ -11,20 +12,29 @@ import net.imglib2.type.numeric.integer.UnsignedByteType;
 import pdl.backend.Image;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 public class AlgorithmProcess {
 
-    public static HashMap<String, String> getImageMetaData(Image image) throws ImageConversionException {
+    public static HashMap<String, Object> getImageMetaData(Image image) throws ImageConversionException {
+        return getImageMetaData(image.getData());
+    }
+    public static HashMap<String, Object> getImageMetaData(byte[] image) throws ImageConversionException {
         try {
-            SCIFIOImgPlus<UnsignedByteType> img = ImageConverter.imageFromJPEGBytes(image.getData());
-            List<ImageMetadata> metadataList = img.getMetadata().getAll();
-            for (ImageMetadata metadata : metadataList) {
-                System.out.println(metadata.getName());
-                System.out.println(metadata.getSize());
+            HashMap<String, Object> res = new HashMap<>();
+            SCIFIOImgPlus<UnsignedByteType> img = ImageConverter.imageFromJPEGBytes(image);
+            Metadata metadata = img.getMetadata();
+            res.put("size", metadata.getDatasetSize());
+            res.put("formatName", metadata.getFormatName());
+
+            for (ImageMetadata imageMetadata : metadata.getAll()) {
+                res.put("width", imageMetadata.getAxisLength(0));
+                res.put("height", imageMetadata.getAxisLength(1));
+                res.put("dimention", imageMetadata.getAxisLength(2));
             }
-            return new HashMap<>();
+            return res;
         } catch(IOException | FormatException e) {
             throw new ImageConversionException("Error during conversion !");
         }
