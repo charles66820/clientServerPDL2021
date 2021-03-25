@@ -1,5 +1,7 @@
 package imageProcessing;
 
+import exceptions.BadParamsException;
+import exceptions.ImageConversionException;
 import io.scif.FormatException;
 import io.scif.img.SCIFIOImgPlus;
 import net.imglib2.RandomAccess;
@@ -10,21 +12,22 @@ import pdl.backend.Image;
 import java.io.IOException;
 
 public class AlgorithmProcess {
-
-    public static byte[] applyAlgorithm(Image image, String name, Object...params) throws IOException, FormatException {
+    public static byte[] applyAlgorithm(Image image, String name, Object...params) throws BadParamsException, ImageConversionException {
         AlgorithmNames algoName = AlgorithmNames.valueOf(name);
         byte[] bytes = image.getData();
         switch (algoName) {
             case LUMINOSITY:
-                SCIFIOImgPlus<UnsignedByteType> img = ImageConverter.imageFromJPEGBytes(bytes);
-                SCIFIOImgPlus<UnsignedByteType> output = img.copy();
                 try {
-                    int luminosity = Integer.parseInt(params[1].toString());
+                    SCIFIOImgPlus<UnsignedByteType> img = ImageConverter.imageFromJPEGBytes(bytes);
+                    SCIFIOImgPlus<UnsignedByteType> output = img.copy();
+                    int luminosity = (int)params[0];
                     adjustLuminosity(img, output, luminosity);
-                } catch (NumberFormatException nfe) {
-                    nfe.printStackTrace();
+                    bytes = ImageConverter.imageToJPEGBytes(output);
+                } catch (ClassCastException ex) {
+                    throw new BadParamsException("Parameter must be an integer ! \n");
+                } catch(IOException | FormatException e) {
+                    throw new ImageConversionException("Error during conversion ! \n");
                 }
-                bytes = ImageConverter.imageToJPEGBytes(output);
                 break;
             case COLORED_FILTER:
                 //TODO Call the right method here
