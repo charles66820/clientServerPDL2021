@@ -17,8 +17,13 @@ public class AlgorithmProcess {
         switch (algoName) {
             case LUMINOSITY:
                 SCIFIOImgPlus<UnsignedByteType> img = ImageConverter.imageFromJPEGBytes(bytes);
-                SCIFIOImgPlus<UnsignedByteType> output = img;
-                AdjustLuminosity(img, output, Integer.parseInt(params[1].toString()));
+                SCIFIOImgPlus<UnsignedByteType> output = img.copy();
+                try {
+                    int luminosity = Integer.parseInt(params[1].toString());
+                    adjustLuminosity(img, output, luminosity);
+                } catch (NumberFormatException nfe) {
+                    nfe.printStackTrace();
+                }
                 bytes = ImageConverter.imageToJPEGBytes(output);
                 break;
             case COLORED_FILTER:
@@ -36,10 +41,7 @@ public class AlgorithmProcess {
         return bytes;
     }
 
-    private static void AdjustLuminosity(SCIFIOImgPlus<UnsignedByteType> img, final SCIFIOImgPlus<UnsignedByteType> outp, int luminosity) {
-        //Maybe working idk TO TEST
-        //final ArrayImgFactory<UnsignedByteType> factory = new ArrayImgFactory<>(new UnsignedByteType());
-        //final Img<UnsignedByteType> input = (Img<UnsignedByteType>)new ImgOpener().openImgs(img.getMetadata().getSourceLocation(), factory).get(0);
+    private static void adjustLuminosity(SCIFIOImgPlus<UnsignedByteType> img, final SCIFIOImgPlus<UnsignedByteType> outp, float luminosity) {
         final Img<UnsignedByteType> input =  (Img<UnsignedByteType>)img;
         final Img<UnsignedByteType> output = (Img<UnsignedByteType>)outp;
 
@@ -61,9 +63,12 @@ public class AlgorithmProcess {
                     out.setPosition(x, 0);
                     out.setPosition(y, 1);
                     out.setPosition(channel, 2);
-
                     newValue = Math.round(r.get().get()*(1 + luminosity/100));
-                    out.get().set(newValue);
+                    if (newValue > 255) {
+                        out.get().set(255);
+                    } else {
+                        out.get().set(newValue);
+                    }
                 }
             }
         }
