@@ -52,7 +52,7 @@ public class ImageController {
     } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
   }
 
-  @RequestMapping(value = "/images/{id}", method = RequestMethod.DELETE)
+  @RequestMapping(value = "/images/delete/{id}", method = RequestMethod.DELETE)
   public ResponseEntity<byte[]> deleteImage(@PathVariable("id") long id) {
     Optional<Image> image = imageDao.retrieve(id);
     if (image.isPresent()) {
@@ -63,29 +63,26 @@ public class ImageController {
   }
 
   @RequestMapping(value = "/images", method = RequestMethod.POST)
-  public ResponseEntity<?> addImage(@RequestParam("image") MultipartFile file,
+  public ResponseEntity<?> addImage(@RequestParam("file") MultipartFile file,
       RedirectAttributes redirectAttributes) {
-    if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG.toString()) && !Objects.equals(file.getContentType(), "image/tiff"))
-      return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     try {
-      // TODO: image size
-      Image image = new Image(file.getOriginalFilename(), file.getBytes(), file.getContentType(), null);
+      Image image = new Image(file.getName(), file.getBytes());
       imageDao.create(image);
       redirectAttributes.addAttribute("message", "Successfully added !");
 
       // Return new image id
       ObjectNode jsonNode = mapper.createObjectNode();
       jsonNode.put("id", image.getId());
-      return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE)).body(jsonNode);
+      return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.valueOf(MediaType.APPLICATION_JSON_UTF8_VALUE)).body(jsonNode);
 
     } catch (IOException e) {
       e.printStackTrace();
       redirectAttributes.addAttribute("message", "Error ! ");
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
   }
 
-  @RequestMapping(value = "/images", method = RequestMethod.GET, produces = "application/json")
+  @RequestMapping(value = "/images", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
   @ResponseBody
   public ArrayNode getImageList() {
     ArrayNode nodes = mapper.createArrayNode();
@@ -94,6 +91,7 @@ public class ImageController {
       ObjectNode im = mapper.createObjectNode();
       im.put("id", image.getId());
       im.put("name", image.getName());
+      im.put("original file name", image.getFile_name());
       im.put("type", image.getType());
       im.put("size", image.getSize());
       nodes.add(im);
