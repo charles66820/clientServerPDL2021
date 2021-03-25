@@ -41,7 +41,8 @@ public class ImageControllerTests {
                         hasKey("id"),
                         hasKey("name"),
                         hasKey("type"),
-                        hasKey("size")
+                        hasKey("size"),
+                        hasKey("fileSize")
                 ))));
     }
 
@@ -89,7 +90,8 @@ public class ImageControllerTests {
                         hasKey("id"),
                         hasKey("name"),
                         hasKey("type"),
-                        hasKey("size")
+                        hasKey("size"),
+                        hasKey("fileSize")
                 )))
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").exists());

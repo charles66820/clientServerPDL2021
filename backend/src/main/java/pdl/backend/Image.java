@@ -1,7 +1,5 @@
 package pdl.backend;
 
-import org.springframework.http.MediaType;
-
 public class Image {
   private static Long count = Long.valueOf(0);
   private final Long id;
@@ -9,6 +7,7 @@ public class Image {
   private byte[] data;
   private String type;  //when initialize use toString() with our MediaType
   private String size;
+  private long fileSize;
 
   public Image(final String name, final byte[] data) {
     id = count++;
@@ -18,10 +17,11 @@ public class Image {
     this.size = null;
   }
 
-  public Image(final String name, final byte[] data, final String type, final String size) {
+  public Image(final String name, final byte[] data, final String type, final String size, final long fileSize) {
     this(name,data);
     this.type = type;
     this.size = size;
+    this.fileSize = fileSize;
   }
 
   public long getId() {
@@ -46,5 +46,9 @@ public class Image {
 
   public String getSize() {
     return size;
+  }
+
+  public Long getFileSize() {
+    return fileSize;
   }
 }
