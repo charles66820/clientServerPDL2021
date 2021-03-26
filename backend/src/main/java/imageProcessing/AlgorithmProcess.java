@@ -2,6 +2,7 @@ package imageProcessing;
 
 import exceptions.BadParamsException;
 import exceptions.ImageConversionException;
+import exceptions.UnknownAlgorithmException;
 import io.scif.FormatException;
 import io.scif.ImageMetadata;
 import io.scif.Metadata;
@@ -9,6 +10,7 @@ import io.scif.img.SCIFIOImgPlus;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
+import org.springframework.aop.framework.adapter.UnknownAdviceTypeException;
 import pdl.backend.Image;
 
 import java.io.IOException;
@@ -39,39 +41,52 @@ public class AlgorithmProcess {
         }
     }
 
-    public static byte[] applyAlgorithm(Image image, Map<String,String> params) throws BadParamsException, ImageConversionException {
-        // TODO: check if algorithm exit in params
-        AlgorithmNames algoName = AlgorithmNames.fromString(params.get("algorithm"));
-        byte[] bytes = image.getData();
-        switch (algoName) {
-            case LUMINOSITY:
-                try {
-                    SCIFIOImgPlus<UnsignedByteType> img = ImageConverter.imageFromJPEGBytes(bytes);
-                    SCIFIOImgPlus<UnsignedByteType> output = img.copy();
-                    // TODO: check params
-                    float luminosity = Float.parseFloat(params.get("gain"));
-                    increaseLuminosity(img, output, luminosity);
-                    bytes = ImageConverter.imageToJPEGBytes(output);
-                } catch (ClassCastException ex) {
-                    throw new BadParamsException("Parameter must be an integer ! \n");
-                } catch(IOException | FormatException e) {
-                    throw new ImageConversionException("Error during conversion ! \n");
-                }
-                break;
-            case COLORED_FILTER:
-                //TODO Call the right method here
-                break;
-            case BLUR_FILTER:
-                //TODO Call the right method here
-                break;
-            case CONTOUR_FILTER:
-                //TODO Call the right method here
-                break;
+    public static byte[] applyAlgorithm(Image image, Map<String,String> params) throws BadParamsException, ImageConversionException, UnknownAlgorithmException {
+        try {
+            AlgorithmNames algoName = AlgorithmNames.fromString(params.get("algorithm"));
+            byte[] bytes = image.getData();
+            switch (algoName) {
+                case LUMINOSITY:
+                    if (params.size() == 2) {
+                        if (params.containsKey(algoName.getArgs().get(0).name)) {
+                            try {
+                                SCIFIOImgPlus<UnsignedByteType> img = ImageConverter.imageFromJPEGBytes(bytes);
+                                SCIFIOImgPlus<UnsignedByteType> output = img.copy();
+                                float luminosity = Float.parseFloat(params.get(algoName.getArgs().get(0).name));
+                                increaseLuminosity(img, output, luminosity);
+                                bytes = ImageConverter.imageToJPEGBytes(output);
+                            } catch (NumberFormatException ex) {
+                                throw new BadParamsException("Parameter \"gain\" must be a float number !");
+                            } catch (IOException | FormatException e) {
+                                throw new ImageConversionException("Error during conversion !");
+                            }
+                        } else {
+                            BadParamsException bpe = new BadParamsException();
+                            bpe.setParamsValid(!algoName.getArgs().get(0).required);
+                            throw bpe;
+                        }
+                    } else {
+                        BadParamsException bpe = new BadParamsException();
+                        bpe.setParamExist(false);
+                        throw bpe;
+                    }
+                    break;
+                case COLORED_FILTER:
+                    //TODO Call the right method here
+                    break;
+                case BLUR_FILTER:
+                    //TODO Call the right method here
+                    break;
+                case CONTOUR_FILTER:
+                    //TODO Call the right method here
+                    break;
                 default:
-                    // TODO: exeption on Algorithm not found for 400 bad request
-                    System.out.println("NO ALGORITHM AVAILABLE FOR THAT ! \n");
+                    break;
+            }
+            return bytes;
+        } catch (NullPointerException npe) {
+            throw new UnknownAlgorithmException("This algorithm doesn't exist !");
         }
-        return bytes;
     }
 
     private static void increaseLuminosity(SCIFIOImgPlus<UnsignedByteType> img, final SCIFIOImgPlus<UnsignedByteType> outp, float luminosity) {
