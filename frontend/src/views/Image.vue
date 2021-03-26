@@ -13,10 +13,9 @@
       </div>
       <!-- Panel content -->
       <div class="sidePanel-content" style="word-wrap: break-word">
-        <!-- TODO: algorithms list  -->
         <ul style="list-style-type:none;padding: 0;margin: 0;">
           <li v-for="algo in algos" :key="algo.name">
-            <AlgorithmMenuItem :algo="algo" />
+            <AlgorithmMenuItem :algo="algo" :imageId="parseInt($route.params.id)" />
           </li>
         </ul>
       </div>
@@ -66,12 +65,12 @@ export default {
     return {
       // TODO: get algos form backend
       algos: [
-        { name: "toto", title: "le Toto 0", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
-        { name: "toto1", title: "le Toto 1", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
-        { name: "toto2", title: "le Toto 2", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
-        { name: "toto3", title: "le Toto 3", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
-        { name: "toto4", title: "le Toto 4", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
-        { name: "toto5", title: "le Toto 5", args: [ { name: "value", title: "the value", min: 0, max: 255} ] },
+        { name: "toto", title: "le Toto 0", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
+        { name: "toto1", title: "le Toto 1", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
+        { name: "toto2", title: "le Toto 2", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
+        { name: "toto3", title: "le Toto 3", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true}, { name: "value 2", title: "the value 2", type: "number", min: 0, max: 255, required: true}  ] },
+        { name: "toto4", title: "le Toto 4", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: false} ] },
+        { name: "toto5", title: "le Toto 5", args: [] },
       ],
       image_data: null,
       errors: [],
@@ -94,6 +93,7 @@ export default {
 <style scoped>
 div.imgContainer {
   position: relative;
+  width: 100%;
   height: 100%;
   user-select: none;
   z-index: 1;
@@ -102,6 +102,8 @@ div.imgContainer {
 div.imgContainer * {
   max-width: 100%;
   max-height: 100%;
+  height: auto;
+  width: auto;
   position: absolute;
   top: 0;
   bottom: 0;

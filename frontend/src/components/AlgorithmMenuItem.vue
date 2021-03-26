@@ -2,23 +2,27 @@
   <div class="card">
     <div class="card-body">
       <h5 class="card-title">{{ algo.title }}</h5>
-      <form>
-        <!-- TODO: add args support -->
-        <div class="form-group row">
-          <label class="col-sm-6 col-form-label">Value</label>
+      <form @submit="applyAlgorithmSubmit($event)">
+        <input type="hidden" name="algorithm" :value="algo.name" required />
+        <div class="form-group row" v-for="arg in algo.args" :key="arg.name">
+          <label class="col-sm-6 col-form-label">{{ arg.title }}</label>
           <div class="col-sm-6">
             <input
-              type="text"
+              :type="arg.type"
               class="form-control"
-              placeholder="Value"
-              required
+              :placeholder="arg.title"
+              :title="arg.title"
+              :name="arg.name"
+              :min="arg.min"
+              :max="arg.max"
+              :required="arg.required"
             />
           </div>
         </div>
         <div class="form-row">
           <span class="col-sm-6"></span>
           <div class="col-sm-6">
-            <button class="btn btn-primary mx-4">Apply</button>
+            <button type="submit" class="btn btn-primary mx-4">Apply</button>
           </div>
         </div>
       </form>
@@ -30,7 +34,23 @@
 export default {
   name: "AlgorithmMenuItem",
   props: {
-    algo: {required: true, type: Object},
+    imageId: { required: true, type: Number },
+    algo: { required: true, type: Object },
+  },
+  methods: {
+    applyAlgorithmSubmit(e) {
+      e.preventDefault();
+
+      let query = new URLSearchParams();
+      for (const field of e.target.elements)
+        if (field.name && (field.required || field.value))
+          query.append(field.name, field.value);
+
+      let queryString = query.toString();
+
+      console.log(queryString);
+      // TODO: call "/images/" + this.imageId + "?" + queryString
+    },
   },
 };
 </script>
