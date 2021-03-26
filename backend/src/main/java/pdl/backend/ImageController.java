@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.BadParamsException;
 import exceptions.ImageConversionException;
+import imageProcessing.AlgorithmArgs;
 import imageProcessing.AlgorithmNames;
 import imageProcessing.AlgorithmProcess;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,9 +132,19 @@ public class ImageController {
     ArrayNode algoNames = mapper.createArrayNode();
     Arrays.stream(AlgorithmNames.values()).forEach(n -> {
       ObjectNode node = mapper.createObjectNode();
-      node.put("title", n.getTitle());
       node.put("name", n.getName());
-      // TODO: add args
+      node.put("title", n.getTitle());
+
+      ArrayNode argsList =  node.putArray("args");
+      for (AlgorithmArgs arg : n.getArgs()) {
+        ObjectNode argNode = mapper.createObjectNode();
+        argNode.put("name", arg.name);
+        argNode.put("title", arg.title);
+        argNode.put("min", arg.min);
+        argNode.put("max", arg.max);
+        argNode.put("required", arg.required);
+        argsList.add(argNode);
+      }
       algoNames.add(node);
     });
     return algoNames;
