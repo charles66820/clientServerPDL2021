@@ -156,6 +156,7 @@ public class ImageController {
         ObjectNode argNode = mapper.createObjectNode();
         argNode.put("name", arg.name);
         argNode.put("title", arg.title);
+        argNode.put("type", arg.type);
         argNode.put("min", arg.min);
         argNode.put("max", arg.max);
         argNode.put("required", arg.required);

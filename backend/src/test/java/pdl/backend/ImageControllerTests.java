@@ -193,6 +193,7 @@ public class ImageControllerTests {
                 .andExpect(jsonPath("$[*].args[*]", everyItem(allOf(
                         hasKey("name"),
                         hasKey("title"),
+                        hasKey("type"),
                         hasKey("min"),
                         hasKey("max"),
                         hasKey("required")

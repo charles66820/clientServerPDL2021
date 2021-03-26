@@ -6,15 +6,15 @@ import java.util.List;
 public enum AlgorithmNames {
     // maybe add a description
     LUMINOSITY("Luminosity", "increaseLuminosity", new ArrayList<>() {{
-        add(new AlgorithmArgs("gain", "Gain", 0, 255, true));
+        add(new AlgorithmArgs("gain", "Gain", "number", 0, 255, true));
     }}),   //only one parameter
     COLORED_FILTER("Colored Filter", "applyColoredFilter", new ArrayList<>() {{
-        add(new AlgorithmArgs("red", "Red", 0, 255, true));
-        add(new AlgorithmArgs("green", "Green", 0, 255, true));
-        add(new AlgorithmArgs("blue", "Blue", 0, 255, true));
+        add(new AlgorithmArgs("red", "Red", "number", 0, 255, true));
+        add(new AlgorithmArgs("green", "Green", "number", 0, 255, true));
+        add(new AlgorithmArgs("blue", "Blue", "number", 0, 255, true));
     }}),  // only one parameter
     BLUR_FILTER("Blur Filter", "applyBlurFilter", new ArrayList<>() {{
-        add(new AlgorithmArgs("test", "Test", 80, 120, false));
+        add(new AlgorithmArgs("test", "Test", "number", 80, 120, false));
     }}),     //mean or gaussian and level of blur
     CONTOUR_FILTER("Contour Filter", "applyContourFilter", new ArrayList<>());
 
