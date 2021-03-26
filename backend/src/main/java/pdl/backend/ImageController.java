@@ -93,14 +93,15 @@ public class ImageController {
     if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG.toString()) && !Objects.equals(file.getContentType(), "image/tiff"))
       return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     try {
-      HashMap<String, Object> imageMetaData = AlgorithmProcess.getImageMetaData(file.getBytes());
+      byte[] filecontent = file.getBytes();
+      HashMap<String, Object> imageMetaData = AlgorithmProcess.getImageMetaData(filecontent);
       long fileSize = (long) imageMetaData.get("size");
       long width = (long) imageMetaData.get("width");
       long height = (long) imageMetaData.get("height");
       long dimention = (long) imageMetaData.get("dimention");
       String size = String.format("%d*%d*%d", width, height, dimention);
 
-      Image image = new Image(file.getOriginalFilename(), file.getBytes(), file.getContentType(), size, fileSize);
+      Image image = new Image(file.getOriginalFilename(), filecontent, file.getContentType(), size, fileSize);
       imageDao.create(image);
       redirectAttributes.addAttribute("message", "Successfully added !");
 
@@ -110,12 +111,16 @@ public class ImageController {
       return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
 
     } catch (ImageConversionException e) {
-      redirectAttributes.addAttribute("message", "Bad image file send !");
-      return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+      return ResponseEntity
+              .status(HttpStatus.NOT_ACCEPTABLE)
+              .contentType(MediaType.TEXT_PLAIN)
+              .body("Bad image file send !");
     } catch (IOException e) {
       e.printStackTrace();
-      redirectAttributes.addAttribute("message", "Error !");
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity
+              .status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .contentType(MediaType.TEXT_PLAIN)
+              .body("Error on open file!");
     }
   }
 
