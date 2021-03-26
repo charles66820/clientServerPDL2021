@@ -19,6 +19,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.Base64;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(OrderAnnotation.class)
@@ -37,7 +39,7 @@ public class ImageControllerTests {
                 .andExpect(header().exists("Content-Type"))
                 .andExpect(header().string("Content-Type", "application/json"))
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", everyItem(allOf(
+                .andExpect(jsonPath("$[*]", everyItem(allOf(
                         hasKey("id"),
                         hasKey("name"),
                         hasKey("type"),
@@ -86,7 +88,7 @@ public class ImageControllerTests {
                 .andExpect(header().exists("Content-Type"))
                 .andExpect(header().string("Content-Type", "application/json"))
                 .andExpect(jsonPath("$").hasJsonPath())
-                .andExpect(jsonPath("$", allOf(
+                .andExpect(jsonPath("$[*]", allOf(
                         hasKey("id"),
                         hasKey("name"),
                         hasKey("type"),
@@ -136,7 +138,7 @@ public class ImageControllerTests {
                 "image",
                 "test.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
-                "Hello, World!".getBytes()
+                Base64.getDecoder().decode("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAj/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAABwn/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdAAYqm//Z")
         );
 
         this.mockMvc.perform(MockMvcRequestBuilders.multipart("/images").file(file)) // .andDo(print())
@@ -154,7 +156,7 @@ public class ImageControllerTests {
                 "image",
                 "test.jpg",
                 MediaType.IMAGE_PNG_VALUE,
-                "Hello, World!".getBytes()
+                Base64.getDecoder().decode("/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAj/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAABwn/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdAAYqm//Z")
         );
 
         this.mockMvc.perform(multipart("/images").file(file)) // .andDo(print())
@@ -163,20 +165,42 @@ public class ImageControllerTests {
 
     @Test
     @Order(13)
+    public void createImageShouldReturnNotAcceptable() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "image",
+                "test.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "Hello, World!".getBytes()
+        );
+
+        this.mockMvc.perform(multipart("/images").file(file)) // .andDo(print())
+                .andExpect(status().isNotAcceptable());
+    }
+
+    @Test
+    @Order(14)
     public void getAlgorithmListShouldReturnSuccess() throws Exception {
         this.mockMvc.perform(get("/algorithms")) // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Content-Type"))
                 .andExpect(header().string("Content-Type", "application/json"))
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", everyItem(allOf(
+                .andExpect(jsonPath("$[*]", everyItem(allOf(
                         hasKey("title"),
-                        hasKey("name")
+                        hasKey("name"),
+                        hasKey("args")
+                ))))
+                .andExpect(jsonPath("$[*].args[*]", everyItem(allOf(
+                        hasKey("name"),
+                        hasKey("title"),
+                        hasKey("min"),
+                        hasKey("max"),
+                        hasKey("required")
                 ))));
     }
 
     @Test
-    @Order(14)
+    @Order(15)
     public void getImageAfterAlgorithmApplyShouldReturnSuccess() throws Exception {
         this.mockMvc.perform(get("/images/1?algorithm=increaseLuminosity&gain=25")) // .andDo(print())
                 .andExpect(status().isOk())
