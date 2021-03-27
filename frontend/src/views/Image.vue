@@ -45,7 +45,7 @@
               <li> Size : {{ image_data.size }} </li>
             </ul>
             <!-- Bin and delete request -->
-            <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#modalDelete">
+            <button type="button" class="btn btn-outline-dark m-4" data-toggle="modal" data-target="#modalDelete">
               &#128465;
             </button>
           </div>
@@ -53,7 +53,7 @@
         <div class="page-content" style="word-wrap: break-word">
           <div class="imgContainer">
             <!-- Image -->
-            <img :src="'/images/' + $route.params.id" />
+            <img :src="imageBlob" />
           </div>
         </div>
       </div>
@@ -70,6 +70,8 @@ export default {
   name: "Image",
   data() {
     return {
+      defaultImageBlob: null,
+      imageBlob: "/images/" + this.$route.params.id,
       // TODO: get algos form backend
       algos: [
         { name: "toto", title: "le Toto 0", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
@@ -173,7 +175,7 @@ div.imgContainer * {
 .sidePanel-wrapper.top,
 .sidePanel-wrapper.bottom {
   width: 100%;
-  height: 360px;
+  height: 38vh;
   left: 0;
 }
 
@@ -186,11 +188,11 @@ div.imgContainer * {
 }
 
 .sidePanel-wrapper.top {
-  top: -360px;
+  top: -38vh;
 }
 
 .sidePanel-wrapper.bottom {
-  bottom: -360px;
+  bottom: -38vh;
 }
 
 .page-wrapper.toggled > .sidePanel-wrapper.left {
@@ -219,11 +221,11 @@ div.imgContainer * {
   }
 
   .page-wrapper.toggled > .sidePanel-wrapper.top + .page-content {
-    padding-top: 360px;
+    padding-top: 38vh;
   }
 
   .page-wrapper.toggled > .sidePanel-wrapper.bottom + .page-content {
-    padding-bottom: 360px;
+    padding-bottom: 38vh;
   }
 }
 
