@@ -1,5 +1,5 @@
 <template>
-  <div class="page-wrapper toggled main">
+  <div class="page-wrapper toggled main-panel-container">
     <nav class="sidePanel-wrapper right bg-white border-left shadow">
       <!-- Side panel toggler -->
       <div
@@ -13,7 +13,11 @@
       </div>
       <!-- Panel content -->
       <div class="sidePanel-content" style="word-wrap: break-word">
-        <!-- TODO: algorithms list  -->
+        <ul style="list-style-type:none;padding: 0;margin: 0;">
+          <li v-for="algo in algos" :key="algo.name">
+            <AlgorithmMenuItem :algo="algo" :imageId="parseInt($route.params.id)" />
+          </li>
+        </ul>
       </div>
     </nav>
     <div class="page-content" style="word-wrap: break-word">
@@ -32,28 +36,71 @@
           <!-- Panel content -->
           <div class="sidePanel-content" style="word-wrap: break-word">
             <!-- TODO: image info  -->
+            <h5 class="title_metadata"> Metadata </h5>
+            <ul class="data" v-if="image_data != null">
+              <li> Id : {{image_data.id}} </li>
+              <li> Name : {{image_data.name}} </li>
+              <li> Type : {{image_data.type}} </li>
+              <li> Size : {{image_data.size}} </li>
+            </ul>
+            <!-- Bin and delete request -->
+            <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#modalDelete">
+              Bin
+            </button>
           </div>
         </nav>
         <div class="page-content" style="word-wrap: break-word">
           <div class="imgContainer">
-            <!-- TODO: image -->
-            <img src="https://free4kwallpapers.com/uploads/originals/2020/09/04/neon-background--wallpaper.jpg" alt="Image">
+            <!-- Image -->
+            <img :src="'/images/' + $route.params.id" />
           </div>
         </div>
       </div>
     </div>
+    <ConfirmDeleteDialog :id="parseInt($route.params.id)"/>
   </div>
 </template>
 
 <script>
+import AlgorithmMenuItem from "@/components/AlgorithmMenuItem.vue";
+import httpApi from "../http-api.js";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.vue";
 export default {
   name: "Image",
+  data() {
+    return {
+      // TODO: get algos form backend
+      algos: [
+        { name: "toto", title: "le Toto 0", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
+        { name: "toto1", title: "le Toto 1", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
+        { name: "toto2", title: "le Toto 2", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
+        { name: "toto3", title: "le Toto 3", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true}, { name: "value 2", title: "the value 2", type: "number", min: 0, max: 255, required: true}  ] },
+        { name: "toto4", title: "le Toto 4", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: false} ] },
+        { name: "toto5", title: "le Toto 5", args: [] },
+      ],
+      image_data: null,
+      errors: [],
+    }
+  },
+  components: {
+    AlgorithmMenuItem,
+    ConfirmDeleteDialog,
+  },
+  mounted : function () {
+    httpApi
+      .get_imageData(this.$route.params.id)
+      .then((res) => {
+        this.image_data = res.data;
+      })
+      .catch((err) => this.errors.push(err));
+  }
 };
 </script>
 
 <style scoped>
 div.imgContainer {
   position: relative;
+  width: 100%;
   height: 100%;
   user-select: none;
   z-index: 1;
@@ -62,6 +109,8 @@ div.imgContainer {
 div.imgContainer * {
   max-width: 100%;
   max-height: 100%;
+  height: auto;
+  width: auto;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -72,6 +121,22 @@ div.imgContainer * {
 </style>
 
 <style scoped>
+.title_metadata {
+  position: relative;
+  text-decoration-line: underline;
+  margin-left: 4px;
+}
+
+.data {
+  list-style: circle;
+}
+
+.btn-outline-dark {
+  position:absolute;
+  top:2px;
+  right:2px;
+}
+
 .page-wrapper {
   position: relative;
   overflow: hidden;
@@ -79,7 +144,7 @@ div.imgContainer * {
   width: 100%;
 }
 
-.page-wrapper.main {
+.page-wrapper.main-panel-container {
   height: calc(100% - 56px);
 }
 
@@ -100,7 +165,7 @@ div.imgContainer * {
 .sidePanel-wrapper.left,
 .sidePanel-wrapper.right {
   width: 260px;
-  height: 100%;
+  height: calc(100% - 40px);
   top: 0;
 }
 

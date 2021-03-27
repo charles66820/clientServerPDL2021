@@ -23,7 +23,12 @@
               <router-link class="nav-link" to="/about">About</router-link>
             </li>
             <li class="nav-item">
-              <button class="btn btn-sm nav-link" type="button">
+              <button
+                class="btn btn-sm nav-link"
+                type="button"
+                data-toggle="modal"
+                data-target="#uploadImageModal"
+              >
                 Upload new image
               </button>
             </li>
@@ -31,7 +36,7 @@
         </div>
       </nav>
     </header>
-    <router-view />
+    <router-view class="pageContent" />
     <UploadImage />
   </div>
 </template>
@@ -67,7 +72,10 @@ body {
 }
 
 header {
-  height: 56px;
+  position: relative;
+}
+
+.pageContent {
   position: relative;
 }
 </style>

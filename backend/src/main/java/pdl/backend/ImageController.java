@@ -33,7 +33,7 @@ public class ImageController {
     this.imageDao = imageDao;
   }
 
-  @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+  @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
   public ResponseEntity<byte[]> getImage(@PathVariable("id") long id) {
     Optional<Image> image = imageDao.retrieve(id);
     if (image.isPresent()) {
@@ -43,6 +43,21 @@ public class ImageController {
             .contentType(MediaType.IMAGE_JPEG)
             .body(bytes);
     } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+  }
+
+  @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=application/json", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<ObjectNode> getImageData(@PathVariable("id") long id) {
+    Optional<Image> image = imageDao.retrieve(id);
+    ObjectNode node = mapper.createObjectNode();
+    if(image.isPresent()){
+      node.put("id", image.get().getId());
+      node.put("name", image.get().getName());
+      node.put("type", image.get().getType());
+      node.put("size", image.get().getSize());
+      return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(node);
+    } else {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
   }
 
   @RequestMapping(value = "/images/{id}", method = RequestMethod.DELETE)
@@ -69,7 +84,7 @@ public class ImageController {
       // Return new image id
       ObjectNode jsonNode = mapper.createObjectNode();
       jsonNode.put("id", image.getId());
-      return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE)).body(jsonNode);
+      return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
 
     } catch (IOException e) {
       e.printStackTrace();
