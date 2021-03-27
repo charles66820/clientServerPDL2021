@@ -2,16 +2,15 @@ package pdl.backend;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import exceptions.ImageConversionException;
+import imageProcessing.AlgorithmProcess;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -34,12 +33,20 @@ public class ImageDao implements Dao<Image> {
               if (!allImg.isEmpty()) {
                   for (File image : allImg) {
                       fileContent = Files.readAllBytes(image.toPath());
-                      // TODO: type and size
-                      Image img = new Image(image.getName(), fileContent);
+
+                      HashMap<String, Object> imageMetaData = AlgorithmProcess.getImageMetaData(fileContent);
+                      String type = URLConnection.guessContentTypeFromName(image.getName());
+                      long fileSize = (long) imageMetaData.get("size");
+                      long width = (long) imageMetaData.get("width");
+                      long height = (long) imageMetaData.get("height");
+                      long dimention = (long) imageMetaData.get("dimention");
+                      String size = String.format("%d*%d*%d", width, height, dimention);
+
+                      Image img = new Image(image.getName(), fileContent, type, size, fileSize);
                       images.put(img.getId(), img);
                   }
               }
-          } catch (IOException e) {
+          } catch (IOException | ImageConversionException e) {
               e.printStackTrace();
           }
       } else {
