@@ -69,7 +69,7 @@ export default {
       this.error = null;
 
       let imageFiles = e.target["image"].files;
-      let image = (imageFiles && imageFiles.length > 0) ? imageFiles[0] : null;
+      let image = imageFiles && imageFiles.length > 0 ? imageFiles[0] : null;
       console.log(image);
       // TODO: call POST /images
     },
@@ -141,5 +141,11 @@ function renderFile(file, elem) {
 .dragover {
   border: solid 4px rgba(0, 120, 255, 1);
   background-color: rgba(150, 210, 255, 0.5);
+}
+
+@media screen and (max-width: 777px) {
+  .imgContainer {
+    width: 100%;
+  }
 }
 </style>
