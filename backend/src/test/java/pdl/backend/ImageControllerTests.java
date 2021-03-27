@@ -27,6 +27,8 @@ public class ImageControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
+    private int testImageId = 0;
+
     @Test
     @Order(1)
     public void getImageListShouldReturnSuccess() throws Exception {
@@ -46,14 +48,14 @@ public class ImageControllerTests {
     @Test
     @Order(2)
     public void getImageShouldReturnNotFound() throws Exception {
-        this.mockMvc.perform(get("/images/90")) // .andDo(print())
+        this.mockMvc.perform(get("/images/-1")) // .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @Order(3)
     public void getImageShouldReturnSuccess() throws Exception {
-        this.mockMvc.perform(get("/images/16")) // .andDo(print())
+        this.mockMvc.perform(get("/images/" + testImageId)) // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Content-Type"))
                 .andExpect(header().string("Content-Type", "image/jpeg"));
@@ -78,14 +80,19 @@ public class ImageControllerTests {
     @Test
     @Order(6)
     public void getImageDataShouldReturnSuccess() throws Exception {
-        this.mockMvc.perform(get("/images/2").accept(MediaType.APPLICATION_JSON)) // .andDo(print())
+        this.mockMvc.perform(get("/images/" + testImageId).accept(MediaType.APPLICATION_JSON)) // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Content-Type"))
                 .andExpect(header().string("Content-Type", "application/json"))
+                .andExpect(jsonPath("$").hasJsonPath())
+                .andExpect(jsonPath("$", allOf(
+                        hasKey("id"),
+                        hasKey("name"),
+                        hasKey("type"),
+                        hasKey("size")
+                )))
                 .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.name").exists())
-                .andExpect(jsonPath("$.type").exists())
-                .andExpect(jsonPath("$.size").exists());
+                .andExpect(jsonPath("$.name").exists());
     }
 
     @Test
@@ -109,14 +116,14 @@ public class ImageControllerTests {
     @Test
     @Order(9)
     public void deleteImageShouldReturnNotFound() throws Exception {
-        this.mockMvc.perform(delete("/images/90"))  //.andDo(print())
+        this.mockMvc.perform(delete("/images/-1"))  //.andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @Order(10)
     public void deleteImageShouldReturnSuccess() throws Exception {
-        this.mockMvc.perform(delete("/images/16")) // .andDo(print())
+        this.mockMvc.perform(delete("/images/" + testImageId)) // .andDo(print())
                 .andExpect(status().isOk());
     }
 
@@ -134,6 +141,7 @@ public class ImageControllerTests {
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Content-Type"))
                 .andExpect(header().string("Content-Type", "application/json"))
+                .andExpect(jsonPath("$").hasJsonPath())
                 .andExpect(jsonPath("$.id").isNumber());
     }
 
