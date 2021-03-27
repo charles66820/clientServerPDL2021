@@ -68,9 +68,10 @@ export default {
 
       this.error = null;
 
-      /*let imageFiles = e.target["image"].files;
+      let imageFiles = e.target["image"].files;
       let image = (imageFiles && imageFiles.length > 0) ? imageFiles[0] : null;
-      // TODO: call POST /images */
+      console.log(image);
+      // TODO: call POST /images
     },
     dropAreaDragLeave(e) {
       e.target.classList.remove("dragover");

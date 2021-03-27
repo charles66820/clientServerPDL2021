@@ -26,6 +26,7 @@
           <!-- Side panel toggler -->
           <div
             class="btn btn-sm text-body bg-white shadow-sm toggle-sidePanel"
+            style="padding-top: 0px;"
             onclick="this.parentNode.parentNode.classList.toggle('toggled');"
             title="toggle"
           ></div>
@@ -38,14 +39,14 @@
             <!-- TODO: image info  -->
             <h5 class="title_metadata"> Metadata </h5>
             <ul class="data" v-if="image_data != null">
-              <li> Id : {{image_data.id}} </li>
-              <li> Name : {{image_data.name}} </li>
-              <li> Type : {{image_data.type}} </li>
-              <li> Size : {{image_data.size}} </li>
+              <li> Id : {{ image_data.id }} </li>
+              <li> Name : {{ image_data.name }} </li>
+              <li> Type : {{ image_data.type }} </li>
+              <li> Size : {{ image_data.size }} </li>
             </ul>
             <!-- Bin and delete request -->
             <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#modalDelete">
-              Bin
+              &#128465;
             </button>
           </div>
         </nav>

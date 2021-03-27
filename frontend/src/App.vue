@@ -2,7 +2,7 @@
   <div class="main">
     <header>
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Image manager ?</a>
+        <a class="navbar-brand" href="#">PACA</a>
         <button
           class="navbar-toggler"
           type="button"
