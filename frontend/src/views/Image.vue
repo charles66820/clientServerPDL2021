@@ -1,5 +1,5 @@
 <template>
-  <div class="page-wrapper toggled main">
+  <div class="page-wrapper toggled main-panel-container">
     <nav class="sidePanel-wrapper right bg-white border-left shadow">
       <!-- Side panel toggler -->
       <div
@@ -131,7 +131,7 @@ h5 {
   width: 100%;
 }
 
-.page-wrapper.main {
+.page-wrapper.main-panel-container {
   height: calc(100% - 56px);
 }
 

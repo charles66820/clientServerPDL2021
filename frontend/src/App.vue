@@ -36,7 +36,7 @@
         </div>
       </nav>
     </header>
-    <router-view />
+    <router-view class="pageContent" />
     <UploadImage />
   </div>
 </template>
@@ -72,7 +72,10 @@ body {
 }
 
 header {
-  height: 56px;
+  position: relative;
+}
+
+.pageContent {
   position: relative;
 }
 </style>

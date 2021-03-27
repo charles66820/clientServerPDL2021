@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <div>
     <!-- TODO: carousel -->
     <h2>Image list</h2>
     <ul class="imageList">
@@ -15,7 +15,7 @@
         {{ err.message }}
       </li>
     </ul>
-  </section>
+  </div>
 </template>
 
 <script>
