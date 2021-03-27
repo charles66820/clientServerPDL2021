@@ -37,7 +37,7 @@ public class ImageController {
     this.imageDao = imageDao;
   }
 
-  @RequestMapping(value = "/images/{id}", method = RequestMethod.GET,  produces = MediaType.IMAGE_JPEG_VALUE)
+  @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
   @ResponseBody
   public ResponseEntity<?> getImage(@PathVariable("id") long id, @RequestParam Map<String,String> allRequestParams) {
     Optional<Image> image = imageDao.retrieve(id);
@@ -74,6 +74,21 @@ public class ImageController {
         }
       }
     } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+  }
+
+  @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=application/json", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<ObjectNode> getImageData(@PathVariable("id") long id) {
+    Optional<Image> image = imageDao.retrieve(id);
+    ObjectNode node = mapper.createObjectNode();
+    if(image.isPresent()){
+      node.put("id", image.get().getId());
+      node.put("name", image.get().getName());
+      node.put("type", image.get().getType());
+      node.put("size", image.get().getSize());
+      return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(node);
+    } else {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
   }
 
 

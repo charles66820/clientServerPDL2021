@@ -86,7 +86,7 @@ public class ImageDao implements Dao<Image> {
 
   @Override
   public void update(final Image img, final String[] params) {
-    // Not used
+    // TODO
   }
 
   @Override
