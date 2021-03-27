@@ -37,13 +37,17 @@
           <!-- Panel content -->
           <div class="sidePanel-content" style="word-wrap: break-word">
             <!-- TODO: image info  -->
-            <h5> Metadata </h5>
+            <h5 class="title_metadata"> Metadata </h5>
             <ul class="data" v-if="image_data != null">
               <li> Id : {{image_data.id}} </li>
               <li> Name : {{image_data.name}} </li>
               <li> Type : {{image_data.type}} </li>
               <li> Size : {{image_data.size}} </li>
             </ul>
+            <!-- Bin and delete request -->
+            <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#modalDelete">
+              Bin
+            </button>
           </div>
         </nav>
         <div class="page-content" style="word-wrap: break-word">
@@ -54,12 +58,14 @@
         </div>
       </div>
     </div>
+    <ConfirmDeleteDialog :id="parseInt($route.params.id)"/>
   </div>
 </template>
 
 <script>
 import AlgorithmMenuItem from "@/components/AlgorithmMenuItem.vue";
 import httpApi from "../http-api.js";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.vue";
 export default {
   name: "Image",
   data() {
@@ -79,6 +85,7 @@ export default {
   },
   components: {
     AlgorithmMenuItem,
+    ConfirmDeleteDialog,
   },
   mounted : function () {
     httpApi
@@ -112,7 +119,7 @@ div.imgContainer * {
 </style>
 
 <style scoped>
-h5 {
+.title_metadata {
   position: relative;
   text-decoration-line: underline;
   margin-left: 4px;
@@ -120,6 +127,12 @@ h5 {
 
 .data {
   list-style: circle;
+}
+
+.btn-outline-dark {
+  position:absolute;
+  top:2px;
+  right:2px;
 }
 
 .page-wrapper {

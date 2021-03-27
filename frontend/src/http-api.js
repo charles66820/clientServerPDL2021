@@ -13,6 +13,11 @@ function get_imageData(imageId) {
     return axios.get(imageUrl, {headers: {'accept': 'application/json'}});
 }
 
+function delete_image(imageId) {
+    var imageUrl = "/images/" + imageId;
+    return axios.delete(imageUrl);
+}
+
 export default {
-    get_image, get_images, get_imageData
+    get_image, get_images, get_imageData, delete_image
 }
