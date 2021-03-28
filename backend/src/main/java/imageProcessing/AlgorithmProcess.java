@@ -120,9 +120,9 @@ public class AlgorithmProcess {
                     output = img;
                     break;
                 case HISTOGRAM:
-                    /*String channel = params.get("channel");
+                    String channel = params.get("channel");
                     histogramContrast(img, channel);
-                    output = img;*/
+                    output = img;
                     break;
                 case BLUR_FILTER:
                     String filterName = params.get("filterName");
@@ -253,6 +253,86 @@ public class AlgorithmProcess {
             g.set(rgb[1]);
             b.set(rgb[2]);
         });
+    }
+
+    //Histogram
+    public static void histogram(Img<UnsignedByteType> input, int channel) {
+       /* final int iw = (int) input.max(0);
+        final int ih = (int) input.max(1);
+        final Cursor<UnsignedByteType> cursor = input.cursor();
+
+        int[] hist = new int[256];
+        while (cursor.hasNext()){
+            cursor.fwd();
+            UnsignedByteType val = cursor.get();
+            // Calcul of histogram
+            hist[val.get()] = hist[val.get()] + 1;
+        }
+        // Calcul of cumulative histogram
+        for(int i = 1; i < 256; i++){
+            hist[i] = hist[i] + hist[i-1];
+        }*/
+        /*// Transform picture
+        cursor.reset();
+        while(cursor.hasNext()){
+            cursor.fwd();
+            UnsignedByteType val = cursor.get();
+            val.set((hist[val.get()]*255)/hist[255]);
+        }*/
+        long N = input.max(0) * input.max(1);
+
+        final IntervalView<UnsignedByteType> cR = Views.hyperSlice(input, 2, 0); // Dimension 2 channel 0 (red)
+        final IntervalView<UnsignedByteType> cG = Views.hyperSlice(input, 2, 1); // Dimension 2 channel 1 (green)
+        final IntervalView<UnsignedByteType> cB = Views.hyperSlice(input, 2, 2); // Dimension 2 channel 2 (blue)
+
+        int[] hist = new int [101];
+
+        for (int i = 0; i<101; i++){
+            hist[i] = 0;
+        }
+
+        //Calcul of histogram on S or V channel
+        LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
+            float[] hsv = new float[3];
+            rgbToHsv(r.get(), g.get(), b.get(), hsv);
+            //int i = (int)(hsv[channel]*100);
+            if (hsv[channel] > 100) hsv[channel] = 100;
+            hist[(int)hsv[channel]]++;
+        });
+
+        //Calcul of cumulative histogram
+        int[] histocum = new int[101];
+        histocum[0] = hist[0];
+        for(int i = 1; i < 101; i++){
+            histocum[i] = histocum[i-1] + hist[i];
+        }
+
+        // Transform image
+        LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
+            float[] hsv = new float[3];
+            rgbToHsv(r.get(), g.get(), b.get(), hsv);
+            //int i = (int) (hsv[channel]*100);
+            if (hsv[channel] > 100) hsv[channel] = 100;
+            //if (i > 100) i = 100;
+            //hsv[channel] = ((hist[i]*101)/N);
+            int[] rgb = new int[3];
+            hsv[channel] = (float) histocum[(int)hsv[channel]]*101/N;
+            hsvToRgb(hsv[0], hsv[1], hsv[2], rgb);
+            r.set((int)rgb[0]);
+            g.set((int)rgb[1]);
+            b.set((int)rgb[2]);
+        });
+
+    }
+
+    public static void histogramContrast(Img<UnsignedByteType> input, String channel) throws BadParamsException {
+        if (channel.equals("S")) {
+            histogram(input, 1);
+        } else if (channel.equals("V")) {
+            histogram(input, 2);
+        } else {
+            throw new BadParamsException("This channel does not exist !");
+        }
     }
 
     //Blur Filter
