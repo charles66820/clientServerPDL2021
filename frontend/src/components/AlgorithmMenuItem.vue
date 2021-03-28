@@ -7,7 +7,23 @@
         <div class="form-group row" v-for="arg in algo.args" :key="arg.name">
           <label class="col-sm-6 col-form-label">{{ arg.title }}</label>
           <div class="col-sm-6">
+            <select
+              v-if="arg.type == 'select'"
+              class="form-control"
+              :name="arg.name"
+              :required="arg.required"
+            >
+              <option
+                v-for="option in arg.options"
+                :key="option.name"
+                :value="option.name"
+                :title="option.title"
+              >
+                {{ option.title }}
+              </option>
+            </select>
             <input
+              v-else
               :type="arg.type"
               class="form-control"
               :placeholder="arg.title"
@@ -50,13 +66,16 @@ export default {
 
       let queryString = query.toString();
 
-      httpApi.get_image_with_algo(this.imageId, queryString).then((res) => {
-        // TODO: display success
-        this.parentComponent.showProcessedImage(res.data);
-      }).catch(err => {
-        // TODO: display error
-        console.error(err);
-      });
+      httpApi
+        .get_image_with_algo(this.imageId, queryString)
+        .then((res) => {
+          // TODO: display success
+          this.parentComponent.showProcessedImage(res.data);
+        })
+        .catch((err) => {
+          // TODO: display error
+          console.error(err);
+        });
     },
   },
 };
