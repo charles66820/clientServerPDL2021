@@ -25,8 +25,8 @@ function delete_image(imageId) {
 }
 
 function get_algos() {
-    let algorithmsUrl = "/algorithms/";
-    return axios.get(algorithmsUrl, {header: {'accept': 'application/json'}});
+    let algorithmsUrl = "/algorithms";
+    return axios.get(algorithmsUrl);
 }
 
 function post_image(image) {

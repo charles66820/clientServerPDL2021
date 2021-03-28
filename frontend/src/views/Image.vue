@@ -116,7 +116,7 @@ export default {
     httpApi
       .get_algos()
       .then((res) => {
-        this.algos = res.algo;
+        this.algos = res.data;
       })
       .catch((err) => this.errors.push(err));
   },

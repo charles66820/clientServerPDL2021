@@ -71,14 +71,13 @@ export default {
 
       let imageFiles = e.target["image"].files;
       let image = imageFiles && imageFiles.length > 0 ? imageFiles[0] : null;
-      console.log(image);
+      //console.log(image);
       // TODO: call POST /images
       httpApi
        .post_image(image)
-       .then((res) => {
-         // TO DO
+       .then(() => {
        })
-       .catch((err) => this.errors.push(err));
+       .catch((err) => this.error.push(err));
     },
     dropAreaDragLeave(e) {
       e.target.classList.remove("dragover");
