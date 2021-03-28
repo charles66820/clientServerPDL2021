@@ -7,9 +7,17 @@ import io.scif.FormatException;
 import io.scif.ImageMetadata;
 import io.scif.Metadata;
 import io.scif.img.SCIFIOImgPlus;
-import net.imglib2.RandomAccess;
+import net.imglib2.*;
+import net.imglib2.algorithm.gauss3.Gauss3;
+import net.imglib2.algorithm.neighborhood.Neighborhood;
+import net.imglib2.algorithm.neighborhood.RectangleShape;
 import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.loops.LoopBuilder;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.util.Intervals;
+import net.imglib2.view.IntervalView;
+import net.imglib2.view.Views;
 import org.springframework.aop.framework.adapter.UnknownAdviceTypeException;
 import pdl.backend.Image;
 
@@ -42,58 +50,102 @@ public class AlgorithmProcess {
     }
 
     public static byte[] applyAlgorithm(Image image, Map<String,String> params) throws BadParamsException, ImageConversionException, UnknownAlgorithmException {
+        //Test if "algorithm" is in the query param
+        if(!params.containsKey("algorithm")){
+            throw new BadParamsException("Parameter algorithm after ? is missing !");
+        }
+        AlgorithmNames algoName = AlgorithmNames.fromString(params.get("algorithm"));
+        byte[] bytes = image.getData();
+
+        BadParamsException bpe = new BadParamsException("Argument is not valid !");
+        boolean argValid = true;
+
+        assert algoName != null;
+        //Test is all args in params are valid
+        for (AlgorithmArgs arg: algoName.getArgs()) {
+            // If arg is present
+            if(params.containsKey(arg.name)){
+                if(arg.type.equals("number")) {
+                    // Test if number is valid
+                    long argLong = Long.parseLong(params.get(arg.name));
+                    if(argLong < arg.min || argLong > arg.max) {
+                        argValid = false;
+                        bpe.setParamsValid(false);
+                        bpe.setParamExist(true);
+                        break;
+                    }
+                }
+                //If arg is not a number don't verified it
+            // If arg is not present we test if it is required or not
+            } else {
+                if(arg.required) {
+                    argValid = false;
+                    bpe.setParamsValid(true);
+                    bpe.setParamExist(false);
+                    break;
+                }
+            }
+        }
+        //If arg is not valid
+        if (!argValid){
+            throw bpe;
+        }
+
+        // Create a new output image with the same dimension of the input
+        SCIFIOImgPlus<UnsignedByteType> img;
+        SCIFIOImgPlus<UnsignedByteType> output;
+        //Img<UnsignedByteType> output;
         try {
-            AlgorithmNames algoName = AlgorithmNames.fromString(params.get("algorithm"));
-            byte[] bytes = image.getData();
-            switch (algoName) {
-                case LUMINOSITY:
-                    if (params.size() == 2) {
-                        if (params.containsKey(algoName.getArgs().get(0).name)) {
-                            try {
-                                SCIFIOImgPlus<UnsignedByteType> img = ImageConverter.imageFromJPEGBytes(bytes);
-                                SCIFIOImgPlus<UnsignedByteType> output = img.copy();
-                                float luminosity = Float.parseFloat(params.get(algoName.getArgs().get(0).name));
-                                increaseLuminosity(img, output, luminosity);
-                                bytes = ImageConverter.imageToJPEGBytes(output);
-                            } catch (NumberFormatException ex) {
-                                throw new BadParamsException("Parameter \"gain\" must be a float number !");
-                            } catch (IOException | FormatException e) {
-                                throw new ImageConversionException("Error during conversion !");
-                            }
-                        } else {
-                            BadParamsException bpe = new BadParamsException();
-                            bpe.setParamsValid(!algoName.getArgs().get(0).required);
-                            throw bpe;
-                        }
-                    } else {
-                        BadParamsException bpe = new BadParamsException();
-                        bpe.setParamExist(false);
-                        throw bpe;
+            //final ArrayImgFactory<UnsignedByteType> factory = new ArrayImgFactory<>(new UnsignedByteType());
+            img = ImageConverter.imageFromJPEGBytes(bytes);
+            //final Dimensions dim = img;
+            //output = factory.create(dim);
+            output = img.copy(); //TODO: remove copy for a new output image and not a copy
+        } catch (IOException | FormatException err) {
+            throw new ImageConversionException("Error during input conversion !");
+        }
+
+        switch (algoName) {
+            case LUMINOSITY:    //FIXME: works also with negative param
+                    try {
+                        float luminosity = Float.parseFloat(params.get("gain"));
+                        increaseLuminosity(img, output, luminosity);
+                    } catch (NumberFormatException ex) {
+                        throw new BadParamsException("Parameter \"gain\" must be a float number !");
                     }
                     break;
                 case COLORED_FILTER:
-                    //TODO Call the right method here
+                    int hue = Integer.parseInt(params.get("hue")); //FIXME: support float ?
+                    coloredFilter(img, hue);
+                    output = img;
+                    break;
+                case HISTOGRAM:
+                    /*String channel = params.get("channel");
+                    histogramContrast(img, channel);
+                    output = img;*/
                     break;
                 case BLUR_FILTER:
-                    //TODO Call the right method here
+                    String filterName = params.get("filterName");
+                    double blurLvl = Double.parseDouble(params.get("blur"));
+                    blurFilter(img, output, filterName, blurLvl);
                     break;
                 case CONTOUR_FILTER:
                     //TODO Call the right method here
                     break;
                 default:
-                    break;
-            }
-            return bytes;
-        } catch (NullPointerException npe) {
-            throw new UnknownAlgorithmException("This algorithm doesn't exist !");
+                    throw new UnknownAlgorithmException("This algorithm doesn't exist !");
+        }
+        try {
+            return bytes = ImageConverter.imageToJPEGBytes(output);
+        } catch (FormatException | IOException e) {
+            throw new ImageConversionException("Error during conversion !");
         }
     }
 
-    private static void increaseLuminosity(SCIFIOImgPlus<UnsignedByteType> img, final SCIFIOImgPlus<UnsignedByteType> outp, float luminosity) {
-        final Img<UnsignedByteType> input =  (Img<UnsignedByteType>)img;
-        final Img<UnsignedByteType> output = (Img<UnsignedByteType>)outp;
+    /* Algorithms available */
 
-
+    //Luminosity
+    private static void increaseLuminosity(Img<UnsignedByteType> input, final Img<UnsignedByteType> output, float luminosity) {
         final RandomAccess<UnsignedByteType> r = input.randomAccess();
         final RandomAccess<UnsignedByteType> out = output.randomAccess();
 
@@ -119,6 +171,137 @@ public class AlgorithmProcess {
                     }
                 }
             }
+        }
+    }
+
+    //Colored Filter
+    public static void rgbToHsv(int r, int g, int b, float[] hsv) {
+        float max = Math.max(r, g);
+        max = Math.max(max, b);
+        float min = Math.min(r, g);
+        min = Math.min(min, b);
+
+        // conversion HSV
+        hsv[2] = max/255;   // Value
+        // Hue
+        if (max == min){
+            hsv[0] = 0;
+        }else if(max == r){
+            hsv[0] = (60*((g-b)/(max-min))+360) % 360;
+        }else if(max == g){
+            hsv[0] = 60*((b-r)/(max-min))+120;
+        }else{
+            hsv[0] = 60*((r-g)/(max-min))+240;
+        }
+        // Saturation
+        if(max == 0){
+            hsv[1] = 0;
+        }else{
+            hsv[1] = 1-((min/255)/(max/255));
+        }
+    }
+
+    public static void hsvToRgb(float h, float s, float v, int[] rgb){
+        int hi = ((int) Math.floor(h/60)) % 6;
+        float f = (h/60) - hi;
+        float l = (v * (1-s))*255;
+        float m = (v*(1-f*s))*255;
+        float n = (v*(1-(1-f)*s))*255;
+        v = v*255;
+
+        if(hi == 0){
+            rgb[0] = (int) v;
+            rgb[1] = (int) n;
+            rgb[2] = (int) l;
+        }else if(hi == 1){
+            rgb[0] = (int) m;
+            rgb[1] = (int) v;
+            rgb[2] = (int) l;
+        }else if(hi == 2){
+            rgb[0] = (int) l;
+            rgb[1] = (int) v;
+            rgb[2] = (int) n;
+        }else if(hi == 3){
+            rgb[0] = (int) l;
+            rgb[1] = (int) m;
+            rgb[2] = (int) v;
+        }else if(hi == 4){
+            rgb[0] = (int) n;
+            rgb[1] = (int) l;
+            rgb[2] = (int) v;
+        }else if(hi == 5){
+            rgb[0] = (int) v;
+            rgb[1] = (int) l;
+            rgb[2] = (int) m;
+        }
+    }
+
+    public static void coloredFilter(Img<UnsignedByteType> input, int hue) {
+        if (hue > 360) return;
+        final IntervalView<UnsignedByteType> cR = Views.hyperSlice(input, 2, 0); // Dimension 2 channel 0 (red)
+        final IntervalView<UnsignedByteType> cG = Views.hyperSlice(input, 2, 1); // Dimension 2 channel 1 (green)
+        final IntervalView<UnsignedByteType> cB = Views.hyperSlice(input, 2, 2); // Dimension 2 channel 2 (blue)
+
+        LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
+            float[] hsv = new float[3];
+            rgbToHsv(r.get(), g.get(), b.get(), hsv);
+            hsv[0] = hue;
+            int[] rgb = new int[3];
+            hsvToRgb(hsv[0], hsv[1], hsv[2], rgb);
+
+            r.set(rgb[0]);
+            g.set(rgb[1]);
+            b.set(rgb[2]);
+        });
+    }
+
+    //Blur Filter
+    public static void meanFilter(final Img<UnsignedByteType> input, final Img<UnsignedByteType> output, double size) {
+        final RandomAccess<UnsignedByteType> rIn = input.randomAccess();
+        final RandomAccess<UnsignedByteType> rOut = output.randomAccess();
+
+        // Browse of the image
+        for (double x = size; x < input.max(0)-size; x++){		// 0 == width
+            for(double y = size; y < input.max(1)-size; y++){	// 1 == length
+                rOut.setPosition((int) x,0);
+                rOut.setPosition((int) y,1);
+
+                int r = 0;
+                // Browse of the neighborhood of the pixel
+                for(double i = x - size; i <= x + size; i++){
+                    for(double j = y - size; j <= y + size; j++){
+                        rIn.setPosition((int) i,0);
+                        rIn.setPosition((int) j,1);
+                        r += rIn.get().get();
+
+                    }
+                }
+                rOut.get().set((int) (r/((2*size+1)*(2*size+1))));
+            }
+        }
+        //Apply convolution on the other channel
+        if (input.numDimensions() > 2) {
+            final IntervalView<UnsignedByteType> cR = Views.hyperSlice(output, 2, 0); // Dimension 2 channel 0 (red)
+            final IntervalView<UnsignedByteType> cG = Views.hyperSlice(output, 2, 1); // Dimension 2 channel 1 (green)
+            final IntervalView<UnsignedByteType> cB = Views.hyperSlice(output, 2, 2); // Dimension 2 channel 2 (blue)
+            LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
+                g.set(r.get());
+                b.set(r.get());
+            });
+        }
+    }
+
+    public static void gaussFilter(final Img<UnsignedByteType> input, final Img<UnsignedByteType> output, double size) {
+        Gauss3.gauss(size, Views.extendMirrorDouble(input), output);
+    }
+
+    public static void blurFilter(Img<UnsignedByteType> input, final Img<UnsignedByteType> output, String filterName, double size) throws BadParamsException {
+        if (filterName.equals("meanFilter")) {
+            meanFilter(input, output, size);
+        } else if (filterName.equals("gaussFilter")) {
+            gaussFilter(input, output, size);
+        } else {
+            throw new BadParamsException("Filter name does not exit !");
         }
     }
 
