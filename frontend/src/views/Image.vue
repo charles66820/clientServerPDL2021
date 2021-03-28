@@ -77,14 +77,14 @@ export default {
       imageBlob: null,
       currentComponent: this,
       // NODE: example data replace with `algos: []`
-      algos: [
-        { name: "toto", title: "le Toto 0", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
-        { name: "increaseLuminosity", title: "increaseLuminosity for test", args: [ { name: "gain", title: "the value 1", type: "number", min: -500, max: 500, required: true} ] },
-        { name: "toto2", title: "le Toto 2", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
-        { name: "toto3", title: "le Toto 3", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true}, { name: "value 2", title: "the value 2", type: "number", min: 0, max: 255, required: true}  ] },
-        { name: "toto4", title: "le Toto 4", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: false} ] },
-        { name: "toto5", title: "le Toto 5", args: [] },
-      ],
+      algos: [],
+      //  { name: "toto", title: "le Toto 0", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
+      //  { name: "increaseLuminosity", title: "increaseLuminosity for test", args: [ { name: "gain", title: "the value 1", type: "number", min: -500, max: 500, required: true} ] },
+      //  { name: "toto2", title: "le Toto 2", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
+      //  { name: "toto3", title: "le Toto 3", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true}, { name: "value 2", title: "the value 2", type: "number", min: 0, max: 255, required: true}  ] },
+      //  { name: "toto4", title: "le Toto 4", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: false} ] },
+      //  { name: "toto5", title: "le Toto 5", args: [] },
+
       image_data: null,
       errors: [],
     }

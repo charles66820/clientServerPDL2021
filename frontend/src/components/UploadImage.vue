@@ -54,6 +54,7 @@
 </template>
 
 <script>
+import httpApi from "../http-api.js";
 export default {
   name: "App",
   data() {
@@ -73,9 +74,9 @@ export default {
       console.log(image);
       // TODO: call POST /images
       httpApi
-       .get_image(this.$route.params.id)
+       .post_image(image)
        .then((res) => {
-         image.imageBlob = res.result;
+         // TO DO
        })
        .catch((err) => this.errors.push(err));
     },

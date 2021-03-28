@@ -28,6 +28,12 @@ function get_algos() {
     let algorithmsUrl = "/algorithms/";
     return axios.get(algorithmsUrl, {header: {'accept': 'application/json'}});
 }
+
+function post_image(image) {
+    let postUrl = "/images/";
+    return axios.post(postUrl, {image});
+}
+
 export default {
-    get_image, get_images, get_imageData, get_image_with_algo, delete_image, get_algos
+    get_image, get_images, get_imageData, get_image_with_algo, delete_image, get_algos, post_image
 }
