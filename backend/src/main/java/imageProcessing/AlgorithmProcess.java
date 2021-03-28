@@ -257,28 +257,6 @@ public class AlgorithmProcess {
 
     //Histogram
     public static void histogram(Img<UnsignedByteType> input, int channel) {
-       /* final int iw = (int) input.max(0);
-        final int ih = (int) input.max(1);
-        final Cursor<UnsignedByteType> cursor = input.cursor();
-
-        int[] hist = new int[256];
-        while (cursor.hasNext()){
-            cursor.fwd();
-            UnsignedByteType val = cursor.get();
-            // Calcul of histogram
-            hist[val.get()] = hist[val.get()] + 1;
-        }
-        // Calcul of cumulative histogram
-        for(int i = 1; i < 256; i++){
-            hist[i] = hist[i] + hist[i-1];
-        }*/
-        /*// Transform picture
-        cursor.reset();
-        while(cursor.hasNext()){
-            cursor.fwd();
-            UnsignedByteType val = cursor.get();
-            val.set((hist[val.get()]*255)/hist[255]);
-        }*/
         long N = input.max(0) * input.max(1);
 
         final IntervalView<UnsignedByteType> cR = Views.hyperSlice(input, 2, 0); // Dimension 2 channel 0 (red)
