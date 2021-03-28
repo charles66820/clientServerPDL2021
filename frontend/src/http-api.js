@@ -30,8 +30,14 @@ function get_algos() {
 }
 
 function post_image(image) {
-    let postUrl = "/images/";
-    return axios.post(postUrl, {image});
+    let data = new FormData();
+    let postUrl = "/images";
+    data.append("image", image);
+    return axios.post(postUrl, data, {
+        headers: {
+           "Content-Type": "multipart/form-data",
+        },
+    });
 }
 
 export default {

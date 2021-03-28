@@ -75,7 +75,8 @@ export default {
       // TODO: call POST /images
       httpApi
        .post_image(image)
-       .then(() => {
+       .then((res) => {
+            imageFiles.push({image: res});
        })
        .catch((err) => this.error = err);
     },
