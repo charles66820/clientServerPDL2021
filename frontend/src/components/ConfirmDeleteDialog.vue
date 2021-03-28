@@ -21,7 +21,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body">Are you sure to delete this image ?</div>
+        <div class="modal-body text-center">Are you sure to delete this image ?</div>
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" data-dismiss="modal">
             No
@@ -57,12 +57,7 @@ export default {
 };
 </script>
 
-
 <style scoped>
-.modal-body {
-  text-align: center;
-}
-
 .btn {
   border-radius: 100%;
 }

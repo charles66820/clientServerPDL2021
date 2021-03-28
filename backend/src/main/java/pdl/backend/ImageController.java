@@ -42,19 +42,20 @@ public class ImageController {
   public ResponseEntity<?> getImage(@PathVariable("id") long id, @RequestParam Map<String,String> allRequestParams) {
     Optional<Image> image = imageDao.retrieve(id);
     if (image.isPresent()) {
-      byte[] bytes = image.get().getData();
+      Image img = image.get();
+      byte[] bytes = img.getData();
 
       if (allRequestParams.get("algorithm") == null) {
         return ResponseEntity
                 .ok()
-                .contentType(MediaType.IMAGE_JPEG)
+                .contentType(MediaType.valueOf(img.getType()))
                 .body(bytes);
       } else {
         try {
-          bytes = AlgorithmProcess.applyAlgorithm(image.get(), allRequestParams);
+          bytes = AlgorithmProcess.applyAlgorithm(img, allRequestParams);
           return ResponseEntity
                   .ok()
-                  .contentType(MediaType.IMAGE_JPEG)
+                  .contentType(MediaType.valueOf(img.getType()))
                   .body(bytes);
         } catch (BadParamsException e) {
           return ResponseEntity
@@ -81,10 +82,12 @@ public class ImageController {
     Optional<Image> image = imageDao.retrieve(id);
     ObjectNode node = mapper.createObjectNode();
     if(image.isPresent()){
-      node.put("id", image.get().getId());
-      node.put("name", image.get().getName());
-      node.put("type", image.get().getType());
-      node.put("size", image.get().getSize());
+      Image img = image.get();
+      node.put("id", img.getId());
+      node.put("name", img.getName());
+      node.put("type", img.getType());
+      node.put("size", img.getSize());
+      node.put("fileSize", img.getFileSize());
       return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(node);
     } else {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);

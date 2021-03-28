@@ -88,7 +88,7 @@ public class ImageControllerTests {
                 .andExpect(header().exists("Content-Type"))
                 .andExpect(header().string("Content-Type", "application/json"))
                 .andExpect(jsonPath("$").hasJsonPath())
-                .andExpect(jsonPath("$[*]", allOf(
+                .andExpect(jsonPath("$", allOf(
                         hasKey("id"),
                         hasKey("name"),
                         hasKey("type"),

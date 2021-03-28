@@ -54,6 +54,7 @@
 </template>
 
 <script>
+import httpApi from "../http-api.js";
 export default {
   name: "App",
   data() {
@@ -68,9 +69,16 @@ export default {
 
       this.error = null;
 
-      /*let imageFiles = e.target["image"].files;
-      let image = (imageFiles && imageFiles.length > 0) ? imageFiles[0] : null;
-      // TODO: call POST /images */
+      let imageFiles = e.target["image"].files;
+      let image = imageFiles && imageFiles.length > 0 ? imageFiles[0] : null;
+      console.log(image);
+      // TODO: call POST /images
+      httpApi
+       .post_image(image)
+       .then((res) => {
+         // TO DO
+       })
+       .catch((err) => this.errors.push(err));
     },
     dropAreaDragLeave(e) {
       e.target.classList.remove("dragover");
@@ -140,5 +148,11 @@ function renderFile(file, elem) {
 .dragover {
   border: solid 4px rgba(0, 120, 255, 1);
   background-color: rgba(150, 210, 255, 0.5);
+}
+
+@media screen and (max-width: 777px) {
+  .imgContainer {
+    width: 100%;
+  }
 }
 </style>

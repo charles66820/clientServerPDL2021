@@ -15,7 +15,7 @@
       <div class="sidePanel-content" style="word-wrap: break-word">
         <ul style="list-style-type:none;padding: 0;margin: 0;">
           <li v-for="algo in algos" :key="algo.name">
-            <AlgorithmMenuItem :algo="algo" :imageId="parseInt($route.params.id)" />
+            <AlgorithmMenuItem :algo="algo" :imageId="parseInt($route.params.id)" :parentComponent="currentComponent" />
           </li>
         </ul>
       </div>
@@ -26,6 +26,7 @@
           <!-- Side panel toggler -->
           <div
             class="btn btn-sm text-body bg-white shadow-sm toggle-sidePanel"
+            style="padding-top: 0px;"
             onclick="this.parentNode.parentNode.classList.toggle('toggled');"
             title="toggle"
           ></div>
@@ -37,22 +38,24 @@
           <div class="sidePanel-content" style="word-wrap: break-word">
             <!-- TODO: image info  -->
             <h5 class="title_metadata"> Metadata </h5>
-            <ul class="data" v-if="image_data != null">
-              <li> Id : {{image_data.id}} </li>
-              <li> Name : {{image_data.name}} </li>
-              <li> Type : {{image_data.type}} </li>
-              <li> Size : {{image_data.size}} </li>
+            <ul class="metadata" v-if="image_data != null">
+              <li> Id : {{ image_data.id }} </li>
+              <li> Name : {{ image_data.name }} </li>
+              <li> Type : {{ image_data.type }} </li>
+              <li> Size : {{ image_data.size }} </li>
             </ul>
             <!-- Bin and delete request -->
-            <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#modalDelete">
-              Bin
+            <button type="button" class="btn btn-outline-dark m-4" id="deleteBtn" data-toggle="modal" data-target="#modalDelete">
+              &#128465;
             </button>
+            <button type="button" v-if="defaultImageBlob" @click="downloadImage($event)" role="original" class="btn btn-outline-dark m-4" title="Download original image">Download original image 📥</button>
+            <button type="button" v-if="processedImageBlob" @click="downloadImage($event)" role="processed" class="btn btn-outline-dark m-4" title="Download processed image">Download processed image 📥</button>
           </div>
         </nav>
         <div class="page-content" style="word-wrap: break-word">
           <div class="imgContainer">
             <!-- Image -->
-            <img :src="'/images/' + $route.params.id" />
+            <img :src="imageBlob" @error="imagePreviewError($event)" />
           </div>
         </div>
       </div>
@@ -69,15 +72,19 @@ export default {
   name: "Image",
   data() {
     return {
-      // TODO: get algos form backend
-      algos: [
-        { name: "toto", title: "le Toto 0", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
-        { name: "toto1", title: "le Toto 1", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
-        { name: "toto2", title: "le Toto 2", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
-        { name: "toto3", title: "le Toto 3", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true}, { name: "value 2", title: "the value 2", type: "number", min: 0, max: 255, required: true}  ] },
-        { name: "toto4", title: "le Toto 4", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: false} ] },
-        { name: "toto5", title: "le Toto 5", args: [] },
-      ],
+      defaultImageBlob: null,
+      processedImageBlob: null,
+      imageBlob: null,
+      currentComponent: this,
+      // NODE: example data replace with `algos: []`
+      algos: [],
+      //  { name: "toto", title: "le Toto 0", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
+      //  { name: "increaseLuminosity", title: "increaseLuminosity for test", args: [ { name: "gain", title: "the value 1", type: "number", min: -500, max: 500, required: true} ] },
+      //  { name: "toto2", title: "le Toto 2", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
+      //  { name: "toto3", title: "le Toto 3", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true}, { name: "value 2", title: "the value 2", type: "number", min: 0, max: 255, required: true}  ] },
+      //  { name: "toto4", title: "le Toto 4", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: false} ] },
+      //  { name: "toto5", title: "le Toto 5", args: [] },
+
       image_data: null,
       errors: [],
     }
@@ -86,18 +93,78 @@ export default {
     AlgorithmMenuItem,
     ConfirmDeleteDialog,
   },
-  mounted : function () {
+  mounted() {
+    // Get default image
+    httpApi.get_image(this.$route.params.id).then((res) => {
+      let reader = new window.FileReader();
+      reader.readAsDataURL(res.data);
+      reader.addEventListener("load", () => {
+        this.defaultImageBlob = reader.result;
+        this.imageBlob = reader.result;
+      });
+    }).catch((err) => this.errors.push(err));
+
+    // Get image metadata
     httpApi
       .get_imageData(this.$route.params.id)
       .then((res) => {
         this.image_data = res.data;
       })
       .catch((err) => this.errors.push(err));
+
+    //get algos from backend
+    httpApi
+      .get_algos()
+      .then((res) => {
+        this.algos = res.algo;
+      })
+      .catch((err) => this.errors.push(err));
+  },
+  methods: {
+    imagePreviewError(e) {
+      this.errors.push(new Error('Your browser cannot display : "' + this.image_data.type + '"'))
+      this.imageBlob = require("../assets/iconmonstr-picture-1.svg");
+      console.log(e);
+    },
+    downloadImage(e) {
+      let role = e.target.getAttribute("role");
+      let a = document.createElement("a");
+      a.href = role == "processed" ? this.processedImageBlob : this.defaultImageBlob;
+      a.download = this.image_data.name;
+      a.click();
+    },
+    showProcessedImage(blob) {
+      let reader = new window.FileReader();
+      reader.readAsDataURL(blob);
+      reader.addEventListener("load", () => {
+        this.processedImageBlob = reader.result;
+        this.imageBlob = reader.result;
+      });
+    }
   }
 };
 </script>
 
 <style scoped>
+.title_metadata {
+  position: relative;
+  text-decoration-line: underline;
+  margin-left: 4px;
+}
+
+.metadata {
+  list-style: circle;
+}
+
+#deleteBtn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+}
+</style>
+
+<style scoped>
+/* For main image */
 div.imgContainer {
   position: relative;
   width: 100%;
@@ -121,22 +188,7 @@ div.imgContainer * {
 </style>
 
 <style scoped>
-.title_metadata {
-  position: relative;
-  text-decoration-line: underline;
-  margin-left: 4px;
-}
-
-.data {
-  list-style: circle;
-}
-
-.btn-outline-dark {
-  position:absolute;
-  top:2px;
-  right:2px;
-}
-
+/* For panel */
 .page-wrapper {
   position: relative;
   overflow: hidden;
@@ -172,7 +224,7 @@ div.imgContainer * {
 .sidePanel-wrapper.top,
 .sidePanel-wrapper.bottom {
   width: 100%;
-  height: 360px;
+  height: 38vh;
   left: 0;
 }
 
@@ -185,11 +237,11 @@ div.imgContainer * {
 }
 
 .sidePanel-wrapper.top {
-  top: -360px;
+  top: -38vh;
 }
 
 .sidePanel-wrapper.bottom {
-  bottom: -360px;
+  bottom: -38vh;
 }
 
 .page-wrapper.toggled > .sidePanel-wrapper.left {
@@ -218,11 +270,11 @@ div.imgContainer * {
   }
 
   .page-wrapper.toggled > .sidePanel-wrapper.top + .page-content {
-    padding-top: 360px;
+    padding-top: 38vh;
   }
 
   .page-wrapper.toggled > .sidePanel-wrapper.bottom + .page-content {
-    padding-bottom: 360px;
+    padding-bottom: 38vh;
   }
 }
 
