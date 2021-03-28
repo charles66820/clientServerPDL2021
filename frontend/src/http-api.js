@@ -1,4 +1,5 @@
 import axios from "axios";
+
 function get_image(imageId) {
     let imageUrl = "/images/" + imageId;
     return axios.get(imageUrl, { headers: {accept: "image/*,*/*" }, responseType: "blob" });
@@ -23,6 +24,10 @@ function delete_image(imageId) {
     return axios.delete(imageUrl);
 }
 
+function get_algos() {
+    let algorithmsUrl = "/algorithms/";
+    return axios.get(algorithmsUrl, {header: {'accept': 'application/json'}});
+}
 export default {
-    get_image, get_images, get_imageData, get_image_with_algo, delete_image
+    get_image, get_images, get_imageData, get_image_with_algo, delete_image, get_algos
 }

@@ -72,6 +72,12 @@ export default {
       let image = imageFiles && imageFiles.length > 0 ? imageFiles[0] : null;
       console.log(image);
       // TODO: call POST /images
+      httpApi
+       .get_image(this.$route.params.id)
+       .then((res) => {
+         image.imageBlob = res.result;
+       })
+       .catch((err) => this.errors.push(err));
     },
     dropAreaDragLeave(e) {
       e.target.classList.remove("dragover");
