@@ -8,6 +8,11 @@ module.exports = {
         target: 'http://localhost:8080', // Spring boot backend address
         ws: true,
         changeOrigin: true
+      },
+      '^/algorithms': {
+        target: 'http://localhost:8080', // Spring boot backend address
+        ws: true,
+        changeOrigin: true
       }
     }
   }
