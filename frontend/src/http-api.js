@@ -32,7 +32,7 @@ function get_algos() {
 function post_image(image) {
     let data = new FormData();
     let postUrl = "/images";
-    data.append("file", image);
+    data.append("image", image);
     return axios.post(postUrl, data, {
         headers: {
            "Content-Type": "multipart/form-data",

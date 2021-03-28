@@ -76,7 +76,7 @@ export default {
       httpApi
        .post_image(image)
        .then((res) => {
-            imageFiles.push({id: res.data.id, image_data: image.image_data});
+            imageFiles.push({image: res});
        })
        .catch((err) => this.error = err);
     },
