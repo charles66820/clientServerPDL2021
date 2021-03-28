@@ -8,15 +8,17 @@ public enum AlgorithmNames {
     LUMINOSITY("Luminosity", "increaseLuminosity", new ArrayList<>() {{
         add(new AlgorithmArgs("gain", "Gain", "number", 0, 255, true));
     }}),   //only one parameter
-    COLORED_FILTER("Colored Filter", "applyColoredFilter", new ArrayList<>() {{
-        add(new AlgorithmArgs("red", "Red", "number", 0, 255, true));
-        add(new AlgorithmArgs("green", "Green", "number", 0, 255, true));
-        add(new AlgorithmArgs("blue", "Blue", "number", 0, 255, true));
+    COLORED_FILTER("Colored Filter", "coloredFilter", new ArrayList<>() {{
+        add(new AlgorithmArgs("hue", "Hue", "number", 0, 359, true));
     }}),  // only one parameter
-    BLUR_FILTER("Blur Filter", "applyBlurFilter", new ArrayList<>() {{
-        add(new AlgorithmArgs("test", "Test", "number", 80, 120, false));
+    HISTOGRAM("Histogram", "histogramContrast", new ArrayList<>() {{
+        add(new AlgorithmArgs("channel", "HSV Channel", "text", 0, 0, true)); //TODO: change type text into select
+    }}),    // channel S or V
+    BLUR_FILTER("Blur Filter", "blurFilter", new ArrayList<>() {{
+        add(new AlgorithmArgs("filterName", "Filter name", "text", 0, 0, true)); //TODO: change type text into select
+        add(new AlgorithmArgs("blur", "Blur level", "number", 0, 255, true)); //TODO: search the real max
     }}),     //mean or gaussian and level of blur
-    CONTOUR_FILTER("Contour Filter", "applyContourFilter", new ArrayList<>());
+    CONTOUR_FILTER("Contour Filter", "contourFilter", new ArrayList<>());
 
     private final String title;
     private final String name;
