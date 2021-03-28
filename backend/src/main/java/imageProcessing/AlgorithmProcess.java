@@ -9,19 +9,21 @@ import io.scif.Metadata;
 import io.scif.img.SCIFIOImgPlus;
 import net.imglib2.*;
 import net.imglib2.algorithm.gauss3.Gauss3;
-import net.imglib2.algorithm.neighborhood.Neighborhood;
-import net.imglib2.algorithm.neighborhood.RectangleShape;
 import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.loops.LoopBuilder;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
-import net.imglib2.util.Intervals;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
-import org.springframework.aop.framework.adapter.UnknownAdviceTypeException;
 import pdl.backend.Image;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -130,7 +132,7 @@ public class AlgorithmProcess {
                     blurFilter(img, output, filterName, blurLvl);
                     break;
                 case CONTOUR_FILTER:
-                    //TODO Call the right method here
+                    output = contourFilter(img);
                     break;
                 default:
                     throw new UnknownAlgorithmException("This algorithm doesn't exist !");
@@ -143,6 +145,38 @@ public class AlgorithmProcess {
     }
 
     /* Algorithms available */
+
+    //contour
+    private static SCIFIOImgPlus<UnsignedByteType> contourFilter(SCIFIOImgPlus<UnsignedByteType> img) {
+        SCIFIOImgPlus<UnsignedByteType> output = null;
+        BufferedImage source = null;
+        try {
+            byte[] bytes = ImageConverter.imageToJPEGBytes(img);
+            InputStream is = new ByteArrayInputStream(bytes);
+            source = ImageIO.read(is);
+        } catch (IOException | FormatException e) {
+            e.printStackTrace();
+        }
+
+        Kernel kernel1 = new Kernel(3, 3, new float[]{1f, 0f, -1f, 2f, 0f, -2f, 1f, 0f, -1f});
+        ConvolveOp convolution1 = new ConvolveOp(kernel1);
+        BufferedImage resultatIntermediaire = convolution1.filter(source, null);
+
+        Kernel kernel2 = new Kernel(3, 3, new float[]{1f, 2f, 1f, 0f, 0f, 0f, -1f, -2f, -1f});
+        ConvolveOp convolution2 = new ConvolveOp(kernel2);
+        BufferedImage resultat = convolution2.filter(resultatIntermediaire, null);
+
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(resultat, "JPEG", baos);
+            byte[] out = baos.toByteArray();
+            output = ImageConverter.imageFromJPEGBytes(out);
+        }
+        catch (IOException | FormatException e) {
+            e.printStackTrace();
+        }
+        return output;
+    }
 
     //Luminosity
     private static void increaseLuminosity(Img<UnsignedByteType> input, final Img<UnsignedByteType> output, float luminosity) {
