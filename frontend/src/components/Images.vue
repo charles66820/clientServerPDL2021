@@ -1,15 +1,15 @@
 <template>
   <div class="main-container pb-4">
     <div class="container pb-4">
-      <h2>Image list</h2>
+      <h2 class="mt-4">Image list</h2>
       <div>
         <div
           class="alert alert-warning alert-dismissible fade show"
-          v-for="err in errors"
-          :key="err.type"
+          v-for="warn in warnings"
+          :key="warn.type"
           role="alert"
         >
-          <strong>Error!</strong> {{ err.message }}
+          <strong>Warning !</strong> {{ warn.message }}
           <button
             type="button"
             class="close"
@@ -19,8 +19,16 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
+        <div
+          class="alert alert-danger alert-dismissible fade show"
+          v-for="err in errors"
+          :key="err.type"
+          role="alert"
+        >
+          <strong>Error :</strong> {{ err.message }}
+        </div>
       </div>
-      <p>Click on image for more action</p>
+      <p v-if="images.length > 0">Click on image for more action</p>
       <div v-if="images.length > 0" class="imageCarousel shadow my-4">
         <div class="imagesContainer imgContainer">
           <!-- title="Informations de l'image" -->
@@ -69,6 +77,7 @@ export default {
       selectedImage: null,
       images: [],
       errors: [],
+      warnings: [],
     };
   },
   methods: {
@@ -76,11 +85,10 @@ export default {
       this.selectedImage = this.images.find((i) => i.id == e.target.dataset.id);
     },
     imageViewError(e, image) {
-      this.errors.push(
+      this.warnings.push(
         new Error('Your browser cannot display : "' + image.type + '"')
       );
       e.target.src = require("../assets/iconmonstr-picture-1.svg");
-      console.log(e);
     },
   },
   mounted() {
