@@ -1,6 +1,6 @@
 <template>
-  <div class="main-container">
-    <div class="container">
+  <div class="main-container pb-4">
+    <div class="container pb-4">
       <h2>Image list</h2>
       <div>
         <div
