@@ -179,7 +179,7 @@ public class ImageController {
         argNode.put("max", arg.max);
         argNode.put("required", arg.required);
         if (arg.options != null && arg.options.size() > 0) {
-          ArrayNode optionsList =  node.putArray("options");
+          ArrayNode optionsList =  argNode.putArray("options");
           for (AlgorithmArgs option : arg.options) {
             ObjectNode optionNode = mapper.createObjectNode();
             optionNode.put("name", option.name);
