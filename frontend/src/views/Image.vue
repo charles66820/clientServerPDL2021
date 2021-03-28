@@ -123,7 +123,7 @@ export default {
   methods: {
     imagePreviewError(e) {
       this.errors.push(new Error('Your browser cannot display : "' + this.image_data.type + '"'))
-      this.imageBlob = "https://teach.magicorp.fr/img/iconmonstr-picture-1.svg"
+      this.imageBlob = require("../assets/iconmonstr-picture-1.svg");
       console.log(e);
     },
     downloadImage(e) {
