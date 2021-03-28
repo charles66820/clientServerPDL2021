@@ -41,7 +41,7 @@
           :key="err.type"
           role="alert"
         >
-          <strong>Error :</strong> {{ err.message }}
+          <strong>Error :</strong> {{ getErrorMsg(err) }}
         </div>
         <div class="form-row">
           <span class="col-sm-6"></span>
@@ -90,6 +90,9 @@ export default {
           this.errors.push(err);
         });
     },
+    getErrorMsg(err) {
+      return (err.response.data.type == "text/plain") ? err.response.data : err.message;
+    }
   },
 };
 </script>

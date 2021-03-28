@@ -29,7 +29,7 @@
           v-if="error"
           role="alert"
         >
-          <strong>Error :</strong> {{ error.message }}
+          <strong>Error :</strong> {{ getErrorMsg(error) }}
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" data-dismiss="modal">
@@ -74,6 +74,9 @@ export default {
           this.error = err;
         });
     },
+    getErrorMsg(err) {
+      return (err.response.data.type == "text/plain") ? err.response.data : err.message;
+    }
   },
 };
 </script>

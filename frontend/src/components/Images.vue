@@ -25,7 +25,7 @@
           :key="err.type"
           role="alert"
         >
-          <strong>Error :</strong> {{ err.message }}
+          <strong>Error :</strong> {{ getErrorMsg(err) }}
         </div>
       </div>
       <p v-if="images.length > 0">Click on image for more action</p>
@@ -90,6 +90,9 @@ export default {
       );
       e.target.src = require("../assets/iconmonstr-picture-1.svg");
     },
+    getErrorMsg(err) {
+      return (err.response.data.type == "text/plain") ? err.response.data : err.message;
+    }
   },
   mounted() {
     httpApi
