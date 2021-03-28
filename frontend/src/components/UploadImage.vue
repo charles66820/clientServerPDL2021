@@ -80,6 +80,7 @@
 </template>
 
 <script>
+import emitter from "tiny-emitter/instance";
 import httpApi from "../http-api.js";
 export default {
   name: "App",
@@ -98,12 +99,27 @@ export default {
 
       let imageFiles = e.target["image"].files;
       let image = imageFiles && imageFiles.length > 0 ? imageFiles[0] : null;
-      //console.log(image);
-      // TODO: call POST /images
       httpApi
         .post_image(image)
         .then((res) => {
-          imageFiles.push({ image: res });
+          // Close modal
+          document.querySelector("#btnUploadImageModal").click();
+
+          // Reset image form
+          e.target.reset();
+          let imagePreview = document.querySelector("#imagePreview");
+          imagePreview.parentElement.classList.add("init");
+          imagePreview.removeAttribute("src");
+
+          if (this.$route.name == "Image") {
+            this.$router
+              .push({ name: "Image", params: { id: res.data.id } })
+              .then(() => {
+                emitter.emit("updateImage");
+              });
+          } else if (this.$route.name == "Home") {
+            emitter.emit("updateImages");
+          } else this.$router.push({ name: "Home" });
         })
         .catch((err) => (this.error = err));
     },
@@ -133,8 +149,10 @@ export default {
       e.stopPropagation();
     },
     imgChange(e) {
-      if (e.target.files && e.target.files[0])
+      if (e.target.files && e.target.files[0]) {
+        e.target.parentElement.classList.remove("init");
         renderFile(e.target.files[0], document.querySelector("#imagePreview"));
+      }
     },
     imagePreviewError() {
       this.warning = new Error(
@@ -145,7 +163,8 @@ export default {
       ).src = require("../assets/iconmonstr-picture-1.svg");
     },
     getErrorMsg(err) {
-      return err.response.data.type == "text/plain"
+      return err.response != null &&
+        err.response.headers["content-type"] == "text/plain"
         ? err.response.data
         : err.message;
     },

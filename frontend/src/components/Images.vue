@@ -66,6 +66,7 @@
 </template>
 
 <script>
+import emitter from 'tiny-emitter/instance';
 import httpApi from "../http-api.js";
 export default {
   name: "Images",
@@ -81,6 +82,15 @@ export default {
     };
   },
   methods: {
+    loadImages() {
+      httpApi
+        .get_images()
+        .then((res) => {
+          this.images = res.data;
+          if (this.images.length > 0) this.selectedImage = this.images[0];
+        })
+        .catch((err) => this.errors.push(err));
+    },
     selectImage(e) {
       this.selectedImage = this.images.find((i) => i.id == e.target.dataset.id);
     },
@@ -95,16 +105,11 @@ export default {
         err.response.headers["content-type"] == "text/plain"
         ? err.response.data
         : err.message;
-  },
+    },
   },
   mounted() {
-    httpApi
-      .get_images()
-      .then((res) => {
-        this.images = res.data;
-        if (this.images.length > 0) this.selectedImage = this.images[0];
-      })
-      .catch((err) => this.errors.push(err));
+    emitter.on("updateImages", this.loadImages);
+    this.loadImages();
   },
 };
 </script>

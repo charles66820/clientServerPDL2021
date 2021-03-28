@@ -128,6 +128,7 @@
 </template>
 
 <script>
+import emitter from "tiny-emitter/instance";
 import AlgorithmMenuItem from "@/components/AlgorithmMenuItem.vue";
 import httpApi from "../http-api.js";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.vue";
@@ -151,31 +152,19 @@ export default {
     ConfirmDeleteDialog,
   },
   mounted() {
-    // Get default image
-    httpApi
-      .get_image(this.$route.params.id)
-      .then((res) => {
-        let reader = new window.FileReader();
-        reader.readAsDataURL(res.data);
-        reader.addEventListener("load", () => {
-          this.defaultImageBlob = reader.result;
-          this.imageBlob = reader.result;
-        });
-      })
-      .catch((err) => {
-        if (err.response.status == 404) this.$router.push({ name: "Home" });
-        this.imageError = err;
-      });
-
-    // Get image metadata
-    httpApi
-      .get_imageData(this.$route.params.id)
-      .then((res) => {
-        this.image_data = res.data;
-      })
-      .catch((err) => (this.imageDataError = err));
-
-    //get algos from backend
+    emitter.on("updateImage", () => {
+      this.defaultImageBlob = null;
+      this.processedImageBlob = null;
+      this.imageBlob = null;
+      this.image_data = null;
+      this.imageError = null;
+      this.imageDataError = null;
+      this.warning = null;
+      this.loadImage();
+    });
+    this.loadImage();
+    this.lastroute = this.$route.fullPath;
+    // Get algos from backend
     httpApi
       .get_algos()
       .then((res) => {
@@ -184,6 +173,31 @@ export default {
       .catch((err) => (this.algorithmsError = err));
   },
   methods: {
+    loadImage() {
+      // Get default image
+      httpApi
+        .get_image(this.$route.params.id)
+        .then((res) => {
+          let reader = new window.FileReader();
+          reader.readAsDataURL(res.data);
+          reader.addEventListener("load", () => {
+            this.defaultImageBlob = reader.result;
+            this.imageBlob = reader.result;
+          });
+        })
+        .catch((err) => {
+          if (err.response.status == 404) this.$router.push({ name: "Home" });
+          this.imageError = err;
+        });
+
+      // Get image metadata
+      httpApi
+        .get_imageData(this.$route.params.id)
+        .then((res) => {
+          this.image_data = res.data;
+        })
+        .catch((err) => (this.imageDataError = err));
+    },
     imagePreviewError() {
       this.warning = new Error(
         'Your browser cannot display : "' + this.image_data.type + '"'
@@ -207,8 +221,10 @@ export default {
       });
     },
     getErrorMsg(err) {
-      return (err.response.data.type == "text/plain") ? err.response.data : err.message;
-    }
+      return err.response.data.type == "text/plain"
+        ? err.response.data
+        : err.message;
+    },
   },
 };
 </script>
