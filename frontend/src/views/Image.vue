@@ -18,7 +18,6 @@
             <AlgorithmMenuItem
               :algo="algo"
               :imageId="parseInt($route.params.id)"
-              :parentComponent="currentComponent"
             />
           </li>
           <div
@@ -139,7 +138,6 @@ export default {
       defaultImageBlob: null,
       processedImageBlob: null,
       imageBlob: null,
-      currentComponent: this,
       algos: [],
       image_data: null,
       imageError: null,

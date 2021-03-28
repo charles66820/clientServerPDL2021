@@ -61,7 +61,6 @@ export default {
   props: {
     imageId: { required: true, type: Number },
     algo: { required: true, type: Object },
-    parentComponent: { required: true, type: Object },
   },
   data() {
     return {
@@ -83,7 +82,7 @@ export default {
         .get_image_with_algo(this.imageId, queryString)
         .then((res) => {
           this.errors = [];
-          this.parentComponent.showProcessedImage(res.data);
+          this.$parent.showProcessedImage(res.data);
         })
         .catch((err) => {
           this.errors = [];
@@ -91,8 +90,11 @@ export default {
         });
     },
     getErrorMsg(err) {
-      return (err.response.data.type == "text/plain") ? err.response.data : err.message;
-    }
+      return err.response != null &&
+        err.response.headers["content-type"] == "text/plain"
+        ? err.response.data
+        : err.message;
+    },
   },
 };
 </script>

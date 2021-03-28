@@ -55,9 +55,9 @@ export default {
   props: {
     id: { required: true, type: Number },
   },
-    data() {
+  data() {
     return {
-      error: null
+      error: null,
     };
   },
   methods: {
@@ -75,8 +75,11 @@ export default {
         });
     },
     getErrorMsg(err) {
-      return (err.response.data.type == "text/plain") ? err.response.data : err.message;
-    }
+      return err.response != null &&
+        err.response.headers["content-type"] == "text/plain"
+        ? err.response.data
+        : err.message;
+    },
   },
 };
 </script>

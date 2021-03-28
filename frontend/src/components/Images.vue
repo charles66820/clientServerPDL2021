@@ -91,8 +91,11 @@ export default {
       e.target.src = require("../assets/iconmonstr-picture-1.svg");
     },
     getErrorMsg(err) {
-      return (err.response.data.type == "text/plain") ? err.response.data : err.message;
-    }
+      return err.response != null &&
+        err.response.headers["content-type"] == "text/plain"
+        ? err.response.data
+        : err.message;
+  },
   },
   mounted() {
     httpApi

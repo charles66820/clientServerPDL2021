@@ -26,14 +26,40 @@
             <form method="post" @submit="imageSubmit($event)">
               <div class="modal-body">
                 <div
-                  class="imgContainer"
+                  class="alert alert-warning alert-dismissible fade show"
+                  v-if="warning"
+                  role="alert"
+                >
+                  <strong>Warning !</strong> {{ warning.message }}
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="alert"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div
+                  class="alert alert-danger alert-dismissible fade show"
+                  v-if="error"
+                  role="alert"
+                >
+                  <strong>Error :</strong> {{ getErrorMsg(error) }}
+                </div>
+                <div
+                  class="imgContainer init"
                   @dragleave="dropAreaDragLeave($event)"
                   @dragover="dropAreaDragOver($event)"
                   @drop="dropAreaDrop($event)"
                   @click="dropAreaClicked()"
                 >
                   <span>Drop an image here or click here to choose one.</span>
-                  <img id="imagePreview" :src="null" />
+                  <img
+                    id="imagePreview"
+                    :src="null"
+                    @error="imagePreviewError($event)"
+                  />
                   <input
                     type="file"
                     name="image"
@@ -59,8 +85,9 @@ export default {
   name: "App",
   data() {
     return {
-      loading: false,
+      imageType: "",
       error: null,
+      warning: null,
     };
   },
   methods: {
@@ -74,11 +101,11 @@ export default {
       //console.log(image);
       // TODO: call POST /images
       httpApi
-       .post_image(image)
-       .then((res) => {
-            imageFiles.push({image: res});
-       })
-       .catch((err) => this.error = err);
+        .post_image(image)
+        .then((res) => {
+          imageFiles.push({ image: res });
+        })
+        .catch((err) => (this.error = err));
     },
     dropAreaDragLeave(e) {
       e.target.classList.remove("dragover");
@@ -93,18 +120,34 @@ export default {
     },
     dropAreaDrop(e) {
       e.target.classList.remove("dragover");
+      e.target.classList.remove("init");
       e.preventDefault();
       let imgInput = document.querySelector(
         ".imgContainer > input[name=image]"
       );
       imgInput.files = e.dataTransfer.files;
-      if (imgInput.files && imgInput.files[0])
+      if (imgInput.files && imgInput.files[0]) {
+        this.imageType = imgInput.files[0].type;
         renderFile(imgInput.files[0], document.querySelector("#imagePreview"));
+      }
       e.stopPropagation();
     },
     imgChange(e) {
       if (e.target.files && e.target.files[0])
         renderFile(e.target.files[0], document.querySelector("#imagePreview"));
+    },
+    imagePreviewError() {
+      this.warning = new Error(
+        'Your browser cannot display : "' + this.imageType + '"'
+      );
+      document.querySelector(
+        "#imagePreview"
+      ).src = require("../assets/iconmonstr-picture-1.svg");
+    },
+    getErrorMsg(err) {
+      return err.response.data.type == "text/plain"
+        ? err.response.data
+        : err.message;
     },
   },
 };
@@ -122,22 +165,34 @@ function renderFile(file, elem) {
   width: 400px;
   position: relative;
   user-select: none;
-  border: dashed 4px rgba(0, 0, 0, 1);
+  border: dashed 4px rgba(0, 0, 0, 0);
   border-radius: 8px;
+  margin: auto;
+}
+
+.imgContainer.init {
+  border: dashed 4px rgba(0, 0, 0, 1);
 }
 
 .imgContainer span {
   margin: 0;
   position: absolute;
+  pointer-events: none;
   top: 50%;
   width: 100%;
   text-align: center;
+  visibility: hidden;
+}
+
+.imgContainer.init span {
+  visibility: visible;
 }
 
 #imagePreview {
   max-width: 100%;
   max-height: 100%;
   position: absolute;
+  pointer-events: none;
   top: 0;
   bottom: 0;
   left: 0;
@@ -148,6 +203,10 @@ function renderFile(file, elem) {
 .dragover {
   border: solid 4px rgba(0, 120, 255, 1);
   background-color: rgba(150, 210, 255, 0.5);
+}
+
+.imgContainer.dragover span {
+  visibility: visible;
 }
 
 @media screen and (max-width: 777px) {
