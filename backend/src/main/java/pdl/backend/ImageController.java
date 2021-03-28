@@ -42,19 +42,20 @@ public class ImageController {
   public ResponseEntity<?> getImage(@PathVariable("id") long id, @RequestParam Map<String,String> allRequestParams) {
     Optional<Image> image = imageDao.retrieve(id);
     if (image.isPresent()) {
-      byte[] bytes = image.get().getData();
+      Image img = image.get();
+      byte[] bytes = img.getData();
 
       if (allRequestParams.get("algorithm") == null) {
         return ResponseEntity
                 .ok()
-                .contentType(MediaType.IMAGE_JPEG)
+                .contentType(MediaType.valueOf(img.getType()))
                 .body(bytes);
       } else {
         try {
-          bytes = AlgorithmProcess.applyAlgorithm(image.get(), allRequestParams);
+          bytes = AlgorithmProcess.applyAlgorithm(img, allRequestParams);
           return ResponseEntity
                   .ok()
-                  .contentType(MediaType.IMAGE_JPEG)
+                  .contentType(MediaType.valueOf(img.getType()))
                   .body(bytes);
         } catch (BadParamsException e) {
           return ResponseEntity
