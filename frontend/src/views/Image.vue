@@ -15,7 +15,7 @@
       <div class="sidePanel-content" style="word-wrap: break-word">
         <ul style="list-style-type:none;padding: 0;margin: 0;">
           <li v-for="algo in algos" :key="algo.name">
-            <AlgorithmMenuItem :algo="algo" :imageId="parseInt($route.params.id)" />
+            <AlgorithmMenuItem :algo="algo" :imageId="parseInt($route.params.id)" :parentComponent="currentComponent" />
           </li>
         </ul>
       </div>
@@ -38,22 +38,24 @@
           <div class="sidePanel-content" style="word-wrap: break-word">
             <!-- TODO: image info  -->
             <h5 class="title_metadata"> Metadata </h5>
-            <ul class="data" v-if="image_data != null">
+            <ul class="metadata" v-if="image_data != null">
               <li> Id : {{ image_data.id }} </li>
               <li> Name : {{ image_data.name }} </li>
               <li> Type : {{ image_data.type }} </li>
               <li> Size : {{ image_data.size }} </li>
             </ul>
             <!-- Bin and delete request -->
-            <button type="button" class="btn btn-outline-dark m-4" data-toggle="modal" data-target="#modalDelete">
+            <button type="button" class="btn btn-outline-dark m-4" id="deleteBtn" data-toggle="modal" data-target="#modalDelete">
               &#128465;
             </button>
+            <button type="button" v-if="defaultImageBlob" @click="downloadImage($event)" role="original" class="btn btn-outline-dark m-4" title="Download original image">Download original image 📥</button>
+            <button type="button" v-if="processedImageBlob" @click="downloadImage($event)" role="processed" class="btn btn-outline-dark m-4" title="Download processed image">Download processed image 📥</button>
           </div>
         </nav>
         <div class="page-content" style="word-wrap: break-word">
           <div class="imgContainer">
             <!-- Image -->
-            <img :src="imageBlob" />
+            <img :src="imageBlob" @error="imagePreviewError($event)" />
           </div>
         </div>
       </div>
@@ -71,11 +73,13 @@ export default {
   data() {
     return {
       defaultImageBlob: null,
-      imageBlob: "/images/" + this.$route.params.id,
-      // TODO: get algos form backend
+      processedImageBlob: null,
+      imageBlob: null,
+      currentComponent: this,
+      // NODE: example data replace with `algos: []`
       algos: [
         { name: "toto", title: "le Toto 0", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
-        { name: "toto1", title: "le Toto 1", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
+        { name: "increaseLuminosity", title: "increaseLuminosity for test", args: [ { name: "gain", title: "the value 1", type: "number", min: -500, max: 500, required: true} ] },
         { name: "toto2", title: "le Toto 2", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
         { name: "toto3", title: "le Toto 3", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true}, { name: "value 2", title: "the value 2", type: "number", min: 0, max: 255, required: true}  ] },
         { name: "toto4", title: "le Toto 4", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: false} ] },
@@ -89,13 +93,49 @@ export default {
     AlgorithmMenuItem,
     ConfirmDeleteDialog,
   },
-  mounted : function () {
+  mounted() {
+    // Get default image
+    httpApi.get_image(this.$route.params.id).then((res) => {
+      let reader = new window.FileReader();
+      reader.readAsDataURL(res.data);
+      reader.addEventListener("load", () => {
+        this.defaultImageBlob = reader.result;
+        this.imageBlob = reader.result;
+      });
+    }).catch((err) => this.errors.push(err));
+
+    // Get image metadata
     httpApi
       .get_imageData(this.$route.params.id)
       .then((res) => {
         this.image_data = res.data;
       })
       .catch((err) => this.errors.push(err));
+
+    // TODO: get algos form backend
+
+  },
+  methods: {
+    imagePreviewError(e) {
+      this.errors.push(new Error('Your browser cannot display : "' + this.image_data.type + '"'))
+      this.imageBlob = "https://teach.magicorp.fr/img/iconmonstr-picture-1.svg"
+      console.log(e);
+    },
+    downloadImage(e) {
+      let role = e.target.getAttribute("role");
+      let a = document.createElement("a");
+      a.href = role == "processed" ? this.processedImageBlob : this.defaultImageBlob;
+      a.download = this.image_data.name;
+      a.click();
+    },
+    showProcessedImage(blob) {
+      let reader = new window.FileReader();
+      reader.readAsDataURL(blob);
+      reader.addEventListener("load", () => {
+        this.processedImageBlob = reader.result;
+        this.imageBlob = reader.result;
+      });
+    }
   }
 };
 </script>
@@ -130,16 +170,18 @@ div.imgContainer * {
   margin-left: 4px;
 }
 
-.data {
+.metadata {
   list-style: circle;
 }
 
-.btn-outline-dark {
-  position:absolute;
-  top:2px;
-  right:2px;
+#deleteBtn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
 }
+</style>
 
+<style scoped>
 .page-wrapper {
   position: relative;
   overflow: hidden;

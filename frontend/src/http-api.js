@@ -1,7 +1,7 @@
 import axios from "axios";
 function get_image(imageId) {
-    var imageUrl = "/images/" + imageId;
-    return axios.get(imageUrl, { responseType: "blob" });
+    let imageUrl = "/images/" + imageId;
+    return axios.get(imageUrl, { headers: {accept: "image/*,*/*" }, responseType: "blob" });
 }
 
 function get_images() {
@@ -9,15 +9,20 @@ function get_images() {
 }
 
 function get_imageData(imageId) {
-    var imageUrl = "/images/" + imageId;
-    return axios.get(imageUrl, {headers: {'accept': 'application/json'}});
+    let imageUrl = "/images/" + imageId;
+    return axios.get(imageUrl, { headers: { 'accept': 'application/json' } });
+}
+
+function get_image_with_algo(imageId, queryString) {
+    let imageUrl = "/images/" + imageId + "?" + queryString;
+    return axios.get(imageUrl, { headers: {accept: "image/*,*/*" }, responseType: "blob" });
 }
 
 function delete_image(imageId) {
-    var imageUrl = "/images/" + imageId;
+    let imageUrl = "/images/" + imageId;
     return axios.delete(imageUrl);
 }
 
 export default {
-    get_image, get_images, get_imageData, delete_image
+    get_image, get_images, get_imageData, get_image_with_algo, delete_image
 }

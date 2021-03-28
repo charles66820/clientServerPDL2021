@@ -31,11 +31,13 @@
 </template>
 
 <script>
+import httpApi from "../http-api.js";
 export default {
   name: "AlgorithmMenuItem",
   props: {
     imageId: { required: true, type: Number },
     algo: { required: true, type: Object },
+    parentComponent: { required: true, type: Object },
   },
   methods: {
     applyAlgorithmSubmit(e) {
@@ -48,8 +50,13 @@ export default {
 
       let queryString = query.toString();
 
-      console.log(queryString);
-      // TODO: call "/images/" + this.imageId + "?" + queryString
+      httpApi.get_image_with_algo(this.imageId, queryString).then((res) => {
+        // TODO: display success
+        this.parentComponent.showProcessedImage(res.data);
+      }).catch(err => {
+        // TODO: display error
+        console.error(err);
+      });
     },
   },
 };
