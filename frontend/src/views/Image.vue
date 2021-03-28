@@ -112,8 +112,13 @@ export default {
       })
       .catch((err) => this.errors.push(err));
 
-    // TODO: get algos form backend
-
+    //get algos from backend
+    httpApi
+      .get_algos()
+      .then((res) => {
+        this.algos = res.algo;
+      })
+      .catch((err) => this.errors.push(err));
   },
   methods: {
     imagePreviewError(e) {
