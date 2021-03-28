@@ -141,6 +141,25 @@ export default {
 </script>
 
 <style scoped>
+.title_metadata {
+  position: relative;
+  text-decoration-line: underline;
+  margin-left: 4px;
+}
+
+.metadata {
+  list-style: circle;
+}
+
+#deleteBtn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+}
+</style>
+
+<style scoped>
+/* For main image */
 div.imgContainer {
   position: relative;
   width: 100%;
@@ -164,24 +183,7 @@ div.imgContainer * {
 </style>
 
 <style scoped>
-.title_metadata {
-  position: relative;
-  text-decoration-line: underline;
-  margin-left: 4px;
-}
-
-.metadata {
-  list-style: circle;
-}
-
-#deleteBtn {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-}
-</style>
-
-<style scoped>
+/* For panel */
 .page-wrapper {
   position: relative;
   overflow: hidden;
