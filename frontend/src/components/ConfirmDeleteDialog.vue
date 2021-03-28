@@ -21,12 +21,27 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body text-center">Are you sure to delete this image ?</div>
+        <div class="modal-body text-center">
+          Are you sure to delete this image ?
+        </div>
+        <div
+          class="alert alert-danger alert-dismissible fade show"
+          v-if="error"
+          role="alert"
+        >
+          <strong>Error :</strong> {{ error.message }}
+        </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" data-dismiss="modal">
             No
           </button>
-          <button type="button" class="btn btn-success" @click="btnDeleteImage($event)" data-dismiss="modal">Yes</button>
+          <button
+            type="button"
+            class="btn btn-success"
+            @click="btnDeleteImage($event)"
+          >
+            Yes
+          </button>
         </div>
       </div>
     </div>
@@ -38,22 +53,28 @@ import httpApi from "../http-api.js";
 export default {
   name: "ImageDelete",
   props: {
-    id: {required: true, type: Number},
+    id: { required: true, type: Number },
   },
-  methods : {
-    btnDeleteImage(e) {
-      httpApi.delete_image(this.id)
-      .then(() => {
-        this.$router.push({name : 'Home'});
-      })
-      .catch((err) => {
-        e.stopPropagation();
-        console.error(err);
-        //TODO:process error
-      })
-      ;
-    }
-  }
+    data() {
+    return {
+      error: null
+    };
+  },
+  methods: {
+    btnDeleteImage() {
+      httpApi
+        .delete_image(this.id)
+        .then(() => {
+          // Close modal
+          document.body.removeChild(document.querySelector(".modal-backdrop"));
+
+          this.$router.push({ name: "Home" });
+        })
+        .catch((err) => {
+          this.error = err;
+        });
+    },
+  },
 };
 </script>
 
