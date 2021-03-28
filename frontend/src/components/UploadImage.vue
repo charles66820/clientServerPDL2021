@@ -77,7 +77,7 @@ export default {
        .post_image(image)
        .then(() => {
        })
-       .catch((err) => this.error.push(err));
+       .catch((err) => this.error = err);
     },
     dropAreaDragLeave(e) {
       e.target.classList.remove("dragover");
