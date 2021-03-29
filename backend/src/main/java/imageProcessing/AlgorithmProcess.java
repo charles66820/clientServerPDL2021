@@ -146,7 +146,7 @@ public class AlgorithmProcess {
     /* Algorithms available */
 
     //contour
-    private static SCIFIOImgPlus<UnsignedByteType> contourFilter(SCIFIOImgPlus<UnsignedByteType> img) {
+    private static SCIFIOImgPlus<UnsignedByteType> contourFilter(SCIFIOImgPlus<UnsignedByteType> img) throws ImageConversionException {
         SCIFIOImgPlus<UnsignedByteType> output = null;
         BufferedImage source = null;
         try {
@@ -155,6 +155,7 @@ public class AlgorithmProcess {
             source = ImageIO.read(is);
         } catch (IOException | FormatException e) {
             e.printStackTrace();
+            throw new ImageConversionException("Error during conversion !");
         }
 
         Kernel kernel1 = new Kernel(3, 3, new float[]{1f, 0f, -1f, 2f, 0f, -2f, 1f, 0f, -1f});
