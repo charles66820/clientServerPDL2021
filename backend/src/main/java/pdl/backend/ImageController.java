@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 public class ImageController {
@@ -196,5 +197,16 @@ public class ImageController {
             algoNames.add(node);
         });
         return algoNames;
+    }
+
+    // REDIRECTION FOR FRONTEND (when user reload the page)
+    @RequestMapping("/about")
+    protected RedirectView redirect() {
+        return new RedirectView("/");
+    }
+
+    @RequestMapping("/image/{id}")
+    protected RedirectView redirectA() {
+        return new RedirectView("/");
     }
 }
