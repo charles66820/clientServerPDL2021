@@ -336,9 +336,9 @@ public class AlgorithmProcess {
     }
 
     public static void histogramContrast(Img<UnsignedByteType> input, String channel) throws BadParamsException {
-        if (channel.equals("S")) {
+        if (channel.equals("s")) {
             histogram(input, 1);
-        } else if (channel.equals("V")) {
+        } else if (channel.equals("v")) {
             histogram(input, 2);
         } else {
             throw new BadParamsException("This channel does not exist !");
