@@ -6,7 +6,7 @@ import java.util.List;
 public enum AlgorithmNames {
     // maybe add a description
     LUMINOSITY("Luminosity", "increaseLuminosity", new ArrayList<>() {{
-        add(new AlgorithmArgs("gain", "Gain", "number", 0, 255, true));
+        add(new AlgorithmArgs("gain", "Gain", "number", -100, 100, true));
     }}),   //only one parameter
     COLORED_FILTER("Colored Filter", "coloredFilter", new ArrayList<>() {{
         add(new AlgorithmArgs("hue", "Hue", "number", 0, 359, true));
