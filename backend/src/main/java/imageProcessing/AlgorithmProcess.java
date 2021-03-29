@@ -111,14 +111,22 @@ public class AlgorithmProcess {
                     try {
                         float luminosity = Float.parseFloat(params.get("gain"));
                         increaseLuminosity(img, output, luminosity);
-                    } catch (NumberFormatException ex) {
+                        bytes = ImageConverter.imageToJPEGBytes(output);
+                    } catch (NumberFormatException e) {
                         throw new BadParamsException("Parameter \"gain\" must be a float number !");
+                    } catch (FormatException | IOException ex) {
+                        throw new ImageConversionException("Error during conversion ! ");
                     }
                     break;
                 case COLORED_FILTER:
                     float hue = Float.parseFloat(params.get("hue"));
                     coloredFilter(img, hue);
                     output = img;
+                    try {
+                        bytes = ImageConverter.imageToJPEGBytes(output);
+                    } catch (FormatException | IOException e) {
+                        throw new ImageConversionException("Error during conversion ! ");
+                    }
                     break;
                 case HISTOGRAM:
                     /*String channel = params.get("channel");
@@ -129,31 +137,31 @@ public class AlgorithmProcess {
                     String filterName = params.get("filterName");
                     double blurLvl = Double.parseDouble(params.get("blur"));
                     blurFilter(img, output, filterName, blurLvl);
+                    try {
+                        bytes = ImageConverter.imageToJPEGBytes(output);
+                    } catch (FormatException | IOException e) {
+                        throw new ImageConversionException("Error during conversion ! ");
+                    }
                     break;
                 case CONTOUR_FILTER:
-                    output = contourFilter(img);
+                    bytes = contourFilter(bytes);
                     break;
                 default:
                     throw new UnknownAlgorithmException("This algorithm doesn't exist !");
         }
-        try {
-            return bytes = ImageConverter.imageToJPEGBytes(output);
-        } catch (FormatException | IOException e) {
-            throw new ImageConversionException("Error during conversion !");
-        }
+        return bytes;
     }
 
     /* Algorithms available */
 
     //contour
-    private static SCIFIOImgPlus<UnsignedByteType> contourFilter(SCIFIOImgPlus<UnsignedByteType> img) throws ImageConversionException {
+    private static byte[] contourFilter(byte[] input) throws ImageConversionException {
         SCIFIOImgPlus<UnsignedByteType> output = null;
         BufferedImage source = null;
         try {
-            byte[] bytes = ImageConverter.imageToJPEGBytes(img);
-            InputStream is = new ByteArrayInputStream(bytes);
+            InputStream is = new ByteArrayInputStream(input);
             source = ImageIO.read(is);
-        } catch (IOException | FormatException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             throw new ImageConversionException("Error during conversion !");
         }
@@ -165,17 +173,16 @@ public class AlgorithmProcess {
         Kernel kernel2 = new Kernel(3, 3, new float[]{1f, 2f, 1f, 0f, 0f, 0f, -1f, -2f, -1f});
         ConvolveOp convolution2 = new ConvolveOp(kernel2);
         BufferedImage resultat = convolution2.filter(resultatIntermediaire, null);
-
+        byte[] out = null;
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(resultat, "JPEG", baos);
-            byte[] out = baos.toByteArray();
-            output = ImageConverter.imageFromJPEGBytes(out);
+            out = baos.toByteArray();
         }
-        catch (IOException | FormatException e) {
+        catch (IOException e) {
             e.printStackTrace();
         }
-        return output;
+        return out;
     }
 
     //Luminosity
