@@ -41,7 +41,7 @@
           >
           <img
             v-if="selectedImage"
-            :src="'/images/' + selectedImage.id"
+            :src="selectedImage.blob"
             @error="imageViewError($event, selectedImage)"
           />
         </div>
@@ -54,10 +54,7 @@
             :data-id="image.id"
             @click="selectImage($event)"
           >
-            <img
-              :src="'/images/' + image.id"
-              @error="imageViewError($event, image)"
-            />
+            <img :src="image.blob" @error="imageViewError($event, image)" />
           </li>
         </ul>
       </div>
@@ -66,7 +63,7 @@
 </template>
 
 <script>
-import emitter from 'tiny-emitter/instance';
+import emitter from "tiny-emitter/instance";
 import httpApi from "../http-api.js";
 export default {
   name: "Images",
@@ -88,6 +85,16 @@ export default {
         .then((res) => {
           this.images = res.data;
           if (this.images.length > 0) this.selectedImage = this.images[0];
+          for (let image of this.images) {
+            httpApi.get_image(image.id).then((res) => {
+              let reader = new window.FileReader();
+              reader.readAsDataURL(res.data);
+              reader.addEventListener(
+                "load",
+                () => (image.blob = reader.result)
+              );
+            });
+          }
         })
         .catch((err) => this.errors.push(err));
     },
