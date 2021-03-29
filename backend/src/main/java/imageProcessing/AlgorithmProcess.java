@@ -10,6 +10,7 @@ import io.scif.img.SCIFIOImgPlus;
 import net.imglib2.*;
 import net.imglib2.algorithm.gauss3.Gauss3;
 import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.loops.LoopBuilder;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.view.IntervalView;
@@ -24,7 +25,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class AlgorithmProcess {
@@ -68,8 +71,8 @@ public class AlgorithmProcess {
             // If arg is present
             if(params.containsKey(arg.name)){
                 if(arg.type.equals("number")) {
-                    // Test if number is valid
-                    long argLong = Long.parseLong(params.get(arg.name));
+                    // Test if number is valid with a point for float
+                    float argLong = Float.parseFloat(params.get(arg.name));
                     if(argLong < arg.min || argLong > arg.max) {
                         argValid = false;
                         bpe.setParamsValid(false);
@@ -96,19 +99,15 @@ public class AlgorithmProcess {
         // Create a new output image with the same dimension of the input
         SCIFIOImgPlus<UnsignedByteType> img;
         SCIFIOImgPlus<UnsignedByteType> output;
-        //Img<UnsignedByteType> output;
         try {
-            //final ArrayImgFactory<UnsignedByteType> factory = new ArrayImgFactory<>(new UnsignedByteType());
             img = ImageConverter.imageFromJPEGBytes(bytes);
-            //final Dimensions dim = img;
-            //output = factory.create(dim);
-            output = img.copy(); //TODO: remove copy for a new output image and not a copy
+            output = img.copy(); // FIXME : doing better than a copy
         } catch (IOException | FormatException err) {
             throw new ImageConversionException("Error during input conversion !");
         }
 
         switch (algoName) {
-            case LUMINOSITY:    //FIXME: works also with negative param
+            case LUMINOSITY:
                     try {
                         float luminosity = Float.parseFloat(params.get("gain"));
                         increaseLuminosity(img, output, luminosity);
@@ -117,7 +116,7 @@ public class AlgorithmProcess {
                     }
                     break;
                 case COLORED_FILTER:
-                    int hue = Integer.parseInt(params.get("hue")); //FIXME: support float ?
+                    float hue = Float.parseFloat(params.get("hue"));
                     coloredFilter(img, hue);
                     output = img;
                     break;
@@ -198,11 +197,7 @@ public class AlgorithmProcess {
                     out.setPosition(y, 1);
                     out.setPosition(channel, 2);
                     newValue = Math.round(r.get().get()*(1 + luminosity/100));
-                    if (newValue > 255) {
-                        out.get().set(255);
-                    } else {
-                        out.get().set(newValue);
-                    }
+                    out.get().set(Math.min(newValue, 255));
                 }
             }
         }
@@ -270,7 +265,7 @@ public class AlgorithmProcess {
         }
     }
 
-    public static void coloredFilter(Img<UnsignedByteType> input, int hue) {
+    public static void coloredFilter(Img<UnsignedByteType> input, float hue) {
         if (hue > 360) return;
         final IntervalView<UnsignedByteType> cR = Views.hyperSlice(input, 2, 0); // Dimension 2 channel 0 (red)
         final IntervalView<UnsignedByteType> cG = Views.hyperSlice(input, 2, 1); // Dimension 2 channel 1 (green)
