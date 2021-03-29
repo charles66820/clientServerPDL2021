@@ -71,7 +71,7 @@ public class AlgorithmProcess {
             // If arg is present
             if(params.containsKey(arg.name)){
                 if(arg.type.equals("number")) {
-                    // Test if number is valid with a point for float
+                    // Test if number is valid
                     float argLong = Float.parseFloat(params.get(arg.name));
                     if(argLong < arg.min || argLong > arg.max) {
                         argValid = false;
