@@ -131,7 +131,11 @@ public class AlgorithmProcess {
                 case HISTOGRAM:
                     String channel = params.get("channel");
                     histogramContrast(img, channel);
-                    output = img;
+                    try {
+                        bytes = ImageConverter.imageToJPEGBytes(img);
+                    } catch (FormatException | IOException e) {
+                        throw new ImageConversionException("Error during conversion ! ");
+                    }
                     break;
                 case BLUR_FILTER:
                     String filterName = params.get("filterName");
@@ -310,7 +314,7 @@ public class AlgorithmProcess {
         LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
             float[] hsv = new float[3];
             rgbToHsv(r.get(), g.get(), b.get(), hsv);
-            hist[(int)hsv[channel]]++;
+            hist[(int)(hsv[channel] * 100)]++;
         });
 
         //Calcul of cumulative histogram
