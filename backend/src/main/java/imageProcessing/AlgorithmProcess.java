@@ -197,7 +197,7 @@ public class AlgorithmProcess {
                     out.setPosition(y, 1);
                     out.setPosition(channel, 2);
                     newValue = Math.round(r.get().get()*(1 + luminosity/100));
-                    out.get().set(Math.min(newValue, 255));
+                    out.get().set(Math.max(Math.min(newValue, 255), 0));
                 }
             }
         }
