@@ -273,8 +273,6 @@ public class AlgorithmProcess {
         LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
             float[] hsv = new float[3];
             rgbToHsv(r.get(), g.get(), b.get(), hsv);
-            //int i = (int)(hsv[channel]*100);
-            if (hsv[channel] > 100) hsv[channel] = 100;
             hist[(int)hsv[channel]]++;
         });
 
@@ -289,16 +287,13 @@ public class AlgorithmProcess {
         LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
             float[] hsv = new float[3];
             rgbToHsv(r.get(), g.get(), b.get(), hsv);
-            //int i = (int) (hsv[channel]*100);
             if (hsv[channel] > 100) hsv[channel] = 100;
-            //if (i > 100) i = 100;
-            //hsv[channel] = ((hist[i]*101)/N);
             int[] rgb = new int[3];
-            hsv[channel] = (float) histocum[(int)hsv[channel]]*101/N;
+            hsv[channel] = ((float) histocum[(int)(hsv[channel] * 100)]*101/N) / 100;
             hsvToRgb(hsv[0], hsv[1], hsv[2], rgb);
-            r.set((int)rgb[0]);
-            g.set((int)rgb[1]);
-            b.set((int)rgb[2]);
+            r.set(rgb[0]);
+            g.set(rgb[1]);
+            b.set(rgb[2]);
         });
 
     }
