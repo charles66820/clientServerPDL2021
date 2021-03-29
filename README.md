@@ -4,6 +4,20 @@
 
 An overview
 
+This project is tested on :
+
+> Server
+
+- Ubuntu 20.04
+- Debian Buster
+- Windows 10
+
+> Client
+
+- Google Chrome Version 88.0.4324.182 (Official Build) (64-bit)
+- Google Chrome Version 89.0.4389.90 (Official Build) (64-bit)
+- Firefox Version TODO: 
+
 ## Install and run
 
 ### With maven
