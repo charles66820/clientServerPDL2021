@@ -1,15 +1,15 @@
 <template>
   <div class="main-container pb-4">
     <div class="container pb-4">
-      <h2>Image list</h2>
+      <h2 class="mt-4">Image list</h2>
       <div>
         <div
           class="alert alert-warning alert-dismissible fade show"
-          v-for="err in errors"
-          :key="err.type"
+          v-for="warn in warnings"
+          :key="warn.type"
           role="alert"
         >
-          <strong>Error!</strong> {{ err.message }}
+          <strong>Warning !</strong> {{ warn.message }}
           <button
             type="button"
             class="close"
@@ -19,8 +19,16 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
+        <div
+          class="alert alert-danger alert-dismissible fade show"
+          v-for="err in errors"
+          :key="err.type"
+          role="alert"
+        >
+          <strong>Error :</strong> {{ getErrorMsg(err) }}
+        </div>
       </div>
-      <p>Click on image for more action</p>
+      <p v-if="images.length > 0">Click on image for more action</p>
       <div v-if="images.length > 0" class="imageCarousel shadow my-4">
         <div class="imagesContainer imgContainer">
           <!-- title="Informations de l'image" -->
@@ -58,6 +66,7 @@
 </template>
 
 <script>
+import emitter from 'tiny-emitter/instance';
 import httpApi from "../http-api.js";
 export default {
   name: "Images",
@@ -69,28 +78,38 @@ export default {
       selectedImage: null,
       images: [],
       errors: [],
+      warnings: [],
     };
   },
   methods: {
+    loadImages() {
+      httpApi
+        .get_images()
+        .then((res) => {
+          this.images = res.data;
+          if (this.images.length > 0) this.selectedImage = this.images[0];
+        })
+        .catch((err) => this.errors.push(err));
+    },
     selectImage(e) {
       this.selectedImage = this.images.find((i) => i.id == e.target.dataset.id);
     },
     imageViewError(e, image) {
-      this.errors.push(
+      this.warnings.push(
         new Error('Your browser cannot display : "' + image.type + '"')
       );
       e.target.src = require("../assets/iconmonstr-picture-1.svg");
-      console.log(e);
+    },
+    getErrorMsg(err) {
+      return err.response != null &&
+        err.response.headers["content-type"] == "text/plain"
+        ? err.response.data
+        : err.message;
     },
   },
   mounted() {
-    httpApi
-      .get_images()
-      .then((res) => {
-        this.images = res.data;
-        if (this.images.length > 0) this.selectedImage = this.images[0];
-      })
-      .catch((err) => this.errors.push(err));
+    emitter.on("updateImages", this.loadImages);
+    this.loadImages();
   },
 };
 </script>

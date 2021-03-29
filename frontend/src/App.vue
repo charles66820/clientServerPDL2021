@@ -25,6 +25,7 @@
             <li class="nav-item">
               <button
                 class="btn btn-sm nav-link"
+                id="btnUploadImageModal"
                 type="button"
                 data-toggle="modal"
                 data-target="#uploadImageModal"

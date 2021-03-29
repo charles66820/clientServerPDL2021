@@ -35,6 +35,14 @@
             />
           </div>
         </div>
+        <div
+          class="alert alert-danger alert-dismissible fade show"
+          v-for="err in errors"
+          :key="err.type"
+          role="alert"
+        >
+          <strong>Error :</strong> {{ getErrorMsg(err) }}
+        </div>
         <div class="form-row">
           <span class="col-sm-6"></span>
           <div class="col-sm-6">
@@ -53,7 +61,11 @@ export default {
   props: {
     imageId: { required: true, type: Number },
     algo: { required: true, type: Object },
-    parentComponent: { required: true, type: Object },
+  },
+  data() {
+    return {
+      errors: [],
+    };
   },
   methods: {
     applyAlgorithmSubmit(e) {
@@ -69,13 +81,19 @@ export default {
       httpApi
         .get_image_with_algo(this.imageId, queryString)
         .then((res) => {
-          // TODO: display success
-          this.parentComponent.showProcessedImage(res.data);
+          this.errors = [];
+          this.$parent.showProcessedImage(res.data);
         })
         .catch((err) => {
-          // TODO: display error
-          console.error(err);
+          this.errors = [];
+          this.errors.push(err);
         });
+    },
+    getErrorMsg(err) {
+      return err.response != null &&
+        err.response.headers["content-type"] == "text/plain"
+        ? err.response.data
+        : err.message;
     },
   },
 };

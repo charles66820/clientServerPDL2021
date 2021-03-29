@@ -13,10 +13,20 @@
       </div>
       <!-- Panel content -->
       <div class="sidePanel-content" style="word-wrap: break-word">
-        <ul style="list-style-type:none;padding: 0;margin: 0;">
+        <ul style="list-style-type: none; padding: 0; margin: 0">
           <li v-for="algo in algos" :key="algo.name">
-            <AlgorithmMenuItem :algo="algo" :imageId="parseInt($route.params.id)" :parentComponent="currentComponent" />
+            <AlgorithmMenuItem
+              :algo="algo"
+              :imageId="parseInt($route.params.id)"
+            />
           </li>
+          <div
+            class="alert alert-danger alert-dismissible fade show"
+            v-if="algorithmsError"
+            role="alert"
+          >
+            <strong>Error :</strong> {{ getErrorMsg(algorithmsError) }}
+          </div>
         </ul>
       </div>
     </nav>
@@ -26,7 +36,7 @@
           <!-- Side panel toggler -->
           <div
             class="btn btn-sm text-body bg-white shadow-sm toggle-sidePanel"
-            style="padding-top: 0px;"
+            style="padding-top: 0px"
             onclick="this.parentNode.parentNode.classList.toggle('toggled');"
             title="toggle"
           ></div>
@@ -36,35 +46,89 @@
           </div>
           <!-- Panel content -->
           <div class="sidePanel-content" style="word-wrap: break-word">
+            <div
+              class="alert alert-danger alert-dismissible fade show"
+              v-if="imageDataError"
+              role="alert"
+            >
+              <strong>Error :</strong> {{ getErrorMsg(imageDataError) }}
+            </div>
             <!-- TODO: image info  -->
-            <h5 class="title_metadata"> Metadata </h5>
+            <h5 class="title_metadata">Metadata</h5>
             <ul class="metadata" v-if="image_data != null">
-              <li> Id : {{ image_data.id }} </li>
-              <li> Name : {{ image_data.name }} </li>
-              <li> Type : {{ image_data.type }} </li>
-              <li> Size : {{ image_data.size }} </li>
+              <li>Id : {{ image_data.id }}</li>
+              <li>Name : {{ image_data.name }}</li>
+              <li>Type : {{ image_data.type }}</li>
+              <li>Size : {{ image_data.size }}</li>
             </ul>
             <!-- Bin and delete request -->
-            <button type="button" class="btn btn-outline-dark m-4" id="deleteBtn" data-toggle="modal" data-target="#modalDelete">
+            <button
+              type="button"
+              class="btn btn-outline-dark m-4"
+              id="deleteBtn"
+              data-toggle="modal"
+              data-target="#modalDelete"
+            >
               &#128465;
             </button>
-            <button type="button" v-if="defaultImageBlob" @click="downloadImage($event)" role="original" class="btn btn-outline-dark m-4" title="Download original image">Download original image 📥</button>
-            <button type="button" v-if="processedImageBlob" @click="downloadImage($event)" role="processed" class="btn btn-outline-dark m-4" title="Download processed image">Download processed image 📥</button>
+            <button
+              type="button"
+              v-if="defaultImageBlob"
+              @click="downloadImage($event)"
+              role="original"
+              class="btn btn-outline-dark m-4"
+              title="Download original image"
+            >
+              Download original image 📥
+            </button>
+            <button
+              type="button"
+              v-if="processedImageBlob"
+              @click="downloadImage($event)"
+              role="processed"
+              class="btn btn-outline-dark m-4"
+              title="Download processed image"
+            >
+              Download processed image 📥
+            </button>
           </div>
         </nav>
         <div class="page-content" style="word-wrap: break-word">
           <div class="imgContainer">
             <!-- Image -->
             <img :src="imageBlob" @error="imagePreviewError($event)" />
+            <div
+              class="alert alert-warning alert-dismissible fade show"
+              v-if="warning"
+              role="alert"
+            >
+              <strong>Warning !</strong> {{ warning.message }}
+              <button
+                type="button"
+                class="close"
+                data-dismiss="alert"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div
+              class="alert alert-danger alert-dismissible fade show"
+              v-if="imageError"
+              role="alert"
+            >
+              <strong>Error :</strong> {{ getErrorMsg(imageError) }}
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <ConfirmDeleteDialog :id="parseInt($route.params.id)"/>
+    <ConfirmDeleteDialog :id="parseInt($route.params.id)" />
   </div>
 </template>
 
 <script>
+import emitter from "tiny-emitter/instance";
 import AlgorithmMenuItem from "@/components/AlgorithmMenuItem.vue";
 import httpApi from "../http-api.js";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.vue";
@@ -75,61 +139,76 @@ export default {
       defaultImageBlob: null,
       processedImageBlob: null,
       imageBlob: null,
-      currentComponent: this,
-      // NODE: example data replace with `algos: []`
       algos: [],
-      //  { name: "toto", title: "le Toto 0", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
-      //  { name: "increaseLuminosity", title: "increaseLuminosity for test", args: [ { name: "gain", title: "the value 1", type: "number", min: -500, max: 500, required: true} ] },
-      //  { name: "toto2", title: "le Toto 2", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true} ] },
-      //  { name: "toto3", title: "le Toto 3", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: true}, { name: "value 2", title: "the value 2", type: "number", min: 0, max: 255, required: true}  ] },
-      //  { name: "toto4", title: "le Toto 4", args: [ { name: "value 1", title: "the value 1", type: "number", min: 0, max: 255, required: false} ] },
-      //  { name: "toto5", title: "le Toto 5", args: [] },
-
       image_data: null,
-      errors: [],
-    }
+      imageError: null,
+      imageDataError: null,
+      algorithmsError: null,
+      warning: null,
+    };
   },
   components: {
     AlgorithmMenuItem,
     ConfirmDeleteDialog,
   },
   mounted() {
-    // Get default image
-    httpApi.get_image(this.$route.params.id).then((res) => {
-      let reader = new window.FileReader();
-      reader.readAsDataURL(res.data);
-      reader.addEventListener("load", () => {
-        this.defaultImageBlob = reader.result;
-        this.imageBlob = reader.result;
-      });
-    }).catch((err) => this.errors.push(err));
-
-    // Get image metadata
-    httpApi
-      .get_imageData(this.$route.params.id)
-      .then((res) => {
-        this.image_data = res.data;
-      })
-      .catch((err) => this.errors.push(err));
-
-    //get algos from backend
+    emitter.on("updateImage", () => {
+      this.defaultImageBlob = null;
+      this.processedImageBlob = null;
+      this.imageBlob = null;
+      this.image_data = null;
+      this.imageError = null;
+      this.imageDataError = null;
+      this.warning = null;
+      this.loadImage();
+    });
+    this.loadImage();
+    this.lastroute = this.$route.fullPath;
+    // Get algos from backend
     httpApi
       .get_algos()
       .then((res) => {
         this.algos = res.data;
       })
-      .catch((err) => this.errors.push(err));
+      .catch((err) => (this.algorithmsError = err));
   },
   methods: {
-    imagePreviewError(e) {
-      this.errors.push(new Error('Your browser cannot display : "' + this.image_data.type + '"'))
+    loadImage() {
+      // Get default image
+      httpApi
+        .get_image(this.$route.params.id)
+        .then((res) => {
+          let reader = new window.FileReader();
+          reader.readAsDataURL(res.data);
+          reader.addEventListener("load", () => {
+            this.defaultImageBlob = reader.result;
+            this.imageBlob = reader.result;
+          });
+        })
+        .catch((err) => {
+          if (err.response.status == 404) this.$router.push({ name: "Home" });
+          this.imageError = err;
+        });
+
+      // Get image metadata
+      httpApi
+        .get_imageData(this.$route.params.id)
+        .then((res) => {
+          this.image_data = res.data;
+        })
+        .catch((err) => (this.imageDataError = err));
+    },
+    imagePreviewError() {
+      this.warning = new Error(
+        'Your browser cannot display : "' + this.image_data.type + '"'
+      );
       this.imageBlob = require("../assets/iconmonstr-picture-1.svg");
-      console.log(e);
     },
     downloadImage(e) {
       let role = e.target.getAttribute("role");
       let a = document.createElement("a");
-      a.href = role == "processed" ? this.processedImageBlob : this.defaultImageBlob;
+      a.href =
+        role == "processed" ? this.processedImageBlob : this.defaultImageBlob;
       a.download = this.image_data.name;
       a.click();
     },
@@ -140,8 +219,13 @@ export default {
         this.processedImageBlob = reader.result;
         this.imageBlob = reader.result;
       });
-    }
-  }
+    },
+    getErrorMsg(err) {
+      return err.response.data.type == "text/plain"
+        ? err.response.data
+        : err.message;
+    },
+  },
 };
 </script>
 
@@ -173,7 +257,7 @@ div.imgContainer {
   z-index: 1;
 }
 
-div.imgContainer * {
+div.imgContainer img {
   max-width: 100%;
   max-height: 100%;
   height: auto;
