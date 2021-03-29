@@ -24,15 +24,32 @@ mvn --projects backend spring-boot:run
 
 Install dependencies
 
+> For linux
+
 ```bash
 chmod +x ./mvnw
 ./mvnw clean install
 ```
 
+> For Windows
+
+```bach
+# note : some terminal bug with test on windows
+.\mvnw clean install
+```
+
 Run tomcat server
+
+> For linux
 
 ```bash
 ./mvnw --projects backend spring-boot:run
+```
+
+> For Windows
+
+```bach
+.\mvnw --projects backend spring-boot:run
 ```
 
 ### For development
