@@ -16,7 +16,7 @@ This project is tested on :
 
 - Google Chrome Version 88.0.4324.182 (Official Build) (64-bit)
 - Google Chrome Version 89.0.4389.90 (Official Build) (64-bit)
-- Firefox Version TODO: 
+- Firefox Version 86.0.1 (64 bits)
 
 ## Install and run
 
