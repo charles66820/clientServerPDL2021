@@ -155,12 +155,14 @@ export default {
       }
     },
     imagePreviewError() {
-      this.warning = new Error(
-        'Your browser cannot display : "' + this.imageType + '"'
-      );
-      document.querySelector(
-        "#imagePreview"
-      ).src = require("../assets/iconmonstr-picture-1.svg");
+      if (this.imageType != null) {
+        this.warning = new Error(
+          'Your browser cannot display : "' + this.imageType + '"'
+        );
+        document.querySelector(
+          "#imagePreview"
+        ).src = require("../assets/iconmonstr-picture-1.svg");
+      }
     },
     getErrorMsg(err) {
       return err.response != null &&

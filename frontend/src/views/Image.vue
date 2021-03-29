@@ -213,10 +213,12 @@ export default {
         .catch((err) => (this.imageDataError = err));
     },
     imagePreviewError() {
-      this.warning = new Error(
-        'Your browser cannot display : "' + this.image_data.type + '"'
-      );
-      this.imageBlob = require("../assets/iconmonstr-picture-1.svg");
+      if (this.image_data != null) {
+        this.warning = new Error(
+          'Your browser cannot display : "' + this.image_data.type + '"'
+        );
+        this.imageBlob = require("../assets/iconmonstr-picture-1.svg");
+      }
     },
     downloadImage(e) {
       let role = e.target.getAttribute("role");
