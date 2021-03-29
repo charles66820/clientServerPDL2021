@@ -32,6 +32,7 @@
               :min="arg.min"
               :max="arg.max"
               :required="arg.required"
+              step="0.01"
             />
           </div>
         </div>
