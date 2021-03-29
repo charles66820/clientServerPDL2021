@@ -7,3 +7,10 @@ services:
       - traefik.http.routers.paca-app-secure.rule=Host(`paca.magicorp.fr`)
       - traefik.http.routers.paca-app-secure.tls=true
       - traefik.http.routers.paca-app-secure.tls.certresolver=sslresolver
+    networks:
+      - backend
+
+networks:
+  backend:
+    external:
+      name: backend

@@ -22,7 +22,7 @@ public enum AlgorithmNames {
             add(new AlgorithmArgs("meanFilter", "Mean filter", "", false));
             add(new AlgorithmArgs("gaussFilter", "Gauss filter", "",false));
         }}));
-        add(new AlgorithmArgs("blur", "Blur level", "number", 0, 255, true)); //TODO: search the real max
+        add(new AlgorithmArgs("blur", "Blur level", "number", 0, 30, true));
     }}),     //mean or gaussian and level of blur
     CONTOUR_FILTER("Contour Filter", "contourFilter", new ArrayList<>());
 
