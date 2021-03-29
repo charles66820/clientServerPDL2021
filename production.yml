@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+  magicorp-api:
+    labels:
+      - traefik.http.routers.paca-app.middlewares=https-redirectscheme
+      - traefik.http.routers.paca-app-secure.rule=Host(`paca.magicorp.fr`)
+      - traefik.http.routers.paca-app-secure.tls=true
+      - traefik.http.routers.paca-app-secure.tls.certresolver=sslresolver

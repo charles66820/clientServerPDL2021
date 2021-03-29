@@ -1,0 +1,12 @@
+version: "2"
+services:
+  paca-app:
+    container_name: paca-app
+    image: openjdk:11-jdk-buster
+    working_dir: /home/node/app
+    command: "/bin/sh -c \"./mvnw clean install && ./mvnw --projects backend spring-boot:run\""
+    volumes:
+      - ./:/home/node/app
+    labels:
+      - traefik.http.routers.paca-app.rule=Host(`paca.magicorp.fr`)
+      - traefik.http.services.paca-app.loadbalancer.server.port=8080
