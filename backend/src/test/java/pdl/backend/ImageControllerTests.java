@@ -61,7 +61,7 @@ public class ImageControllerTests {
         this.mockMvc.perform(get("/images/" + testImageId)) // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", "image/jpeg"));
+                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
     }
 
     @Test
@@ -211,6 +211,6 @@ public class ImageControllerTests {
         this.mockMvc.perform(get("/images/1?algorithm=increaseLuminosity&gain=25")) // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", "image/jpeg"));
+                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
     }
 }

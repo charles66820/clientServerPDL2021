@@ -113,7 +113,7 @@ public class ImageController {
             return ResponseEntity
                     .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
                     .contentType(MediaType.TEXT_PLAIN)
-                    .body("Unsupported image type ! Image will be image/jpg or image/tiff");
+                    .body("Unsupported image type ! Image will be image/jpeg or image/tiff");
         try {
             byte[] filecontent = file.getBytes();
             HashMap<String, Object> imageMetaData = AlgorithmProcess.getImageMetaData(filecontent);
