@@ -192,5 +192,6 @@ export default {
   text-decoration-color: rgb(0, 0, 0);
   -webkit-text-stroke: 0.8px rgb(255, 255, 255);
   pointer-events: initial;
+  z-index: 1;
 }
 </style>

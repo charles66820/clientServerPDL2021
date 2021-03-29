@@ -45,7 +45,10 @@
             <span class="text-body mr-4">Image info</span>
           </div>
           <!-- Panel content -->
-          <div class="sidePanel-content" style="word-wrap: break-word">
+          <div
+            class="sidePanel-content h-100 overflow-auto"
+            style="word-wrap: break-word"
+          >
             <div
               class="alert alert-danger alert-dismissible fade show"
               v-if="imageDataError"
@@ -53,44 +56,55 @@
             >
               <strong>Error :</strong> {{ getErrorMsg(imageDataError) }}
             </div>
-            <!-- TODO: image info  -->
-            <h5 class="title_metadata">Metadata</h5>
-            <ul class="metadata" v-if="image_data != null">
-              <li>Id : {{ image_data.id }}</li>
-              <li>Name : {{ image_data.name }}</li>
-              <li>Type : {{ image_data.type }}</li>
-              <li>Size : {{ image_data.size }}</li>
-            </ul>
-            <!-- Bin and delete request -->
-            <button
-              type="button"
-              class="btn btn-outline-dark m-4"
-              id="deleteBtn"
-              data-toggle="modal"
-              data-target="#modalDelete"
-            >
-              &#128465;
-            </button>
-            <button
-              type="button"
-              v-if="defaultImageBlob"
-              @click="downloadImage($event)"
-              role="original"
-              class="btn btn-outline-dark m-4"
-              title="Download original image"
-            >
-              Download original image 📥
-            </button>
-            <button
-              type="button"
-              v-if="processedImageBlob"
-              @click="downloadImage($event)"
-              role="processed"
-              class="btn btn-outline-dark m-4"
-              title="Download processed image"
-            >
-              Download processed image 📥
-            </button>
+            <div class="row pb-4">
+              <div class="col">
+                <h5 class="title_metadata">Metadata</h5>
+                <ul class="metadata" v-if="image_data != null">
+                  <li>Id : {{ image_data.id }}</li>
+                  <li>Name : {{ image_data.name }}</li>
+                  <li>Type : {{ image_data.type }}</li>
+                  <li>Size : {{ image_data.size }}</li>
+                </ul>
+              </div>
+              <div class="col"></div>
+              <div class="col text-right">
+                <!-- Bin and download buttons -->
+                <p class="m-0">
+                  <button
+                    type="button"
+                    class="btn btn-outline-dark mx-4 mt-4"
+                    data-toggle="modal"
+                    data-target="#modalDelete"
+                  >
+                    &#128465;
+                  </button>
+                </p>
+                <p class="m-0">
+                  <button
+                    type="button"
+                    v-if="defaultImageBlob"
+                    @click="downloadImage($event)"
+                    role="original"
+                    class="btn btn-outline-dark mx-4 mt-4"
+                    title="Download original image"
+                  >
+                    Download original image 📥
+                  </button>
+                </p>
+                <p class="m-0">
+                  <button
+                    type="button"
+                    v-if="processedImageBlob"
+                    @click="downloadImage($event)"
+                    role="processed"
+                    class="btn btn-outline-dark mx-4 mt-4"
+                    title="Download processed image"
+                  >
+                    Download processed image 📥
+                  </button>
+                </p>
+              </div>
+            </div>
           </div>
         </nav>
         <div class="page-content" style="word-wrap: break-word">
@@ -233,17 +247,12 @@ export default {
 .title_metadata {
   position: relative;
   text-decoration-line: underline;
-  margin-left: 4px;
+  margin-left: 8px;
+  margin-top: 8px;
 }
 
 .metadata {
   list-style: circle;
-}
-
-#deleteBtn {
-  position: absolute;
-  top: 2px;
-  right: 2px;
 }
 </style>
 
