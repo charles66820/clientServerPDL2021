@@ -150,12 +150,13 @@ export default {
     },
     imgChange(e) {
       if (e.target.files && e.target.files[0]) {
+        this.imageType = e.target.files[0].type;
         e.target.parentElement.classList.remove("init");
         renderFile(e.target.files[0], document.querySelector("#imagePreview"));
       }
     },
     imagePreviewError() {
-      if (this.imageType != null) {
+      if (this.imageType != "") {
         this.warning = new Error(
           'Your browser cannot display : "' + this.imageType + '"'
         );
