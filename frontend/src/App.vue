@@ -17,10 +17,14 @@
         <div class="collapse navbar-collapse" id="mainNavbarToggler">
           <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
             <li class="nav-item">
-              <router-link class="nav-link" :to="{ name: 'Home'}">Home</router-link>
+              <router-link class="nav-link" :to="{ name: 'Home' }"
+                >Home</router-link
+              >
             </li>
             <li class="nav-item">
-              <router-link class="nav-link" :to="{ name: 'About'}">About</router-link>
+              <router-link class="nav-link" :to="{ name: 'About' }">{{
+                t("navigations.about")
+              }}</router-link>
             </li>
             <li class="nav-item">
               <button
@@ -34,6 +38,23 @@
               </button>
             </li>
           </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <label class="text-white pr-2">{{ t("labels.language") }} :</label>
+            <select
+              class="form-control mr-sm-2"
+              v-model="currentLocale"
+              @change="langChange()"
+              aria-label="Lang"
+            >
+              <option
+                v-for="optionLocale in supportLocales"
+                :key="optionLocale"
+                :value="optionLocale"
+              >
+                {{ optionLocale }}
+              </option>
+            </select>
+          </form>
         </div>
       </nav>
     </header>
@@ -44,11 +65,34 @@
 
 <script>
 import UploadImage from "@/components/UploadImage.vue";
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { i18n, setI18nLanguage, SUPPORT_LOCALES } from "./i18n";
 
 export default {
   name: "App",
   components: {
     UploadImage,
+  },
+  data() {
+    return {
+      t: null,
+      locale: null,
+      currentLocale: null,
+      supportLocales: SUPPORT_LOCALES,
+    };
+  },
+  created() {
+    const { t, locale } = useI18n({ useScope: "global" });
+    this.locale = locale;
+    this.t = t;
+    this.currentLocale = ref(i18n.mode === "legacy" ? locale : locale.value);
+    console.log(i18n);
+  },
+  methods: {
+    langChange() {
+      setI18nLanguage(i18n, this.currentLocale);
+    },
   },
 };
 </script>

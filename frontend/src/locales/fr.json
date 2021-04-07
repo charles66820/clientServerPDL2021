@@ -1,0 +1,13 @@
+{
+  "pages": {
+    "home": "Cette page est la page d'accueil",
+    "about": "Cette page est la page à propos de nous"
+  },
+  "navigations": {
+    "home": "Accueil",
+    "about": "à propos de nous"
+  },
+  "labels": {
+    "language": "Langues"
+  }
+}
