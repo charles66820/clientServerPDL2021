@@ -38,6 +38,14 @@ public class ImageController {
         this.imageDao = imageDao;
     }
 
+    @RequestMapping(value = "/test", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public ObjectNode test() {
+        //Test exception
+        ImageConversionException e = new ImageConversionException("Conversion error !");
+
+        return e.toJSON();
+    }
     @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
     @ResponseBody
     public ResponseEntity<?> getImage(@PathVariable("id") long id, @RequestParam Map<String, String> allRequestParams) {
