@@ -1,8 +1,16 @@
 package exceptions;
 
-public class ImageConversionException extends Exception {
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+public class ImageConversionException extends ImageWebException {
 
     public ImageConversionException(String message) {
         super(message);
+    }
+
+    @Override
+    public ObjectNode toJSON() {
+        super.setType("ImageConversionException");
+        return super.toJSON();
     }
 }
