@@ -1,13 +1,59 @@
 {
-  "pages": {
-    "home": "Cette page est la page d'accueil",
-    "about": "Cette page est la page à propos de nous"
-  },
+  "title": "PACA",
   "navigations": {
     "home": "Accueil",
-    "about": "à propos de nous"
+    "about": "À propos de nous",
+    "uploadImage": "Téléverser une nouvelle image",
+    "other": {
+      "toggleButton": "Basculer la barre de navigation",
+      "language": "Langues"
+    }
   },
-  "labels": {
-    "language": "Langues"
+  "components": {
+    "images": {
+      "title": "Liste des images",
+      "actionLbl": "Afficher les algorithmes et les informations de l'image",
+      "actionBtn": "Algorithmes et métadonnées de l'image"
+    },
+    "image": {
+      "toggleAlgorithms": "Basculer les algorithmes",
+      "algorithmsTitle": "Algorithmes",
+      "algorithm": {
+        "apply": "Appliquer"
+      },
+      "toggleMetadata": "Basculer les métadonnées d'image",
+      "metadataTitle": "Informations sur l'image",
+      "metadata": {
+        "title": "Métadonnées",
+        "id": "Identifiant",
+        "name": "Nom",
+        "type": "Type",
+        "size": "Taille",
+        "removeImage": "Supprimer l'image",
+        "downloadOriginalImage": "Télécharger l'image originale",
+        "downloadProcessedImage": "Télécharger l'image traitée"
+      }
+    },
+    "about": {
+      "title": "Ceci est une page à propos"
+    },
+    "uploadImage": {
+      "title": "Téléverser une image",
+      "content": "Déposez une image ici ou cliquez ici pour en choisir une.",
+      "submit": "Soumettre"
+    },
+    "confirmDeleteDialog": {
+      "title": "Supprimer l'image",
+      "content": "Êtes-vous sûr de vouloir supprimer cette image ?",
+      "validate": "Oui",
+      "cancel": "Non"
+    }
+  },
+  "errors": {
+    "title": "Erreur"
+  },
+  "warnings": {
+    "title": "Attention",
+    "unsupportedImage": "Votre navigateur ne peut pas afficher"
   }
 }
