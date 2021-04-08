@@ -200,12 +200,12 @@ public class ImageController {
     }
 
     // REDIRECTION FOR FRONTEND (when user reload the page)
-    @RequestMapping("/about")
+    @RequestMapping("/image/{id}")
     protected RedirectView redirect() {
         return new RedirectView("/");
     }
 
-    @RequestMapping("/image/{id}")
+    @RequestMapping("/about")
     protected RedirectView redirectA() {
         return new RedirectView("/");
     }
