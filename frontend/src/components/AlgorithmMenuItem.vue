@@ -42,12 +42,14 @@
           :key="err.type"
           role="alert"
         >
-          <strong>Error :</strong> {{ getErrorMsg(err) }}
+          <strong>{{ t("errors.title") }} :</strong> {{ getErrorMsg(err) }}
         </div>
         <div class="form-row">
           <span class="col-sm-6"></span>
           <div class="col-sm-6">
-            <button type="submit" class="btn btn-primary mx-4">Apply</button>
+            <button type="submit" class="btn btn-primary mx-4">
+              {{ t("components.image.algorithm.apply") }}
+            </button>
           </div>
         </div>
       </form>
@@ -56,7 +58,9 @@
 </template>
 
 <script>
+import { useI18n } from "vue-i18n";
 import httpApi from "../http-api.js";
+
 export default {
   name: "AlgorithmMenuItem",
   props: {
@@ -65,6 +69,7 @@ export default {
   },
   data() {
     return {
+      t: useI18n({ useScope: "global" }).t,
       errors: [],
     };
   },

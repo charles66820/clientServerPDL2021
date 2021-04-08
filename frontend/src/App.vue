@@ -2,7 +2,7 @@
   <div class="main">
     <header>
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">PACA</a>
+        <a class="navbar-brand" href="/">{{ t("title") }}</a>
         <button
           class="navbar-toggler"
           type="button"
@@ -10,7 +10,8 @@
           data-target="#mainNavbarToggler"
           aria-controls="mainNavbarToggler"
           aria-expanded="false"
-          aria-label="Toggle navigation"
+          :title="t('navigations.other.toggleButton')"
+          :aria-label="t('navigations.other.toggleButton')"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -18,8 +19,8 @@
           <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
             <li class="nav-item">
               <router-link class="nav-link" :to="{ name: 'Home' }"
-                >Home</router-link
-              >
+                >{{ t("navigations.home") }}
+              </router-link>
             </li>
             <li class="nav-item">
               <router-link class="nav-link" :to="{ name: 'About' }">{{
@@ -34,12 +35,14 @@
                 data-toggle="modal"
                 data-target="#uploadImageModal"
               >
-                Upload new image
+                {{ t("navigations.uploadImage") }}
               </button>
             </li>
           </ul>
           <form class="form-inline my-2 my-lg-0">
-            <label class="text-white pr-2">{{ t("labels.language") }} :</label>
+            <label class="text-white pr-2"
+              >{{ t("navigations.other.language") }} :</label
+            >
             <select
               class="form-control mr-sm-2"
               v-model="currentLocale"
@@ -51,7 +54,7 @@
                 :key="optionLocale"
                 :value="optionLocale"
               >
-                {{ optionLocale }}
+                {{ t("langs." + optionLocale) }}
               </option>
             </select>
           </form>
@@ -87,7 +90,6 @@ export default {
     this.locale = locale;
     this.t = t;
     this.currentLocale = ref(i18n.mode === "legacy" ? locale : locale.value);
-    console.log(i18n);
   },
   methods: {
     langChange() {

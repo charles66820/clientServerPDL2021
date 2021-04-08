@@ -4,15 +4,15 @@
       class="modal"
       id="uploadImageModal"
       tabindex="-1"
-      aria-labelledby="upload an new image modal"
+      aria-labelledby="uploadImageLabel"
       aria-hidden="true"
     >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="staticBackdropLabel">
-                Upload an image
+              <h5 class="modal-title" id="uploadImageLabel">
+                {{ t("components.uploadImage.title") }}
               </h5>
               <button
                 type="button"
@@ -30,7 +30,7 @@
                   v-if="warning"
                   role="alert"
                 >
-                  <strong>Warning !</strong> {{ warning.message }}
+                  <strong>{{ t("warnings.title") }} !</strong> {{ warning.message }}
                   <button
                     type="button"
                     class="close"
@@ -45,7 +45,7 @@
                   v-if="error"
                   role="alert"
                 >
-                  <strong>Error :</strong> {{ getErrorMsg(error) }}
+                  <strong>{{ t("errors.title") }} :</strong> {{ getErrorMsg(error) }}
                 </div>
                 <div
                   class="imgContainer init"
@@ -54,7 +54,7 @@
                   @drop="dropAreaDrop($event)"
                   @click="dropAreaClicked()"
                 >
-                  <span>Drop an image here or click here to choose one.</span>
+                  <span>{{ t("components.uploadImage.content") }}</span>
                   <img
                     id="imagePreview"
                     :src="null"
@@ -69,7 +69,7 @@
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="submit">Submit</button>
+                <button type="submit" class="btn btn-primary">{{ t("components.uploadImage.submit") }}</button>
               </div>
             </form>
           </div>
@@ -80,12 +80,15 @@
 </template>
 
 <script>
+import { useI18n } from "vue-i18n";
 import emitter from "tiny-emitter/instance";
 import httpApi from "../http-api.js";
+
 export default {
   name: "App",
   data() {
     return {
+      t: useI18n({ useScope: "global" }).t,
       imageType: "",
       error: null,
       warning: null,
@@ -158,7 +161,7 @@ export default {
     imagePreviewError() {
       if (this.imageType != "") {
         this.warning = new Error(
-          'Your browser cannot display : "' + this.imageType + '"'
+          this.t("warnings.unsupportedImage") + ` : "${this.imageType}"`
         );
         document.querySelector(
           "#imagePreview"
