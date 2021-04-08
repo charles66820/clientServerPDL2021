@@ -1,15 +1,17 @@
 <template>
   <div class="main-container pb-4">
     <div class="container pb-4">
-      <h2 class="mt-4">Image list</h2>
+      <h2 class="mt-4">
+        {{ t("components.images.title") }}
+      </h2>
       <div>
         <div
           class="alert alert-warning alert-dismissible fade show"
-          v-for="warn in warnings"
-          :key="warn.type"
+          v-if="warning"
+          :key="warning.type"
           role="alert"
         >
-          <strong>Warning !</strong> {{ warn.message }}
+          <strong>{{ t("warnings.title") }} !</strong> {{ warning.message }}
           <button
             type="button"
             class="close"
@@ -25,20 +27,21 @@
           :key="err.type"
           role="alert"
         >
-          <strong>Error :</strong> {{ getErrorMsg(err) }}
+          <strong>{{ t("errors.title") }} :</strong> {{ getErrorMsg(err) }}
         </div>
       </div>
-      <p v-if="images.length > 0">Click on image for more action</p>
       <div v-if="images.length > 0" class="imageCarousel shadow my-4">
         <div class="imagesContainer imgContainer">
-          <!-- title="Informations de l'image" -->
           <router-link
             v-if="selectedImage"
             class="imageTitle"
             :to="{ name: 'Image', params: { id: selectedImage.id } }"
-            title="Show more image info"
-            >{{ selectedImage.name }}</router-link
-          >
+            :title="t('components.images.actionLbl')"
+            >{{ selectedImage.name }}
+            <button class="btn btn-primary imageAction">
+              {{ t("components.images.actionBtn") }}
+            </button>
+          </router-link>
           <img
             v-if="selectedImage"
             :src="selectedImage.blob"
@@ -64,7 +67,9 @@
 
 <script>
 import emitter from "tiny-emitter/instance";
+import { useI18n } from "vue-i18n";
 import httpApi from "../http-api.js";
+
 export default {
   name: "Images",
   props: {
@@ -72,10 +77,11 @@ export default {
   },
   data() {
     return {
+      t: useI18n({ useScope: "global" }).t,
       selectedImage: null,
       images: [],
       errors: [],
-      warnings: [],
+      warning: null,
     };
   },
   methods: {
@@ -102,8 +108,8 @@ export default {
       this.selectedImage = this.images.find((i) => i.id == e.target.dataset.id);
     },
     imageViewError(e, image) {
-      this.warnings.push(
-        new Error('Your browser cannot display : "' + image.type + '"')
+      this.warning = new Error(
+        this.t("warnings.unsupportedImage") + ` : "${image.type}"`
       );
       e.target.src = require("../assets/iconmonstr-picture-1.svg");
     },
@@ -198,6 +204,19 @@ export default {
   text-decoration: underline;
   text-decoration-color: rgb(0, 0, 0);
   -webkit-text-stroke: 0.8px rgb(255, 255, 255);
+  pointer-events: initial;
+  z-index: 1;
+}
+
+.imageAction {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  left: initial;
+  bottom: initial;
+  font-weight: initial;
+  text-decoration: none;
+  -webkit-text-stroke: 0;
   pointer-events: initial;
   z-index: 1;
 }

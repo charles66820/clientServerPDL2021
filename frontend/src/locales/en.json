@@ -1,0 +1,63 @@
+{
+  "title": "PACA",
+  "navigations": {
+    "home": "Home",
+    "about": "About us",
+    "uploadImage": "Upload new image",
+    "other": {
+      "toggleButton": "Toggle navigation",
+      "language": "Languages"
+    }
+  },
+  "components": {
+    "images": {
+      "title": "Image list",
+      "actionLbl": "Show algorithms and image metadata",
+      "actionBtn": "Algorithms and image metadata"
+    },
+    "image": {
+      "toggleAlgorithms": "Toggle algorithms",
+      "algorithmsTitle": "Algorithms",
+      "algorithm": {
+        "apply": "Apply"
+      },
+      "toggleMetadata": "Toggle image metadata",
+      "metadataTitle": "Image info",
+      "metadata": {
+        "title": "Metadata",
+        "id": "Id",
+        "name": "Name",
+        "type": "Type",
+        "size": "Size",
+        "removeImage": "Remove image",
+        "downloadOriginalImage": "Download original image",
+        "downloadProcessedImage": "Download processed image"
+      }
+    },
+    "about": {
+      "title": "This is an about page"
+    },
+    "uploadImage": {
+      "title": "Upload an image",
+      "content": "Drop an image here or click here to choose one.",
+      "submit": "Submit"
+    },
+    "confirmDeleteDialog": {
+      "title": "Delete image",
+      "content": "Are you sure to delete this image ?",
+      "validate": "Yes",
+      "cancel": "No"
+    }
+  },
+  "errors": {
+    "title": "Error"
+  },
+  "warnings": {
+    "title": "Warning",
+    "unsupportedImage": "Your browser cannot display"
+  },
+  "langs": {
+    "en": "English",
+    "fr": "Français"
+  }
+}

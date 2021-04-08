@@ -198,15 +198,4 @@ public class ImageController {
         });
         return algoNames;
     }
-
-    // REDIRECTION FOR FRONTEND (when user reload the page)
-    @RequestMapping("/about")
-    protected RedirectView redirect() {
-        return new RedirectView("/");
-    }
-
-    @RequestMapping("/image/{id}")
-    protected RedirectView redirectA() {
-        return new RedirectView("/");
-    }
 }
