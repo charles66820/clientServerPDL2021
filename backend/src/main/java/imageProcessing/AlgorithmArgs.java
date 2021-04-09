@@ -4,7 +4,7 @@ import java.util.List;
 
 public class AlgorithmArgs {
     public final String name;
-    public final String title;
+    public String title;
     public final String type;
     public final long min;
     public final long max;

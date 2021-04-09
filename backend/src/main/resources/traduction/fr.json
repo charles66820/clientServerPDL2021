@@ -1,0 +1,96 @@
+{
+  "AlgorithmsNames" : {
+    "Luminosity": {
+      "title" : "Luminosité",
+      "args" : [
+        {
+          "name": "gain",
+          "title": "Gain",
+          "type": "number",
+          "min": -255,
+          "max": 255,
+          "required": true,
+          "options": [{}]
+        }
+      ]
+    },
+    "Colored Filter": {
+      "title" : "Filtre coloré",
+      "args": [
+        {
+          "name": "hue",
+          "title": "Teinte",
+          "type": "number",
+          "min": 0,
+          "max": 359,
+          "required": true,
+          "options": [{}]
+        }
+      ]
+    },
+    "Histogram": {
+      "title" : "Histogramme",
+      "args" : [
+        {
+        "name": "channel",
+        "title" : "Canal TSV",
+        "type" : "select",
+        "required" : true,
+        "options" : [
+          {
+            "name" : "s",
+            "title" : "Saturation",
+            "type" : "",
+            "required" : false
+          },
+          {
+            "name" : "v",
+            "title" : "Valeur",
+            "type" : "",
+            "required" : false
+          }
+        ]
+      }
+      ]
+    },
+    "Blur Filter": {
+      "title" : "Filtre de flou",
+      "args" : [
+      {
+        "name" : "filterName",
+        "title" : "Nom du filtre",
+        "type" : "select",
+        "required" : true,
+        "options" : [
+          {
+            "name" : "meanFilter",
+            "title" : "Filtre moyenneur",
+            "type" : "",
+            "required" : false
+          },
+          {
+            "name" : "gaussianFilter",
+            "title" : "Filtre gaussien",
+            "type" : "",
+            "required" : false
+          }
+        ]
+      },
+        {
+          "name" : "blur",
+          "title" : "Filtre de flou",
+          "type" : "number",
+          "min" : 0,
+          "max" : 30,
+          "required" : true,
+          "options" : [{}]
+        }
+      ]
+    },
+    "Contour Filter": {
+      "title" : "Filtre de contour",
+      "name" : "contourFilter",
+      "args" : [{}]
+    }
+  }
+}

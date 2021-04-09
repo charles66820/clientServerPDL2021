@@ -1,0 +1,34 @@
+{
+  "AlgorithmsNames" : {
+    "Luminosity": {
+      "title" : "Luminosity",
+      "args" : {
+        "gain" : "gain"
+      }
+    },
+    "Colored Filter": {
+      "title" : "Colored Filter",
+      "args": {
+        "hue": "hue"
+      }
+    },
+    "Histogram": {
+      "title" : "Histogram",
+      "args" : {
+        "channel" : "HSV channel",
+        "saturation" : "saturation",
+        "value" : "value"
+      }
+    },
+    "Blur Filter": {
+      "title" : "Blur Filter",
+      "args" : {
+        "mean_filter" : "Mean Filter",
+        "gauss_filter" : "Gauss Filter"
+      }
+    },
+    "Contour Filter": {
+      "title" : "Contour Filter"
+    }
+  }
+}

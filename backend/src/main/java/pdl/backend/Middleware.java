@@ -10,15 +10,51 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Properties;
 
 @Component("middleware")
 public class Middleware extends OncePerRequestFilter {
+    private Properties supportedLanguages = new Properties();
+    public static Locale requestLocale = Locale.ENGLISH;
 
     @Override
     @RequestMapping()
     @ResponseBody
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        // TODO something about languages
+        initProperties();
+
+        if (httpServletRequest.getLocale() != requestLocale) {
+            detectLocaleFromRequest(httpServletRequest);
+        }
+        setLocaleToResponse(httpServletResponse);
+
         filterChain.doFilter(httpServletRequest, httpServletResponse);
+    }
+
+    private void initProperties() {
+        supportedLanguages = new Properties();
+        supportedLanguages.put("DEFAULT", Locale.ENGLISH.getLanguage());
+        supportedLanguages.put("fr", Locale.FRENCH.getLanguage());
+    }
+
+    private void detectLocaleFromRequest(HttpServletRequest request) {
+        Enumeration<Locale> locales = request.getLocales();
+        while (locales.hasMoreElements()) {
+            Locale l = locales.nextElement();
+            if (supportedLanguages.contains(l.getLanguage())) {
+                requestLocale = l;
+                break;
+            }
+        }
+    }
+
+    private void setLocaleToResponse(HttpServletResponse response) {
+        response.setLocale(requestLocale);
+    }
+
+    public static Locale getLocale() {
+        return requestLocale;
     }
 }
