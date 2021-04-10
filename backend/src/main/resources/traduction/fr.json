@@ -1,6 +1,6 @@
 {
   "AlgorithmsNames" : {
-    "Luminosity": {
+    "increaseLuminosity": {
       "title" : "Luminosité",
       "args" : [
         {
@@ -14,7 +14,7 @@
         }
       ]
     },
-    "Colored Filter": {
+    "coloredFilter": {
       "title" : "Filtre coloré",
       "args": [
         {
@@ -28,7 +28,7 @@
         }
       ]
     },
-    "Histogram": {
+    "histogramContrast": {
       "title" : "Histogramme",
       "args" : [
         {
@@ -53,7 +53,7 @@
       }
       ]
     },
-    "Blur Filter": {
+    "blurFilter": {
       "title" : "Filtre de flou",
       "args" : [
       {
@@ -87,7 +87,7 @@
         }
       ]
     },
-    "Contour Filter": {
+    "contourFilter": {
       "title" : "Filtre de contour",
       "name" : "contourFilter",
       "args" : [{}]

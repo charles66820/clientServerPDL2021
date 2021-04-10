@@ -1,34 +1,96 @@
 {
   "AlgorithmsNames" : {
-    "Luminosity": {
+    "increaseLuminosity": {
       "title" : "Luminosity",
-      "args" : {
-        "gain" : "gain"
-      }
+      "args" : [
+        {
+          "name": "gain",
+          "title": "Gain",
+          "type": "number",
+          "min": -255,
+          "max": 255,
+          "required": true,
+          "options": [{}]
+        }
+      ]
     },
-    "Colored Filter": {
+    "coloredFilter": {
       "title" : "Colored Filter",
-      "args": {
-        "hue": "hue"
-      }
+      "args": [
+        {
+          "name": "hue",
+          "title": "Hue",
+          "type": "number",
+          "min": 0,
+          "max": 359,
+          "required": true,
+          "options": [{}]
+        }
+      ]
     },
-    "Histogram": {
+    "histogramContrast": {
       "title" : "Histogram",
-      "args" : {
-        "channel" : "HSV channel",
-        "saturation" : "saturation",
-        "value" : "value"
-      }
+      "args" : [
+        {
+          "name": "channel",
+          "title" : "HSV Channel",
+          "type" : "select",
+          "required" : true,
+          "options" : [
+            {
+              "name" : "s",
+              "title" : "Saturation",
+              "type" : "",
+              "required" : false
+            },
+            {
+              "name" : "v",
+              "title" : "Value",
+              "type" : "",
+              "required" : false
+            }
+          ]
+        }
+      ]
     },
-    "Blur Filter": {
+    "blurFilter": {
       "title" : "Blur Filter",
-      "args" : {
-        "mean_filter" : "Mean Filter",
-        "gauss_filter" : "Gauss Filter"
-      }
+      "args" : [
+        {
+          "name" : "filterName",
+          "title" : "Filter name",
+          "type" : "select",
+          "required" : true,
+          "options" : [
+            {
+              "name" : "meanFilter",
+              "title" : "Mean Filter",
+              "type" : "",
+              "required" : false
+            },
+            {
+              "name" : "gaussianFilter",
+              "title" : "Gaussian Filter",
+              "type" : "",
+              "required" : false
+            }
+          ]
+        },
+        {
+          "name" : "blur",
+          "title" : "Blur Filter",
+          "type" : "number",
+          "min" : 0,
+          "max" : 30,
+          "required" : true,
+          "options" : [{}]
+        }
+      ]
     },
-    "Contour Filter": {
-      "title" : "Contour Filter"
+    "contourFilter": {
+      "title" : "Contour Filter",
+      "name" : "contourFilter",
+      "args" : [{}]
     }
   }
 }

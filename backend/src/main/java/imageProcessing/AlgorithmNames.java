@@ -7,82 +7,104 @@ import pdl.backend.Middleware;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public enum AlgorithmNames {
     // maybe add a description
-    LUMINOSITY("Luminosity", "increaseLuminosity", new ArrayList<>() {{
-        add(new AlgorithmArgs("gain", "Gain", "number", -255, 255, true));
+    LUMINOSITY("increaseLuminosity", new ArrayList<>() {{
+        add(new AlgorithmArgs("gain", "","number", -255, 255, true));
     }}),   //only one parameter
-    COLORED_FILTER("Colored Filter", "coloredFilter", new ArrayList<>() {{
-        add(new AlgorithmArgs("hue", "Hue", "number", 0, 359, true));
+    COLORED_FILTER( "coloredFilter", new ArrayList<>() {{
+        add(new AlgorithmArgs("hue", "", "number", 0, 359, true));
     }}),  // only one parameter
-    HISTOGRAM("Histogram", "histogramContrast", new ArrayList<>() {{
+    HISTOGRAM( "histogramContrast", new ArrayList<>() {{
         add(new AlgorithmArgs("channel", "HSV Channel", "select", true, new ArrayList<>() {{
-            add(new AlgorithmArgs("s", "Saturation", "", false));
-            add(new AlgorithmArgs("v", "Value", "",false));
+            add(new AlgorithmArgs("s", "", "", false));
+            add(new AlgorithmArgs("v", "", "",false));
         }}));
     }}),    // channel S or V
-    BLUR_FILTER( "Blur Filter", "blurFilter", new ArrayList<>() {{
+    BLUR_FILTER( "blurFilter", new ArrayList<>() {{
         add(new AlgorithmArgs("filterName", "Filter name", "select", true, new ArrayList<>() {{
-            add(new AlgorithmArgs("meanFilter", "Mean filter", "", false));
-            add(new AlgorithmArgs("gaussFilter", "Gauss filter", "",false));
+            add(new AlgorithmArgs("meanFilter", "", "", false));
+            add(new AlgorithmArgs("gaussFilter", "", "",false));
         }}));
-        add(new AlgorithmArgs("blur", "Blur level", "number", 0, 30, true));
+        add(new AlgorithmArgs("blur", "", "number", 0, 30, true));
     }}),     //mean or gaussian and level of blur
-    CONTOUR_FILTER("Contour Filter", "contourFilter", new ArrayList<>());
+    CONTOUR_FILTER("contourFilter", new ArrayList<>());
 
-    private String title;
+    private final HashMap<Locale, String> algoTitle;
+    private final HashMap<Locale, ArrayList<String>> argsTitle;
+    private final HashMap<Locale, ArrayList<String>> optionsTitle;
+    private final List<AlgorithmArgs> args;
     private final String name;
-    private List<AlgorithmArgs> args;
 
+    AlgorithmNames(String name, List<AlgorithmArgs> args) {
+        algoTitle = new HashMap<>();
+        argsTitle = new HashMap<>();
+        optionsTitle = new HashMap<>();
 
-    AlgorithmNames(String title, String name, List<AlgorithmArgs> args) {
         this.name = name;
         this.args = args;
 
-        BufferedReader reader;
+        BufferedReader readerFr;
+        BufferedReader readerEn;
         try {
-            reader = new BufferedReader(new FileReader(getClass().getResource("/traduction/fr.json").getPath()));
-            StringBuilder file = new StringBuilder();
+            readerEn = new BufferedReader(new FileReader(getClass().getResource("/traduction/en.json").getPath()));
+            readerFr = new BufferedReader(new FileReader(getClass().getResource("/traduction/fr.json").getPath()));
+            StringBuilder JSONFileFr = new StringBuilder();
+            StringBuilder JSONFileEn = new StringBuilder();
             String line;
-            while ((line = reader.readLine()) != null) {
-                file.append(line);
+            while ((line = readerFr.readLine()) != null) {
+                JSONFileFr.append(line);
+            }
+            while ((line = readerEn.readLine()) != null) {
+                JSONFileEn.append(line);
             }
 
-            JSONObject obj = new JSONObject(file.toString());
-            if (Middleware.getLocale().getLanguage().equals("fr")) {
-                this.title = obj.getJSONObject("AlgorithmsNames").getJSONObject(title).getString("title");
+            JSONObject JSONobjFr = new JSONObject(JSONFileFr.toString());
+            JSONObject JSONobjEn = new JSONObject(JSONFileEn.toString());
 
-                JSONArray arguments = obj.getJSONObject("AlgorithmsNames").getJSONObject(title).getJSONArray("args");
-                if (arguments.getJSONObject(0).length() > 0) {
-                    JSONArray options = arguments.getJSONObject(0).getJSONArray("options");
-                    if (arguments.length() == 2) {
-                        options = arguments.getJSONObject(1).getJSONArray("options");
-                    }
-                    if (options.length() != 0) {
-                        for (int argNum = 0; argNum < arguments.length(); argNum++) {
-                            for (int optNum = 0; optNum < options.length(); optNum++) {
-                                this.args.get(argNum).title = arguments.getJSONObject(argNum).getString("title");
-                                if (this.args.get(argNum).options != null && options.getJSONObject(optNum).length() > 0) {
-                                    this.args.get(argNum).options.get(optNum).title = options.getJSONObject(optNum).getString("title");
-                                }
+            algoTitle.put(Locale.FRENCH, JSONobjFr.getJSONObject("AlgorithmsNames").getJSONObject(name).getString("title"));
+            algoTitle.put(Locale.ENGLISH, JSONobjEn.getJSONObject("AlgorithmsNames").getJSONObject(name).getString("title"));
+
+            JSONArray arguments = JSONobjFr.getJSONObject("AlgorithmsNames").getJSONObject(name).getJSONArray("args");
+            if (arguments.getJSONObject(0).length() > 0) {
+                JSONArray options = arguments.getJSONObject(0).getJSONArray("options");
+                if (arguments.length() == 2) {
+                    options = arguments.getJSONObject(1).getJSONArray("options");
+                }
+                if (options.length() != 0) {
+                    ArrayList<String> argT = new ArrayList<>();
+                    ArrayList<String> optT = new ArrayList<>();
+                    for (int argNum = 0; argNum < arguments.length(); argNum++) {
+                        argT.add(arguments.getJSONObject(argNum).getString("title"));
+                        for (int optNum = 0; optNum < options.length(); optNum++) {
+                            if (this.args.get(argNum).options != null && options.getJSONObject(optNum).length() > 0) {
+                                optT.add(options.getJSONObject(optNum).getString("title"));
                             }
                         }
                     }
+                    argsTitle.put(Locale.FRENCH, argT);
+                    optionsTitle.put(Locale.FRENCH,optT);
                 }
-            } else {
-                this.title = title;
-                this.args = args;
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
+    }
 
+    public ArrayList<String> getArgTitle() {
+        return argsTitle.get(Middleware.getLocale());
+    }
+
+    public ArrayList<String> getOptTitle() {
+        return optionsTitle.get(Middleware.getLocale());
     }
 
     public String getTitle() {
-        return title;
+        return algoTitle.get(Middleware.getLocale());
     }
 
     public String getName() {

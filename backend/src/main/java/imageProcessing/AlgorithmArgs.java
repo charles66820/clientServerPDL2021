@@ -32,5 +32,4 @@ public class AlgorithmArgs {
     public AlgorithmArgs(String name, String title, String type, boolean required) {
         this(name, title, type, 0, 0, required, null);
     }
-
 }
