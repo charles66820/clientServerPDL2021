@@ -118,15 +118,15 @@ public enum AlgorithmNames {
 
 
     public ArrayList<String> getArgTitle() {
-        return argsTitle.get(Middleware.getLocale());
+        return argsTitle.get(new Locale(Middleware.getLocale().getLanguage()));
     }
 
     public ArrayList<String> getOptTitle() {
-        return optionsTitle.get(Middleware.getLocale());
+        return optionsTitle.get(new Locale(Middleware.getLocale().getLanguage()));
     }
 
     public String getTitle() {
-        return algoTitle.get(Middleware.getLocale());
+        return algoTitle.get(new Locale(Middleware.getLocale().getLanguage()));
     }
 
     public String getName() {
