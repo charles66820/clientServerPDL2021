@@ -35,6 +35,7 @@ public class AlgorithmProcess {
     public static HashMap<String, Object> getImageMetaData(Image image) throws ImageConversionException {
         return getImageMetaData(image.getData());
     }
+
     public static HashMap<String, Object> getImageMetaData(byte[] image) throws ImageConversionException {
         try {
             HashMap<String, Object> res = new HashMap<>();
@@ -49,39 +50,40 @@ public class AlgorithmProcess {
                 res.put("dimension", imageMetadata.getAxisLength(2));
             }
             return res;
-        } catch(IOException | FormatException e) {
+        } catch (IOException | FormatException e) {
             throw new ImageConversionException("Error during conversion !");
         }
     }
+
     //TODO: add badParam in a list when we have BadParamsException
-    public static byte[] applyAlgorithm(Image image, Map<String,String> params) throws BadParamsException, ImageConversionException, UnknownAlgorithmException {
+    public static byte[] applyAlgorithm(Image image, Map<String, String> params) throws BadParamsException, ImageConversionException, UnknownAlgorithmException {
         //Test if "algorithm" is in the query param
-        if(!params.containsKey("algorithm")){
+        if (!params.containsKey("algorithm")) {
             throw new BadParamsException("Parameter algorithm after ? is missing !");
         }
-        AlgorithmNames algoName = AlgorithmNames.fromString(params.get("algorithm"));
-        if(params.get("algorithm").equals("")) {
+
+        String algoalgorithmName = params.get("algorithm");
+        if (algoalgorithmName.equals("")) {
             throw new BadParamsException("Name of algorithm is missing !");
         }
-        byte[] bytes = image.getData();
+
+        AlgorithmNames algoName = AlgorithmNames.fromString(algoalgorithmName);
+        if (algoName == null)
+            throw new UnknownAlgorithmException("This algorithm doesn't exist !", algoalgorithmName);
 
         List<AlgorithmArgs> badArgList = new ArrayList<>();
         HashMap<String, Object> valueMap = new HashMap<>();
-        BadParamsException bpe = new BadParamsException("Argument is not valid !", badArgList, valueMap);
-        boolean argValid = true;
+        boolean argValid = true; //"Parameters are invalid !"
 
-        assert algoName != null;
         //Test if all args in params are valid
-        for (AlgorithmArgs arg: algoName.getArgs()) {
+        for (AlgorithmArgs arg : algoName.getArgs()) {
             // If arg is present
-            if(params.containsKey(arg.name)){
+            if (params.containsKey(arg.name)) {
                 // If argument is a number
-                if(arg.type.equals("number")) {
+                if (arg.type.equals("number")) {
                     // Test if number is valid
                     if (params.get(arg.name).equals("")) {
                         argValid = false;
-                        bpe.setParamsValid(false);
-                        bpe.setParamExist(true);
                         badArgList.add(arg);
                         valueMap.put(arg.name, null);
                         break;
@@ -90,16 +92,12 @@ public class AlgorithmProcess {
                             float argLong = Float.parseFloat(params.get(arg.name));
                             if (argLong < arg.min || argLong > arg.max) {
                                 argValid = false;
-                                bpe.setParamsValid(false);
-                                bpe.setParamExist(true);
                                 badArgList.add(arg);
                                 valueMap.put(arg.name, params.get(arg.name));
                                 break;
                             }
-                        } catch (NumberFormatException nbr){
+                        } catch (NumberFormatException nbr) {
                             argValid = false;
-                            bpe.setParamsValid(false);
-                            bpe.setParamExist(true);
                             badArgList.add(arg);
                             valueMap.put(arg.name, params.get(arg.name));
                             break;
@@ -116,9 +114,7 @@ public class AlgorithmProcess {
                         }
                     }
                     // If arg is not find in option list
-                    if(!argValid) {
-                        bpe.setParamsValid(false);
-                        bpe.setParamExist(true);
+                    if (!argValid) {
                         badArgList.add(arg);
                         valueMap.put(arg.name, params.get(arg.name));
                         break;
@@ -128,10 +124,8 @@ public class AlgorithmProcess {
             }
             // If arg is not present we test if it is required or not
             else {
-                if(arg.required) {
+                if (arg.required) {
                     argValid = false;
-                    bpe.setParamsValid(true);
-                    bpe.setParamExist(false);
                     badArgList.add(arg);
                     valueMap.put(arg.name, params.get(arg.name));
                     break;
@@ -139,11 +133,12 @@ public class AlgorithmProcess {
             }
         }
         //If arg is not valid
-        if (!argValid){
-            throw bpe;
+        if (!argValid) {
+            throw new BadParamsException("Argument is not valid !", badArgList, valueMap);
         }
 
         // Create a new output image with the same dimension of the input
+        byte[] bytes = image.getData();
         SCIFIOImgPlus<UnsignedByteType> img;
         SCIFIOImgPlus<UnsignedByteType> output;
         try {
@@ -155,50 +150,50 @@ public class AlgorithmProcess {
 
         switch (algoName) {
             case LUMINOSITY:
-                    try {
-                        float luminosity = Float.parseFloat(params.get("gain"));
-                        increaseLuminosity(img, output, luminosity);
-                        bytes = ImageConverter.imageToJPEGBytes(output);
-                    } catch (NumberFormatException e) {
-                        throw new BadParamsException("Parameter \"gain\" must be a float number !");
-                    } catch (FormatException | IOException ex) {
-                        throw new ImageConversionException("Error during conversion ! ");
-                    }
-                    break;
-                case COLORED_FILTER:
-                    float hue = Float.parseFloat(params.get("hue"));
-                    coloredFilter(img, hue);
-                    output = img;
-                    try {
-                        bytes = ImageConverter.imageToJPEGBytes(output);
-                    } catch (FormatException | IOException e) {
-                        throw new ImageConversionException("Error during conversion ! ");
-                    }
-                    break;
-                case HISTOGRAM:
-                    String channel = params.get("channel");
-                    histogramContrast(img, channel);
-                    try {
-                        bytes = ImageConverter.imageToJPEGBytes(img);
-                    } catch (FormatException | IOException e) {
-                        throw new ImageConversionException("Error during conversion ! ");
-                    }
-                    break;
-                case BLUR_FILTER:
-                    String filterName = params.get("filterName");
-                    double blurLvl = Double.parseDouble(params.get("blur"));
-                    blurFilter(img, output, filterName, blurLvl);
-                    try {
-                        bytes = ImageConverter.imageToJPEGBytes(output);
-                    } catch (FormatException | IOException e) {
-                        throw new ImageConversionException("Error during conversion ! ");
-                    }
-                    break;
-                case CONTOUR_FILTER:
-                    bytes = contourFilter(bytes);
-                    break;
-                default:
-                    throw new UnknownAlgorithmException("This algorithm doesn't exist !");
+                try {
+                    float luminosity = Float.parseFloat(params.get("gain"));
+                    increaseLuminosity(img, output, luminosity);
+                    bytes = ImageConverter.imageToJPEGBytes(output);
+                } catch (NumberFormatException e) {
+                    throw new BadParamsException("Parameter \"gain\" must be a float number !");
+                } catch (FormatException | IOException ex) {
+                    throw new ImageConversionException("Error during conversion ! ");
+                }
+                break;
+            case COLORED_FILTER:
+                float hue = Float.parseFloat(params.get("hue"));
+                coloredFilter(img, hue);
+                output = img;
+                try {
+                    bytes = ImageConverter.imageToJPEGBytes(output);
+                } catch (FormatException | IOException e) {
+                    throw new ImageConversionException("Error during conversion ! ");
+                }
+                break;
+            case HISTOGRAM:
+                String channel = params.get("channel");
+                histogramContrast(img, channel);
+                try {
+                    bytes = ImageConverter.imageToJPEGBytes(img);
+                } catch (FormatException | IOException e) {
+                    throw new ImageConversionException("Error during conversion ! ");
+                }
+                break;
+            case BLUR_FILTER:
+                String filterName = params.get("filterName");
+                double blurLvl = Double.parseDouble(params.get("blur"));
+                blurFilter(img, output, filterName, blurLvl);
+                try {
+                    bytes = ImageConverter.imageToJPEGBytes(output);
+                } catch (FormatException | IOException e) {
+                    throw new ImageConversionException("Error during conversion ! ");
+                }
+                break;
+            case CONTOUR_FILTER:
+                bytes = contourFilter(bytes);
+                break;
+            default:
+                throw new UnknownAlgorithmException("This algorithm cannot be executed by the server !", algoName.getName(), algoName.getTitle());
         }
         return bytes;
     }
@@ -229,8 +224,7 @@ public class AlgorithmProcess {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(resultat, "JPEG", baos);
             out = baos.toByteArray();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return out;
@@ -255,7 +249,7 @@ public class AlgorithmProcess {
                     out.setPosition(x, 0);
                     out.setPosition(y, 1);
                     out.setPosition(channel, 2);
-                    newValue = Math.round(r.get().get()*(1 + luminosity/100));
+                    newValue = Math.round(r.get().get() * (1 + luminosity / 100));
                     out.get().set(Math.max(Math.min(newValue, 255), 0));
                 }
             }
@@ -270,54 +264,54 @@ public class AlgorithmProcess {
         min = Math.min(min, b);
 
         // conversion HSV
-        hsv[2] = max/255;   // Value
+        hsv[2] = max / 255;   // Value
         // Hue
-        if (max == min){
+        if (max == min) {
             hsv[0] = 0;
-        }else if(max == r){
-            hsv[0] = (60*((g-b)/(max-min))+360) % 360;
-        }else if(max == g){
-            hsv[0] = 60*((b-r)/(max-min))+120;
-        }else{
-            hsv[0] = 60*((r-g)/(max-min))+240;
+        } else if (max == r) {
+            hsv[0] = (60 * ((g - b) / (max - min)) + 360) % 360;
+        } else if (max == g) {
+            hsv[0] = 60 * ((b - r) / (max - min)) + 120;
+        } else {
+            hsv[0] = 60 * ((r - g) / (max - min)) + 240;
         }
         // Saturation
-        if(max == 0){
+        if (max == 0) {
             hsv[1] = 0;
-        }else{
-            hsv[1] = 1-((min/255)/(max/255));
+        } else {
+            hsv[1] = 1 - ((min / 255) / (max / 255));
         }
     }
 
-    public static void hsvToRgb(float h, float s, float v, int[] rgb){
-        int hi = ((int) Math.floor(h/60)) % 6;
-        float f = (h/60) - hi;
-        float l = (v * (1-s))*255;
-        float m = (v*(1-f*s))*255;
-        float n = (v*(1-(1-f)*s))*255;
-        v = v*255;
+    public static void hsvToRgb(float h, float s, float v, int[] rgb) {
+        int hi = ((int) Math.floor(h / 60)) % 6;
+        float f = (h / 60) - hi;
+        float l = (v * (1 - s)) * 255;
+        float m = (v * (1 - f * s)) * 255;
+        float n = (v * (1 - (1 - f) * s)) * 255;
+        v = v * 255;
 
-        if(hi == 0){
+        if (hi == 0) {
             rgb[0] = (int) v;
             rgb[1] = (int) n;
             rgb[2] = (int) l;
-        }else if(hi == 1){
+        } else if (hi == 1) {
             rgb[0] = (int) m;
             rgb[1] = (int) v;
             rgb[2] = (int) l;
-        }else if(hi == 2){
+        } else if (hi == 2) {
             rgb[0] = (int) l;
             rgb[1] = (int) v;
             rgb[2] = (int) n;
-        }else if(hi == 3){
+        } else if (hi == 3) {
             rgb[0] = (int) l;
             rgb[1] = (int) m;
             rgb[2] = (int) v;
-        }else if(hi == 4){
+        } else if (hi == 4) {
             rgb[0] = (int) n;
             rgb[1] = (int) l;
             rgb[2] = (int) v;
-        }else if(hi == 5){
+        } else if (hi == 5) {
             rgb[0] = (int) v;
             rgb[1] = (int) l;
             rgb[2] = (int) m;
@@ -351,9 +345,9 @@ public class AlgorithmProcess {
         final IntervalView<UnsignedByteType> cG = Views.hyperSlice(input, 2, 1); // Dimension 2 channel 1 (green)
         final IntervalView<UnsignedByteType> cB = Views.hyperSlice(input, 2, 2); // Dimension 2 channel 2 (blue)
 
-        int[] hist = new int [101];
+        int[] hist = new int[101];
 
-        for (int i = 0; i<101; i++){
+        for (int i = 0; i < 101; i++) {
             hist[i] = 0;
         }
 
@@ -361,14 +355,14 @@ public class AlgorithmProcess {
         LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
             float[] hsv = new float[3];
             rgbToHsv(r.get(), g.get(), b.get(), hsv);
-            hist[(int)(hsv[channel] * 100)]++;
+            hist[(int) (hsv[channel] * 100)]++;
         });
 
         //Calcul of cumulative histogram
         int[] histocum = new int[101];
         histocum[0] = hist[0];
-        for(int i = 1; i < 101; i++){
-            histocum[i] = histocum[i-1] + hist[i];
+        for (int i = 1; i < 101; i++) {
+            histocum[i] = histocum[i - 1] + hist[i];
         }
 
         // Transform image
@@ -377,7 +371,7 @@ public class AlgorithmProcess {
             rgbToHsv(r.get(), g.get(), b.get(), hsv);
             if (hsv[channel] > 100) hsv[channel] = 100;
             int[] rgb = new int[3];
-            hsv[channel] = ((float) histocum[(int)(hsv[channel] * 100)]*101/N) / 100;
+            hsv[channel] = ((float) histocum[(int) (hsv[channel] * 100)] * 101 / N) / 100;
             hsvToRgb(hsv[0], hsv[1], hsv[2], rgb);
             r.set(rgb[0]);
             g.set(rgb[1]);
@@ -402,22 +396,22 @@ public class AlgorithmProcess {
         final RandomAccess<UnsignedByteType> rOut = output.randomAccess();
 
         // Browse of the image
-        for (double x = size; x < input.max(0)-size; x++){		// 0 == width
-            for(double y = size; y < input.max(1)-size; y++){	// 1 == length
-                rOut.setPosition((int) x,0);
-                rOut.setPosition((int) y,1);
+        for (double x = size; x < input.max(0) - size; x++) {        // 0 == width
+            for (double y = size; y < input.max(1) - size; y++) {    // 1 == length
+                rOut.setPosition((int) x, 0);
+                rOut.setPosition((int) y, 1);
 
                 int r = 0;
                 // Browse of the neighborhood of the pixel
-                for(double i = x - size; i <= x + size; i++){
-                    for(double j = y - size; j <= y + size; j++){
-                        rIn.setPosition((int) i,0);
-                        rIn.setPosition((int) j,1);
+                for (double i = x - size; i <= x + size; i++) {
+                    for (double j = y - size; j <= y + size; j++) {
+                        rIn.setPosition((int) i, 0);
+                        rIn.setPosition((int) j, 1);
                         r += rIn.get().get();
 
                     }
                 }
-                rOut.get().set((int) (r/((2*size+1)*(2*size+1))));
+                rOut.get().set((int) (r / ((2 * size + 1) * (2 * size + 1))));
             }
         }
         //Apply convolution on the other channel
