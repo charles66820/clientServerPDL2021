@@ -67,7 +67,12 @@
           >
             <img :src="image.blob" @error="imageViewError($event, image)" />
           </li>
-          <div v-if="loading" class="spinner-border imgContainer" style="width: 1rem; height: 1rem;" role="status">
+          <div
+            v-if="loading"
+            class="spinner-border imgContainer"
+            style="width: 1rem; height: 1rem"
+            role="status"
+          >
             <span class="sr-only">{{ t("loading") }}</span>
           </div>
         </ul>
@@ -138,6 +143,7 @@ export default {
     },
   },
   mounted() {
+    document.title = this.t("titles.images");
     emitter.on("updateImages", this.loadImages);
     this.loadImages();
   },

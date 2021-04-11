@@ -14,6 +14,9 @@ export default {
     return {
       t: useI18n({ useScope: "global" }).t,
     };
+  },
+  mounted() {
+    document.title = this.t("titles.about");
   }
 };
 </script>

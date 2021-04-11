@@ -9,6 +9,11 @@
       "language": "Languages"
     }
   },
+  "titles": {
+    "about": "About us",
+    "image": "Image",
+    "images": "Images"
+  },
   "components": {
     "images": {
       "title": "Image list",

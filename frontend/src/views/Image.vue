@@ -268,6 +268,7 @@ export default {
     ConfirmDeleteDialog,
   },
   mounted() {
+    document.title = this.t("titles.image");
     emitter.on("updateImage", () => {
       this.defaultImageBlob = null;
       this.processedImageBlob = null;
@@ -314,6 +315,7 @@ export default {
         .get_imageData(this.$route.params.id)
         .then((res) => {
           this.image_data = res.data;
+          document.title = this.t("titles.image") + " | " + this.image_data.name;
         })
         .catch((err) => (this.imageDataError = err));
     },
