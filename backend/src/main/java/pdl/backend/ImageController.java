@@ -1,15 +1,10 @@
 package pdl.backend;
 
-import java.io.IOException;
-import java.util.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import exceptions.BadParamsException;
 import exceptions.ImageConversionException;
 import exceptions.ImageWebException;
-import exceptions.UnknownAlgorithmException;
 import imageProcessing.AlgorithmArgs;
 import imageProcessing.AlgorithmNames;
 import imageProcessing.AlgorithmProcess;
@@ -17,15 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
+
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 public class ImageController {
@@ -38,26 +31,6 @@ public class ImageController {
     public ImageController(ImageDao imageDao) {
         this.imageDao = imageDao;
     }
-
-    /*@RequestMapping(value = "/test", method = RequestMethod.GET, produces = "application/json")
-    @ResponseBody
-    public ObjectNode test() {
-        //Test exception
-        AlgorithmArgs badArg1 = new AlgorithmArgs("gain", "Gain", "number", -255, 255, true);
-        AlgorithmArgs badArg2 = new AlgorithmArgs("filterName", "Filter name", "select", true, new ArrayList<>() {{
-            add(new AlgorithmArgs("meanFilter", "Mean filter", "", false));
-            add(new AlgorithmArgs("gaussFilter", "Gauss filter", "",false));
-        }});
-        List<AlgorithmArgs> badArgList= new ArrayList<>(){{add(badArg1); add(badArg2);}};
-        Object value1 = 300;
-        Object value2 = "toto";
-        HashMap<String, Object> valueMap = new HashMap<String, Object>();
-        valueMap.put("gain", value1);
-        valueMap.put("filterName", value2);
-        BadParamsException e = new BadParamsException("Bad parameter !", badArgList, valueMap);
-
-        return e.toJSON();
-    }*/
 
     @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
     @ResponseBody
@@ -81,8 +54,8 @@ public class ImageController {
                             .body(bytes);
                 } catch (ImageWebException e) {
                     return ResponseEntity.status(e.status)
-                           .contentType(MediaType.APPLICATION_JSON)
-                           .body(e.toJSON());
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(e.toJSON());
                 }
             }
         } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -119,7 +92,7 @@ public class ImageController {
     @RequestMapping(value = "/images", method = RequestMethod.POST)
     public ResponseEntity<?> addImage(@RequestParam("image") MultipartFile file,
                                       RedirectAttributes redirectAttributes) {
-        if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG.toString()) && !Objects.equals(file.getContentType(), "image/tiff"))
+        if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG_VALUE) && !Objects.equals(file.getContentType(), "image/tiff"))
             return ResponseEntity
                     .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
                     .contentType(MediaType.TEXT_PLAIN)

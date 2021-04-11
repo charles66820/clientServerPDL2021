@@ -12,8 +12,6 @@ public class BadParamsException extends ImageWebException {
 
     private List<AlgorithmArgs> badParamsList;
     private HashMap<String, Object> paramValue; //key = name of argument
-    private boolean paramExist;
-    private boolean paramsValid;
     public final HttpStatus status = HttpStatus.BAD_REQUEST;
 
     public BadParamsException(String message, List<AlgorithmArgs> badParamsList, HashMap<String , Object> paramValue) {
@@ -30,38 +28,8 @@ public class BadParamsException extends ImageWebException {
         super();
     }
 
-    public boolean areParamsValid() {
-        return paramsValid;
-    }
-
-    public boolean doesParamExist() {
-        return paramExist;
-    }
-
-    public void setParamsValid(boolean valid) {
-        paramsValid = valid;
-    }
-
-    public void setParamExist(boolean exist) {
-        paramExist = exist;
-    }
-
-    @Override
-    public String toString() {
-        String value = "";
-        if (!paramExist) {
-            value = "Among these parameters, one doesn't exist !";
-        }
-        if (!paramsValid) {
-            value = "Parameters are invalid !";
-        }
-        return value;
-    }
-
     @Override
     public ObjectNode toJSON() {
-        super.setType("BadParamsException");
-
         ObjectNode node = super.toJSON();
         // If we don't have a list of parameters
         if(badParamsList == null) {
@@ -70,13 +38,13 @@ public class BadParamsException extends ImageWebException {
         // List of bad parameters
         ArrayNode badParamsListNode = node.putArray("badParams");
         for(AlgorithmArgs param : badParamsList) {
-            ObjectNode paramNode = super.getMapper().createObjectNode();
+            ObjectNode paramNode = super.mapper.createObjectNode();
             paramNode.put("name", param.name);
             paramNode.put("title", param.title);
             paramNode.put("type", param.type);
             paramNode.put("required", param.required);
             // If parameter does not have a value
-            if (!this.paramExist || !this.paramValue.containsKey(param.name)) {
+            if (!this.paramValue.containsKey(param.name)) {
                 paramNode.put("value", "null");
             }
             // If parameter is a number
@@ -103,11 +71,9 @@ public class BadParamsException extends ImageWebException {
                 // Display expected value for the selector
                 ArrayNode expectedValueListNode = paramNode.putArray("expectedValue");
                 for(AlgorithmArgs value : param.options) {
-                    ObjectNode expectedValueNode = super.getMapper().createObjectNode();
+                    ObjectNode expectedValueNode = super.mapper.createObjectNode();
                     expectedValueNode.put("name", value.name);
                     expectedValueNode.put("title", value.title);
-                    expectedValueNode.put("type", value.type);
-                    expectedValueNode.put("required", value.required);
                     expectedValueListNode.add(expectedValueNode);
                 }
             }

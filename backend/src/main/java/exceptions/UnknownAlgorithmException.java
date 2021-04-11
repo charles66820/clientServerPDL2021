@@ -18,9 +18,8 @@ public class UnknownAlgorithmException extends ImageWebException {
 
     @Override
     public ObjectNode toJSON() {
-        super.setType("UnknownAlgorithmException");
         ObjectNode node = super.toJSON();
-        node.put("Name", this.algoName);
+        node.put("name", this.algoName);
         return node;
     }
 }

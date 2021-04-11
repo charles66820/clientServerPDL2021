@@ -10,9 +10,4 @@ public class ImageConversionException extends ImageWebException {
         super(message);
     }
 
-    @Override
-    public ObjectNode toJSON() {
-        super.setType("ImageConversionException");
-        return super.toJSON();
-    }
 }
