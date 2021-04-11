@@ -1,72 +1,59 @@
 {
   "AlgorithmsNames" : {
     "increaseLuminosity": {
-      "title" : "Luminosity",
-      "args" : [
-        {
-          "name": "gain",
-          "title": "Gain",
-          "options": [{}]
+      "title": "Luminosity",
+      "args": {
+        "gain": {
+          "title": "Gain"
         }
-      ]
+      }
     },
     "coloredFilter": {
       "title" : "Colored Filter",
-      "args": [
-        {
-          "name": "hue",
-          "title": "Hue",
-          "options": [{}]
+      "args": {
+        "hue": {
+          "title": "Hue"
         }
-      ]
+      }
     },
     "histogramContrast": {
-      "title" : "Histogram",
-      "args" : [
-        {
-          "name": "channel",
-          "title" : "HSV Channel",
-          "options" : [
-            {
-              "name" : "s",
-              "title" : "Saturation"
+      "title": "Histogram",
+      "args": {
+        "channel": {
+          "title": "HSV Channel",
+          "options": {
+            "s": {
+              "title": "Saturation"
             },
-            {
-              "name" : "v",
-              "title" : "Value"
+            "v": {
+              "title": "Value"
             }
-          ]
+          }
         }
-      ]
+      }
     },
     "blurFilter": {
       "title" : "Blur Filter",
-      "args" : [
-        {
-          "name" : "filterName",
-          "title" : "Filter name",
-          "options" : [
-            {
-              "name" : "meanFilter",
-              "title" : "Mean Filter"
+      "args" :
+      {
+        "filterName" : {
+          "title": "Name filter",
+          "options": {
+            "meanFilter": {
+              "title": "Mean Filter"
             },
-            {
-              "name" : "gaussianFilter",
-              "title" : "Gaussian Filter"
+            "gaussFilter": {
+              "title": "Gaussian Filter"
             }
-          ]
+          }
         },
-        {
-          "name" : "blur",
-          "title" : "Blur Filter",
-          "options" : [{}]
+        "blur" : {
+          "title" : "Blur Filter"
         }
-      ]
+      }
     },
     "contourFilter": {
-      "title" : "Contour Filter",
-      "name" : "contourFilter",
-      "args" : [{}]
+      "title" : "Contour Filter"
     }
   }
 }

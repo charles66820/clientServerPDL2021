@@ -48,52 +48,74 @@ public enum AlgorithmNames {
         this.name = name;
         this.args = args;
 
-        BufferedReader readerFr;
-        BufferedReader readerEn;
         try {
-            readerEn = new BufferedReader(new FileReader(getClass().getResource("/traduction/en.json").getPath()));
-            readerFr = new BufferedReader(new FileReader(getClass().getResource("/traduction/fr.json").getPath()));
-            StringBuilder JSONFileFr = new StringBuilder();
-            StringBuilder JSONFileEn = new StringBuilder();
-            String line;
-            while ((line = readerFr.readLine()) != null) {
-                JSONFileFr.append(line);
-            }
-            while ((line = readerEn.readLine()) != null) {
-                JSONFileEn.append(line);
-            }
-
-            JSONObject JSONobjFr = new JSONObject(JSONFileFr.toString());
-            JSONObject JSONobjEn = new JSONObject(JSONFileEn.toString());
+            JSONObject JSONobjFr = new JSONObject(JSONToString("/traduction/fr.json"));
+            JSONObject JSONobjEn = new JSONObject(JSONToString("/traduction/en.json"));
 
             algoTitle.put(Locale.FRENCH, JSONobjFr.getJSONObject("AlgorithmsNames").getJSONObject(name).getString("title"));
             algoTitle.put(Locale.ENGLISH, JSONobjEn.getJSONObject("AlgorithmsNames").getJSONObject(name).getString("title"));
 
-            JSONArray arguments = JSONobjFr.getJSONObject("AlgorithmsNames").getJSONObject(name).getJSONArray("args");
-            if (arguments.getJSONObject(0).length() > 0) {
-                JSONArray options = arguments.getJSONObject(0).getJSONArray("options");
-                if (arguments.length() == 2) {
-                    options = arguments.getJSONObject(1).getJSONArray("options");
-                }
-                if (options.length() != 0) {
-                    ArrayList<String> argT = new ArrayList<>();
-                    ArrayList<String> optT = new ArrayList<>();
-                    for (int argNum = 0; argNum < arguments.length(); argNum++) {
-                        argT.add(arguments.getJSONObject(argNum).getString("title"));
-                        for (int optNum = 0; optNum < options.length(); optNum++) {
-                            if (this.args.get(argNum).options != null && options.getJSONObject(optNum).length() > 0) {
-                                optT.add(options.getJSONObject(optNum).getString("title"));
-                            }
-                        }
-                    }
-                    argsTitle.put(Locale.FRENCH, argT);
-                    optionsTitle.put(Locale.FRENCH,optT);
-                }
-            }
-        } catch (IOException | JSONException e) {
+            makeTranslationFrom(Locale.FRENCH, JSONobjFr);
+            makeTranslationFrom(Locale.ENGLISH, JSONobjEn);
+
+
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
+    public String JSONToString(String file) {
+        BufferedReader reader;
+        StringBuilder JSONFile = new StringBuilder();
+        try {
+            reader = new BufferedReader(new FileReader(getClass().getResource(file).getPath()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                JSONFile.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return JSONFile.toString();
+    }
+
+        public void makeTranslationFrom(Locale locale, JSONObject json) throws JSONException {
+        JSONObject algo = json.getJSONObject("AlgorithmsNames").getJSONObject(name);
+
+        if (algo.has("args")) {
+            JSONObject arguments = algo.getJSONObject("args");
+            ArrayList<String> argsName = new ArrayList<>();
+            ArrayList<String> optName = new ArrayList<>();
+            if (!args.isEmpty()) {
+                args.forEach(arg -> {
+                    if (arg != null) {
+                        try {
+                            String nameArg = arguments.getJSONObject(arg.name).getString("title");
+                            argsName.add(nameArg);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (arg.options != null) {
+                            arg.options.forEach(o -> {
+                                try {
+                                    JSONObject options = arguments.getJSONObject(arg.name).getJSONObject("options");
+                                    if (options != null) {
+                                        String nameOpt = options.getJSONObject(o.name).getString("title");
+                                        optName.add(nameOpt);
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }
+                    }
+                });
+
+                argsTitle.put(locale, argsName);
+                optionsTitle.put(locale, optName);
+            }
+        }
+    }
+
 
     public ArrayList<String> getArgTitle() {
         return argsTitle.get(Middleware.getLocale());
