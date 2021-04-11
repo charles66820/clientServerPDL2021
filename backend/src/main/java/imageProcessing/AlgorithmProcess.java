@@ -14,6 +14,7 @@ import net.imglib2.loops.LoopBuilder;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
+import org.scijava.util.StringUtils;
 import pdl.backend.Image;
 
 import javax.imageio.ImageIO;
@@ -24,7 +25,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AlgorithmProcess {
@@ -43,7 +46,7 @@ public class AlgorithmProcess {
             for (ImageMetadata imageMetadata : metadata.getAll()) {
                 res.put("width", imageMetadata.getAxisLength(0));
                 res.put("height", imageMetadata.getAxisLength(1));
-                res.put("dimention", imageMetadata.getAxisLength(2));
+                res.put("dimension", imageMetadata.getAxisLength(2));
             }
             return res;
         } catch(IOException | FormatException e) {
@@ -57,33 +60,80 @@ public class AlgorithmProcess {
             throw new BadParamsException("Parameter algorithm after ? is missing !");
         }
         AlgorithmNames algoName = AlgorithmNames.fromString(params.get("algorithm"));
+        if(params.get("algorithm").equals("")) {
+            throw new BadParamsException("Name of algorithm is missing !");
+        }
         byte[] bytes = image.getData();
 
-        BadParamsException bpe = new BadParamsException("Argument is not valid !");
+        List<AlgorithmArgs> badArgList = new ArrayList<>();
+        HashMap<String, Object> valueMap = new HashMap<>();
+        BadParamsException bpe = new BadParamsException("Argument is not valid !", badArgList, valueMap);
         boolean argValid = true;
 
         assert algoName != null;
-        //Test is all args in params are valid
+        //Test if all args in params are valid
         for (AlgorithmArgs arg: algoName.getArgs()) {
             // If arg is present
             if(params.containsKey(arg.name)){
+                // If argument is a number
                 if(arg.type.equals("number")) {
                     // Test if number is valid
-                    float argLong = Float.parseFloat(params.get(arg.name));
-                    if(argLong < arg.min || argLong > arg.max) {
+                    if (params.get(arg.name).equals("")) {
                         argValid = false;
                         bpe.setParamsValid(false);
                         bpe.setParamExist(true);
+                        badArgList.add(arg);
+                        valueMap.put(arg.name, null);
+                        break;
+                    } else {
+                        try {
+                            float argLong = Float.parseFloat(params.get(arg.name));
+                            if (argLong < arg.min || argLong > arg.max) {
+                                argValid = false;
+                                bpe.setParamsValid(false);
+                                bpe.setParamExist(true);
+                                badArgList.add(arg);
+                                valueMap.put(arg.name, params.get(arg.name));
+                                break;
+                            }
+                        } catch (NumberFormatException nbr){
+                            argValid = false;
+                            bpe.setParamsValid(false);
+                            bpe.setParamExist(true);
+                            badArgList.add(arg);
+                            valueMap.put(arg.name, params.get(arg.name));
+                            break;
+                        }
+                    }
+                }
+                // If argument is a select type
+                else if (arg.type.equals("select")) {
+                    argValid = false;
+                    // Compare each arg in option list with the arg in the query
+                    for (AlgorithmArgs selectArg : arg.options) {
+                        if (params.get(arg.name).equals(selectArg.name)) {
+                            argValid = true;
+                        }
+                    }
+                    // If arg is not find in option list
+                    if(!argValid) {
+                        bpe.setParamsValid(false);
+                        bpe.setParamExist(true);
+                        badArgList.add(arg);
+                        valueMap.put(arg.name, params.get(arg.name));
                         break;
                     }
                 }
-                //If arg is not a number don't verified it
+                //If arg is not a number or select type don't verified it
+            }
             // If arg is not present we test if it is required or not
-            } else {
+            else {
                 if(arg.required) {
                     argValid = false;
                     bpe.setParamsValid(true);
                     bpe.setParamExist(false);
+                    badArgList.add(arg);
+                    valueMap.put(arg.name, params.get(arg.name));
                     break;
                 }
             }

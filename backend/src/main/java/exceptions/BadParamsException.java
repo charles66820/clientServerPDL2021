@@ -3,6 +3,7 @@ package exceptions;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import imageProcessing.AlgorithmArgs;
+import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,10 +11,10 @@ import java.util.List;
 public class BadParamsException extends ImageWebException {
 
     private List<AlgorithmArgs> badParamsList;
-
     private HashMap<String, Object> paramValue; //key = name of argument
     private boolean paramExist;
     private boolean paramsValid;
+    public final HttpStatus status = HttpStatus.BAD_REQUEST;
 
     public BadParamsException(String message, List<AlgorithmArgs> badParamsList, HashMap<String , Object> paramValue) {
         super(message);
@@ -62,6 +63,10 @@ public class BadParamsException extends ImageWebException {
         super.setType("BadParamsException");
 
         ObjectNode node = super.toJSON();
+        // If we don't have a list of parameters
+        if(badParamsList == null) {
+            return node;
+        }
         // List of bad parameters
         ArrayNode badParamsListNode = node.putArray("badParams");
         for(AlgorithmArgs param : badParamsList) {
@@ -71,14 +76,26 @@ public class BadParamsException extends ImageWebException {
             paramNode.put("type", param.type);
             paramNode.put("required", param.required);
             // If parameter does not have a value
-            if (!this.paramValue.containsKey(param.name)) {
+            if (!this.paramExist || !this.paramValue.containsKey(param.name)) {
                 paramNode.put("value", "null");
             }
             // If parameter is a number
             else if (param.type.equals("number")) {
-                paramNode.put("value", Integer.parseInt(this.paramValue.get(param.name).toString()));
-                paramNode.put("min", param.min);
-                paramNode.put("max", param.max);
+                if (this.paramValue.get(param.name) == null) {
+                    paramNode.put("value", "null");
+                    paramNode.put("min", param.min);
+                    paramNode.put("max", param.max);
+                } else {
+                    try {
+                        paramNode.put("value", Integer.parseInt(this.paramValue.get(param.name).toString()));
+                        paramNode.put("min", param.min);
+                        paramNode.put("max", param.max);
+                    } catch (NumberFormatException nbr) {
+                        paramNode.put("value", this.paramValue.get(param.name).toString());
+                        paramNode.put("min", param.min);
+                        paramNode.put("max", param.max);
+                    }
+                }
             }
             // If parameter is a selector
             else if (param.type.equals("select")) {

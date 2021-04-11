@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.BadParamsException;
 import exceptions.ImageConversionException;
+import exceptions.ImageWebException;
 import exceptions.UnknownAlgorithmException;
 import imageProcessing.AlgorithmArgs;
 import imageProcessing.AlgorithmNames;
@@ -78,21 +79,10 @@ public class ImageController {
                             .ok()
                             .contentType(MediaType.valueOf(img.getType()))
                             .body(bytes);
-                } catch (BadParamsException e) {
-                    return ResponseEntity
-                            .badRequest()
-                            .contentType(MediaType.TEXT_PLAIN)
-                            .body(e.toString());
-                } catch (UnknownAlgorithmException uae) {
-                    return ResponseEntity
-                            .badRequest()
-                            .contentType(MediaType.TEXT_PLAIN)
-                            .body(uae.getMessage());
-                } catch (ImageConversionException ice) {
-                    return ResponseEntity
-                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .contentType(MediaType.TEXT_PLAIN)
-                            .body(ice.getMessage());
+                } catch (ImageWebException e) {
+                    return ResponseEntity.status(e.status)
+                           .contentType(MediaType.APPLICATION_JSON)
+                           .body(e.toJSON());
                 }
             }
         } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
