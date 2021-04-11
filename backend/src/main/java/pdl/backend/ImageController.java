@@ -90,13 +90,14 @@ public class ImageController {
     }
 
     @RequestMapping(value = "/images", method = RequestMethod.POST)
-    public ResponseEntity<?> addImage(@RequestParam("image") MultipartFile file,
-                                      RedirectAttributes redirectAttributes) {
-        if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG_VALUE) && !Objects.equals(file.getContentType(), "image/tiff"))
-            return ResponseEntity
-                    .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body("Unsupported image type ! Image will be image/jpeg or image/tiff");
+    public ResponseEntity<ObjectNode> addImage(@RequestParam("image") MultipartFile file,
+                                               RedirectAttributes redirectAttributes) {
+        if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG_VALUE) && !Objects.equals(file.getContentType(), "image/tiff")) {
+            ObjectNode jsonNode = mapper.createObjectNode();
+            jsonNode.put("type", "UnsupportedMediaTypeException");
+            jsonNode.put("message", "Unsupported image type ! Image will be image/jpeg or image/tiff");
+            return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
+        }
         try {
             byte[] filecontent = file.getBytes();
             HashMap<String, Object> imageMetaData = AlgorithmProcess.getImageMetaData(filecontent);
@@ -116,16 +117,16 @@ public class ImageController {
             return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
 
         } catch (ImageConversionException e) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_ACCEPTABLE)
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body("Bad image file send !");
+            ObjectNode jsonNode = mapper.createObjectNode();
+            jsonNode.put("type", "BadImageFileException");
+            jsonNode.put("message", "Bad image file send !");
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body("Error on open file!");
+            ObjectNode jsonNode = mapper.createObjectNode();
+            jsonNode.put("type", "UnknownException");
+            jsonNode.put("message", "Error on open file!");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
         }
     }
 
