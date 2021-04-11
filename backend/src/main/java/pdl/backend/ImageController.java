@@ -38,14 +38,26 @@ public class ImageController {
         this.imageDao = imageDao;
     }
 
-    @RequestMapping(value = "/test", method = RequestMethod.GET, produces = "application/json")
+    /*@RequestMapping(value = "/test", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ObjectNode test() {
         //Test exception
-        ImageConversionException e = new ImageConversionException("Conversion error !");
+        AlgorithmArgs badArg1 = new AlgorithmArgs("gain", "Gain", "number", -255, 255, true);
+        AlgorithmArgs badArg2 = new AlgorithmArgs("filterName", "Filter name", "select", true, new ArrayList<>() {{
+            add(new AlgorithmArgs("meanFilter", "Mean filter", "", false));
+            add(new AlgorithmArgs("gaussFilter", "Gauss filter", "",false));
+        }});
+        List<AlgorithmArgs> badArgList= new ArrayList<>(){{add(badArg1); add(badArg2);}};
+        Object value1 = 300;
+        Object value2 = "toto";
+        HashMap<String, Object> valueMap = new HashMap<String, Object>();
+        valueMap.put("gain", value1);
+        valueMap.put("filterName", value2);
+        BadParamsException e = new BadParamsException("Bad parameter !", badArgList, valueMap);
 
         return e.toJSON();
-    }
+    }*/
+
     @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
     @ResponseBody
     public ResponseEntity<?> getImage(@PathVariable("id") long id, @RequestParam Map<String, String> allRequestParams) {

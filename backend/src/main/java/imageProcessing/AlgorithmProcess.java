@@ -7,10 +7,9 @@ import io.scif.FormatException;
 import io.scif.ImageMetadata;
 import io.scif.Metadata;
 import io.scif.img.SCIFIOImgPlus;
-import net.imglib2.*;
+import net.imglib2.RandomAccess;
 import net.imglib2.algorithm.gauss3.Gauss3;
 import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.loops.LoopBuilder;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.view.IntervalView;
@@ -25,9 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.NumberFormat;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class AlgorithmProcess {
@@ -53,7 +50,7 @@ public class AlgorithmProcess {
             throw new ImageConversionException("Error during conversion !");
         }
     }
-
+    //TODO: add badParam in a list when we have BadParamsException
     public static byte[] applyAlgorithm(Image image, Map<String,String> params) throws BadParamsException, ImageConversionException, UnknownAlgorithmException {
         //Test if "algorithm" is in the query param
         if(!params.containsKey("algorithm")){

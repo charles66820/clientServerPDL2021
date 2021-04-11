@@ -17,6 +17,10 @@ public class ImageWebException extends Exception {
         super();
     }
 
+    public ObjectMapper getMapper() {
+        return mapper;
+    }
+
     public void setType(String type) {
         this.type = type;
     }
