@@ -39,8 +39,8 @@ public class ImageDao implements Dao<Image> {
                       long fileSize = (long) imageMetaData.get("size");
                       long width = (long) imageMetaData.get("width");
                       long height = (long) imageMetaData.get("height");
-                      long dimention = (long) imageMetaData.get("dimention");
-                      String size = String.format("%d*%d*%d", width, height, dimention);
+                      long dimension = (long) imageMetaData.get("dimension");
+                      String size = String.format("%d*%d*%d", width, height, dimension);
 
                       Image img = new Image(image.getName(), fileContent, type, size, fileSize);
                       images.put(img.getId(), img);
