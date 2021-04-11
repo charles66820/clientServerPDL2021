@@ -163,6 +163,7 @@ export default {
         })
         .catch((err) => {
           this.loading = false;
+          this.uploadProgress = null;
           this.error = err;
           // Reset image form
           e.target.reset();
