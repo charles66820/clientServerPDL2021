@@ -45,10 +45,19 @@
           <strong>{{ t("errors.title") }} :</strong> {{ getErrorMsg(err) }}
         </div>
         <div class="form-row">
-          <span class="col-sm-6"></span>
-          <div class="col-sm-6">
-            <button type="submit" class="btn btn-primary mx-4">
+          <div class="col-sm-12">
+            <button
+              type="submit"
+              class="btn btn-primary float-right"
+              :disabled="loading"
+            >
               {{ t("components.image.algorithm.apply") }}
+              <span
+                v-if="loading"
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
             </button>
           </div>
         </div>
@@ -70,12 +79,15 @@ export default {
   data() {
     return {
       t: useI18n({ useScope: "global" }).t,
+      loading: false,
       errors: [],
     };
   },
   methods: {
     applyAlgorithmSubmit(e) {
       e.preventDefault();
+
+      this.loading = true;
 
       let query = new URLSearchParams();
       for (const field of e.target.elements)
@@ -89,10 +101,12 @@ export default {
         .then((res) => {
           this.errors = [];
           this.$parent.showProcessedImage(res.data);
+          this.loading = false;
         })
         .catch((err) => {
           this.errors = [];
           this.errors.push(err);
+          this.loading = false;
         });
     },
     getErrorMsg(err) {

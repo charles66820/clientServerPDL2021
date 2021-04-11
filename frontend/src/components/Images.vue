@@ -15,7 +15,7 @@
           <button
             type="button"
             class="close"
-            data-dismiss="alert"
+            @click="warning = null"
             aria-label="Close"
           >
             <span aria-hidden="true">&times;</span>
@@ -30,7 +30,7 @@
           <strong>{{ t("errors.title") }} :</strong> {{ getErrorMsg(err) }}
         </div>
       </div>
-      <div v-if="images.length > 0" class="imageCarousel shadow my-4">
+      <div class="imageCarousel shadow my-4">
         <div class="imagesContainer imgContainer">
           <router-link
             v-if="selectedImage"
@@ -47,6 +47,14 @@
             :src="selectedImage.blob"
             @error="imageViewError($event, selectedImage)"
           />
+          <div
+            v-if="selectedImage == null"
+            class="spinner-border"
+            style="width: 3rem; height: 3rem"
+            role="status"
+          >
+            <span class="sr-only">{{ t("loading") }}</span>
+          </div>
         </div>
         <hr class="m-0" />
         <ul class="imageList">
@@ -59,6 +67,9 @@
           >
             <img :src="image.blob" @error="imageViewError($event, image)" />
           </li>
+          <div v-if="loading" class="spinner-border imgContainer" style="width: 1rem; height: 1rem;" role="status">
+            <span class="sr-only">{{ t("loading") }}</span>
+          </div>
         </ul>
       </div>
     </div>
@@ -78,6 +89,7 @@ export default {
   data() {
     return {
       t: useI18n({ useScope: "global" }).t,
+      loading: false,
       selectedImage: null,
       images: [],
       errors: [],
@@ -86,6 +98,7 @@ export default {
   },
   methods: {
     loadImages() {
+      this.loading = true;
       httpApi
         .get_images()
         .then((res) => {
@@ -101,8 +114,12 @@ export default {
               );
             });
           }
+          this.loading = false;
         })
-        .catch((err) => this.errors.push(err));
+        .catch((err) => {
+          this.errors.push(err);
+          this.loading = false;
+        });
     },
     selectImage(e) {
       this.selectedImage = this.images.find((i) => i.id == e.target.dataset.id);

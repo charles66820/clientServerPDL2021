@@ -55,5 +55,10 @@
   "warnings": {
     "title": "Attention",
     "unsupportedImage": "Votre navigateur ne peut pas afficher"
+  },
+  "loading": "Chargement...",
+  "langs": {
+    "en": "English",
+    "fr": "Français"
   }
 }

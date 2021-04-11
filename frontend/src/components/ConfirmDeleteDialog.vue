@@ -34,15 +34,27 @@
           <strong>{{ t("errors.title") }} :</strong> {{ getErrorMsg(error) }}
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-dismiss="modal">
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-dismiss="modal"
+            :disabled="loading"
+          >
             {{ t("components.confirmDeleteDialog.cancel") }}
           </button>
           <button
             type="button"
             class="btn btn-success"
             @click="btnDeleteImage($event)"
+            :disabled="loading"
           >
             {{ t("components.confirmDeleteDialog.validate") }}
+            <span
+              v-if="loading"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
           </button>
         </div>
       </div>
@@ -62,20 +74,25 @@ export default {
   data() {
     return {
       t: useI18n({ useScope: "global" }).t,
+      loading: false,
       error: null,
     };
   },
   methods: {
     btnDeleteImage() {
+      this.loading = true;
       httpApi
         .delete_image(this.id)
         .then(() => {
+          this.loading = false;
+
           // Close modal
           document.body.removeChild(document.querySelector(".modal-backdrop"));
 
           this.$router.push({ name: "Home" });
         })
         .catch((err) => {
+          this.loading = false;
           this.error = err;
         });
     },

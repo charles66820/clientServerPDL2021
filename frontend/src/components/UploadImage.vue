@@ -34,7 +34,7 @@
                   <button
                     type="button"
                     class="close"
-                    data-dismiss="alert"
+                    @click="warning = null"
                     aria-label="Close"
                   >
                     <span aria-hidden="true">&times;</span>

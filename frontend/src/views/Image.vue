@@ -15,7 +15,10 @@
       </div>
       <!-- Panel content -->
       <div class="sidePanel-content" style="word-wrap: break-word">
-        <ul style="list-style-type: none; padding: 0; margin: 0">
+        <ul
+          v-if="!algosLoading"
+          style="list-style-type: none; padding: 0; margin: 0"
+        >
           <li v-for="algo in algos" :key="algo.name">
             <AlgorithmMenuItem
               :algo="algo"
@@ -31,6 +34,18 @@
             {{ getErrorMsg(algorithmsError) }}
           </div>
         </ul>
+        <div
+          v-else
+          class="h-100 w-100 d-flex justify-content-center align-items-center"
+        >
+          <div
+            class="spinner-border"
+            style="width: 3rem; height: 3rem"
+            role="status"
+          >
+            <span class="sr-only">{{ t("loading") }}</span>
+          </div>
+        </div>
       </div>
     </nav>
     <div class="page-content" style="word-wrap: break-word">
@@ -55,89 +70,113 @@
             style="word-wrap: break-word"
           >
             <div
-              class="alert alert-danger alert-dismissible fade show"
-              v-if="imageDataError"
-              role="alert"
+              v-if="image_data == null"
+              class="h-100 w-100 d-flex justify-content-center align-items-center"
             >
-              <strong>{{ t("errors.title") }} :</strong>
-              {{ getErrorMsg(imageDataError) }}
-            </div>
-            <div class="row pb-4">
-              <div class="col">
-                <h5 class="title_metadata">
-                  {{ t("components.image.metadata.title") }}
-                </h5>
-                <ul class="metadata" v-if="image_data != null">
-                  <li>
-                    {{ t("components.image.metadata.id") }} :
-                    {{ image_data.id }}
-                  </li>
-                  <li>
-                    {{ t("components.image.metadata.name") }} :
-                    {{ image_data.name }}
-                  </li>
-                  <li>
-                    {{ t("components.image.metadata.type") }} :
-                    {{ image_data.type }}
-                  </li>
-                  <li>
-                    {{ t("components.image.metadata.size") }} :
-                    {{ image_data.size }}
-                  </li>
-                </ul>
-              </div>
-              <div class="col"></div>
-              <div class="col text-right">
-                <!-- Bin and download buttons -->
-                <p class="m-0">
-                  <button
-                    type="button"
-                    class="btn btn-outline-dark mx-4 mt-4"
-                    data-toggle="modal"
-                    data-target="#modalDelete"
-                    :title="t('components.image.metadata.removeImage')"
-                  >
-                    &#128465;
-                  </button>
-                </p>
-                <p class="m-0">
-                  <button
-                    type="button"
-                    v-if="defaultImageBlob"
-                    @click="downloadImage($event)"
-                    role="original"
-                    class="btn btn-outline-dark mx-4 mt-4"
-                    :title="
-                      t('components.image.metadata.downloadOriginalImage')
-                    "
-                  >
-                    {{ t("components.image.metadata.downloadOriginalImage") }}
-                    📥
-                  </button>
-                </p>
-                <p class="m-0">
-                  <button
-                    type="button"
-                    v-if="processedImageBlob"
-                    @click="downloadImage($event)"
-                    role="processed"
-                    class="btn btn-outline-dark mx-4 mt-4"
-                    :title="
-                      t('components.image.metadata.downloadProcessedImage')
-                    "
-                  >
-                    {{ t("components.image.metadata.downloadProcessedImage") }}
-                    📥
-                  </button>
-                </p>
+              <div
+                class="spinner-border"
+                style="width: 3rem; height: 3rem"
+                role="status"
+              >
+                <span class="sr-only">{{ t("loading") }}</span>
               </div>
             </div>
+            <span v-else>
+              <div
+                class="alert alert-danger alert-dismissible fade show"
+                v-if="imageDataError"
+                role="alert"
+              >
+                <strong>{{ t("errors.title") }} :</strong>
+                {{ getErrorMsg(imageDataError) }}
+              </div>
+              <div class="row pb-4">
+                <div class="col">
+                  <h5 class="title_metadata">
+                    {{ t("components.image.metadata.title") }}
+                  </h5>
+                  <ul class="metadata" v-if="image_data != null">
+                    <li>
+                      {{ t("components.image.metadata.id") }} :
+                      {{ image_data.id }}
+                    </li>
+                    <li>
+                      {{ t("components.image.metadata.name") }} :
+                      {{ image_data.name }}
+                    </li>
+                    <li>
+                      {{ t("components.image.metadata.type") }} :
+                      {{ image_data.type }}
+                    </li>
+                    <li>
+                      {{ t("components.image.metadata.size") }} :
+                      {{ image_data.size }}
+                    </li>
+                  </ul>
+                </div>
+                <div class="col"></div>
+                <div class="col text-right">
+                  <!-- Bin and download buttons -->
+                  <p class="m-0">
+                    <button
+                      type="button"
+                      class="btn btn-outline-dark mx-4 mt-4"
+                      data-toggle="modal"
+                      data-target="#modalDelete"
+                      :title="t('components.image.metadata.removeImage')"
+                    >
+                      &#128465;
+                    </button>
+                  </p>
+                  <p class="m-0">
+                    <button
+                      type="button"
+                      v-if="defaultImageBlob"
+                      @click="downloadImage($event)"
+                      role="original"
+                      class="btn btn-outline-dark mx-4 mt-4"
+                      :title="
+                        t('components.image.metadata.downloadOriginalImage')
+                      "
+                    >
+                      {{ t("components.image.metadata.downloadOriginalImage") }}
+                      📥
+                    </button>
+                  </p>
+                  <p class="m-0">
+                    <button
+                      type="button"
+                      v-if="processedImageBlob"
+                      @click="downloadImage($event)"
+                      role="processed"
+                      class="btn btn-outline-dark mx-4 mt-4"
+                      :title="
+                        t('components.image.metadata.downloadProcessedImage')
+                      "
+                    >
+                      {{
+                        t("components.image.metadata.downloadProcessedImage")
+                      }}
+                      📥
+                    </button>
+                  </p>
+                </div>
+              </div>
+            </span>
           </div>
         </nav>
         <div class="page-content" style="word-wrap: break-word">
           <div class="imgContainer">
             <!-- Image -->
-            <img :src="imageBlob" @error="imagePreviewError($event)" />
+            <img v-if="imageBlob != null" :src="imageBlob" @error="imagePreviewError($event)" />
+            <div
+              v-else
+              class="spinner-border"
+              style="width: 3rem; height: 3rem"
+              role="status"
+            >
+              <span class="sr-only">{{ t("loading") }}</span>
+            </div>
             <div
               class="alert alert-warning alert-dismissible fade show"
               v-if="warning"
@@ -147,7 +186,7 @@
               <button
                 type="button"
                 class="close"
-                data-dismiss="alert"
+                @click="warning = null"
                 aria-label="Close"
               >
                 <span aria-hidden="true">&times;</span>
@@ -184,6 +223,7 @@ export default {
       defaultImageBlob: null,
       processedImageBlob: null,
       imageBlob: null,
+      algosLoading: false,
       algos: [],
       image_data: null,
       imageError: null,
@@ -210,12 +250,17 @@ export default {
     this.loadImage();
     this.lastroute = this.$route.fullPath;
     // Get algos from backend
+    this.algosLoading = true;
     httpApi
       .get_algos()
       .then((res) => {
         this.algos = res.data;
+        this.algosLoading = false;
       })
-      .catch((err) => (this.algorithmsError = err));
+      .catch((err) => {
+        this.algorithmsError = err;
+        this.algosLoading = false;
+      });
   },
   methods: {
     loadImage() {
@@ -299,7 +344,8 @@ div.imgContainer {
   z-index: 1;
 }
 
-div.imgContainer img {
+div.imgContainer img,
+div.imgContainer div.spinner-border {
   max-width: 100%;
   max-height: 100%;
   height: auto;
