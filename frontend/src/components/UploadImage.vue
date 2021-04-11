@@ -71,10 +71,32 @@
                     style="visibility: hidden"
                   />
                 </div>
+                <div class="progress" v-if="uploadProgress != null">
+                  <div
+                    class="progress-bar progress-bar-striped progress-bar-animated"
+                    role="progressbar"
+                    :style="`width: ${uploadProgress}%`"
+                    :aria-valuenow="uploadProgress"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                  >
+                    {{ uploadProgress.toFixed(0) }}%
+                  </div>
+                </div>
               </div>
               <div class="modal-footer">
-                <button type="submit" class="btn btn-primary">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  :disabled="loading"
+                >
                   {{ t("components.uploadImage.submit") }}
+                  <span
+                    v-if="loading"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                 </button>
               </div>
             </form>
@@ -95,6 +117,8 @@ export default {
   data() {
     return {
       t: useI18n({ useScope: "global" }).t,
+      loading: false,
+      uploadProgress: null,
       imageType: "",
       error: null,
       warning: null,
@@ -104,13 +128,19 @@ export default {
     imageSubmit(e) {
       e.preventDefault();
 
+      this.loading = true;
+      this.uploadProgress = 0;
       this.error = null;
 
       let imageFiles = e.target["image"].files;
       let image = imageFiles && imageFiles.length > 0 ? imageFiles[0] : null;
       httpApi
-        .post_image(image)
+        .post_image(image, (e) => {
+          this.uploadProgress = (e.loaded * 100) / e.total;
+        })
         .then((res) => {
+          this.loading = false;
+          this.uploadProgress = null;
           // Close modal
           document.querySelector("#btnUploadImageModal").click();
 
@@ -132,6 +162,7 @@ export default {
           } else this.$router.push({ name: "Home" });
         })
         .catch((err) => {
+          this.loading = false;
           this.error = err;
           // Reset image form
           e.target.reset();
