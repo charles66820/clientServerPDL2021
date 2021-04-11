@@ -1,6 +1,6 @@
 <template>
   <div class="page-wrapper toggled main-panel-container">
-    <nav class="sidePanel-wrapper right bg-white border-left shadow">
+    <nav class="sidePanel-wrapper left bg-white border-left shadow">
       <!-- Side panel toggler -->
       <div
         class="btn btn-sm text-body bg-white shadow-sm toggle-sidePanel"
@@ -166,23 +166,14 @@
           </div>
         </nav>
         <div class="page-content" style="word-wrap: break-word">
-          <div class="imgContainer">
-            <!-- Image -->
-            <img v-if="imageBlob != null" :src="imageBlob" @error="imagePreviewError($event)" />
+          <div class="h-100" style="width: calc(100% - 16px)">
             <div
-              v-else
-              class="spinner-border"
-              style="width: 3rem; height: 3rem"
-              role="status"
-            >
-              <span class="sr-only">{{ t("loading") }}</span>
-            </div>
-            <div
-              class="alert alert-warning alert-dismissible fade show"
+              class="alert alert-warning alert-dismissible fade show w-100 mx-2"
               v-if="warning"
               role="alert"
             >
-              <strong>{{ t("warnings.title") }} !</strong> {{ warning.message }}
+              <strong>{{ t("warnings.title") }} !</strong>
+              {{ warning.message }}
               <button
                 type="button"
                 class="close"
@@ -193,12 +184,53 @@
               </button>
             </div>
             <div
-              class="alert alert-danger alert-dismissible fade show"
+              class="alert alert-danger alert-dismissible fade show w-100 mx-2"
               v-if="imageError"
               role="alert"
             >
               <strong>{{ t("errors.title") }} :</strong>
               {{ getErrorMsg(imageError) }}
+            </div>
+            <div
+              :class="
+                processedImageBlob != null
+                  ? 'imgContainer col-sm-6 col-12'
+                  : 'imgContainer col-12'
+              "
+            >
+              <!-- Image -->
+              <img
+                v-if="defaultImageBlob != null"
+                :src="defaultImageBlob"
+                @error="imagePreviewError($event, true)"
+              />
+              <div
+                v-else
+                class="spinner-border"
+                style="width: 3rem; height: 3rem"
+                role="status"
+              >
+                <span class="sr-only">{{ t("loading") }}</span>
+              </div>
+            </div>
+            <div
+              class="imgContainer col-sm-6 col-12"
+              v-if="processedImageBlob != null"
+            >
+              <!-- Image -->
+              <img
+                v-if="processedImageBlob != null"
+                :src="processedImageBlob"
+                @error="imagePreviewError($event, true)"
+              />
+              <div
+                v-else
+                class="spinner-border"
+                style="width: 3rem; height: 3rem"
+                role="status"
+              >
+                <span class="sr-only">{{ t("loading") }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -222,7 +254,6 @@ export default {
       t: useI18n({ useScope: "global" }).t,
       defaultImageBlob: null,
       processedImageBlob: null,
-      imageBlob: null,
       algosLoading: false,
       algos: [],
       image_data: null,
@@ -240,7 +271,6 @@ export default {
     emitter.on("updateImage", () => {
       this.defaultImageBlob = null;
       this.processedImageBlob = null;
-      this.imageBlob = null;
       this.image_data = null;
       this.imageError = null;
       this.imageDataError = null;
@@ -272,7 +302,6 @@ export default {
           reader.readAsDataURL(res.data);
           reader.addEventListener("load", () => {
             this.defaultImageBlob = reader.result;
-            this.imageBlob = reader.result;
           });
         })
         .catch((err) => {
@@ -288,12 +317,16 @@ export default {
         })
         .catch((err) => (this.imageDataError = err));
     },
-    imagePreviewError() {
+    imagePreviewError(e, isDefault) {
+      console.info(e);
       if (this.image_data != null) {
         this.warning = new Error(
           this.t("warnings.unsupportedImage") + ` : "${this.image_data.type}"`
         );
-        this.imageBlob = require("../assets/iconmonstr-picture-1.svg");
+        if (isDefault)
+          this.defaultImageBlob = require("../assets/iconmonstr-picture-1.svg");
+        else
+          this.processedImageBlob = require("../assets/iconmonstr-picture-1.svg");
       }
     },
     downloadImage(e) {
@@ -309,7 +342,6 @@ export default {
       reader.readAsDataURL(blob);
       reader.addEventListener("load", () => {
         this.processedImageBlob = reader.result;
-        this.imageBlob = reader.result;
       });
     },
     getErrorMsg(err) {
@@ -338,10 +370,19 @@ export default {
 /* For main image */
 div.imgContainer {
   position: relative;
-  width: 100%;
+  display: inline-block;
+  margin: 0 4px;
   height: 100%;
   user-select: none;
   z-index: 1;
+}
+
+@media (min-width: 576px) {
+  div.imgContainer.col-sm-6 {
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: calc(50% - 8px);
+  }
 }
 
 div.imgContainer img,
