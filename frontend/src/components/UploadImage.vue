@@ -6,6 +6,7 @@
       tabindex="-1"
       aria-labelledby="uploadImageLabel"
       aria-hidden="true"
+      v-on:click.capture="modalClosed"
     >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-dialog">
@@ -18,6 +19,7 @@
                 type="button"
                 class="close"
                 data-dismiss="modal"
+                @click="modalClosed"
                 aria-label="Close"
               >
                 <span aria-hidden="true">&times;</span>
@@ -30,7 +32,8 @@
                   v-if="warning"
                   role="alert"
                 >
-                  <strong>{{ t("warnings.title") }} !</strong> {{ warning.message }}
+                  <strong>{{ t("warnings.title") }} !</strong>
+                  {{ warning.message }}
                   <button
                     type="button"
                     class="close"
@@ -45,7 +48,8 @@
                   v-if="error"
                   role="alert"
                 >
-                  <strong>{{ t("errors.title") }} :</strong> {{ getErrorMsg(error) }}
+                  <strong>{{ t("errors.title") }} :</strong>
+                  {{ getErrorMsg(error) }}
                 </div>
                 <div
                   class="imgContainer init"
@@ -69,7 +73,9 @@
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="submit" class="btn btn-primary">{{ t("components.uploadImage.submit") }}</button>
+                <button type="submit" class="btn btn-primary">
+                  {{ t("components.uploadImage.submit") }}
+                </button>
               </div>
             </form>
           </div>
@@ -114,6 +120,7 @@ export default {
           imagePreview.parentElement.classList.add("init");
           imagePreview.removeAttribute("src");
 
+          // Update or redirect the component
           if (this.$route.name == "Image") {
             this.$router
               .push({ name: "Image", params: { id: res.data.id } })
@@ -124,7 +131,14 @@ export default {
             emitter.emit("updateImages");
           } else this.$router.push({ name: "Home" });
         })
-        .catch((err) => (this.error = err));
+        .catch((err) => {
+          this.error = err;
+          // Reset image form
+          e.target.reset();
+          let imagePreview = document.querySelector("#imagePreview");
+          imagePreview.parentElement.classList.add("init");
+          imagePreview.removeAttribute("src");
+        });
     },
     dropAreaDragLeave(e) {
       e.target.classList.remove("dragover");
@@ -138,14 +152,18 @@ export default {
       document.querySelector(".imgContainer > input[name=image]").click();
     },
     dropAreaDrop(e) {
+      // Clear drop zone css
       e.target.classList.remove("dragover");
       e.target.classList.remove("init");
       e.preventDefault();
+
+      // Add image to image input
       let imgInput = document.querySelector(
         ".imgContainer > input[name=image]"
       );
       imgInput.files = e.dataTransfer.files;
       if (imgInput.files && imgInput.files[0]) {
+        // Add image to image preview
         this.imageType = imgInput.files[0].type;
         renderFile(imgInput.files[0], document.querySelector("#imagePreview"));
       }
@@ -167,6 +185,9 @@ export default {
           "#imagePreview"
         ).src = require("../assets/iconmonstr-picture-1.svg");
       }
+    },
+    modalClosed() {
+      this.error = null;
     },
     getErrorMsg(err) {
       return err.response != null &&
