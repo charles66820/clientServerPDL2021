@@ -104,8 +104,8 @@ public class ImageController {
             long fileSize = (long) imageMetaData.get("size");
             long width = (long) imageMetaData.get("width");
             long height = (long) imageMetaData.get("height");
-            long dimention = (long) imageMetaData.get("dimension");
-            String size = String.format("%d*%d*%d", width, height, dimention);
+            long dimension = (long) imageMetaData.get("dimension");
+            String size = String.format("%d*%d*%d", width, height, dimension);
 
             Image image = new Image(file.getOriginalFilename(), filecontent, file.getContentType(), size, fileSize);
             imageDao.create(image);
