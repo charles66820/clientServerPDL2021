@@ -263,7 +263,7 @@ public class AlgorithmProcess {
         min = Math.min(min, b);
 
         // conversion HSV
-        hsv[2] = max / 255;   // Value
+        hsv[2] = Math.round(((max / 255) * 10f) * 100f) / 10f;   // Value
         // Hue
         if (max == min) {
             hsv[0] = 0;
@@ -278,7 +278,7 @@ public class AlgorithmProcess {
         if (max == 0) {
             hsv[1] = 0;
         } else {
-            hsv[1] = 1 - ((min / 255) / (max / 255));
+            hsv[1] = Math.round(((1 - ((min / 255) / (max / 255))) * 100f) * 10f) / 10f;
         }
     }
 
