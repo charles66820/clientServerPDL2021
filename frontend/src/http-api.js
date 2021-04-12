@@ -29,7 +29,7 @@ function get_algos() {
     return axios.get(algorithmsUrl);
 }
 
-function post_image(image) {
+function post_image(image, progressCb) {
     let data = new FormData();
     let postUrl = "/images";
     data.append("image", image);
@@ -37,6 +37,7 @@ function post_image(image) {
         headers: {
            "Content-Type": "multipart/form-data",
         },
+        onUploadProgress: progressCb
     });
 }
 

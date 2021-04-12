@@ -1,19 +1,24 @@
 <template>
   <div class="page-wrapper toggled main-panel-container">
-    <nav class="sidePanel-wrapper right bg-white border-left shadow">
+    <nav class="sidePanel-wrapper left bg-white border-left shadow">
       <!-- Side panel toggler -->
       <div
         class="btn btn-sm text-body bg-white shadow-sm toggle-sidePanel"
         onclick="this.parentNode.parentNode.classList.toggle('toggled');"
-        title="toggle"
+        :title="t('components.image.toggleAlgorithms')"
       ></div>
       <!-- Panel title -->
       <div class="sidePanel-header border-bottom">
-        <span class="text-body mr-4">Algorithms</span>
+        <span class="text-body mr-4">{{
+          t("components.image.algorithmsTitle")
+        }}</span>
       </div>
       <!-- Panel content -->
       <div class="sidePanel-content" style="word-wrap: break-word">
-        <ul style="list-style-type: none; padding: 0; margin: 0">
+        <ul
+          v-if="!algosLoading"
+          style="list-style-type: none; padding: 0; margin: 0"
+        >
           <li v-for="algo in algos" :key="algo.name">
             <AlgorithmMenuItem
               :algo="algo"
@@ -25,9 +30,22 @@
             v-if="algorithmsError"
             role="alert"
           >
-            <strong>Error :</strong> {{ getErrorMsg(algorithmsError) }}
+            <strong>{{ t("errors.title") }} :</strong>
+            {{ getErrorMsg(algorithmsError) }}
           </div>
         </ul>
+        <div
+          v-else
+          class="h-100 w-100 d-flex justify-content-center align-items-center"
+        >
+          <div
+            class="spinner-border"
+            style="width: 3rem; height: 3rem"
+            role="status"
+          >
+            <span class="sr-only">{{ t("loading") }}</span>
+          </div>
+        </div>
       </div>
     </nav>
     <div class="page-content" style="word-wrap: break-word">
@@ -38,11 +56,13 @@
             class="btn btn-sm text-body bg-white shadow-sm toggle-sidePanel"
             style="padding-top: 0px"
             onclick="this.parentNode.parentNode.classList.toggle('toggled');"
-            title="toggle"
+            :title="t('components.image.toggleMetadata')"
           ></div>
           <!-- Panel title -->
           <div class="sidePanel-header border-bottom">
-            <span class="text-body mr-4">Image info</span>
+            <span class="text-body mr-4">{{
+              t("components.image.metadataTitle")
+            }}</span>
           </div>
           <!-- Panel content -->
           <div
@@ -50,88 +70,167 @@
             style="word-wrap: break-word"
           >
             <div
-              class="alert alert-danger alert-dismissible fade show"
-              v-if="imageDataError"
-              role="alert"
+              v-if="image_data == null"
+              class="h-100 w-100 d-flex justify-content-center align-items-center"
             >
-              <strong>Error :</strong> {{ getErrorMsg(imageDataError) }}
-            </div>
-            <div class="row pb-4">
-              <div class="col">
-                <h5 class="title_metadata">Metadata</h5>
-                <ul class="metadata" v-if="image_data != null">
-                  <li>Id : {{ image_data.id }}</li>
-                  <li>Name : {{ image_data.name }}</li>
-                  <li>Type : {{ image_data.type }}</li>
-                  <li>Size : {{ image_data.size }}</li>
-                </ul>
-              </div>
-              <div class="col"></div>
-              <div class="col text-right">
-                <!-- Bin and download buttons -->
-                <p class="m-0">
-                  <button
-                    type="button"
-                    class="btn btn-outline-dark mx-4 mt-4"
-                    data-toggle="modal"
-                    data-target="#modalDelete"
-                  >
-                    &#128465;
-                  </button>
-                </p>
-                <p class="m-0">
-                  <button
-                    type="button"
-                    v-if="defaultImageBlob"
-                    @click="downloadImage($event)"
-                    role="original"
-                    class="btn btn-outline-dark mx-4 mt-4"
-                    title="Download original image"
-                  >
-                    Download original image 📥
-                  </button>
-                </p>
-                <p class="m-0">
-                  <button
-                    type="button"
-                    v-if="processedImageBlob"
-                    @click="downloadImage($event)"
-                    role="processed"
-                    class="btn btn-outline-dark mx-4 mt-4"
-                    title="Download processed image"
-                  >
-                    Download processed image 📥
-                  </button>
-                </p>
+              <div
+                class="spinner-border"
+                style="width: 3rem; height: 3rem"
+                role="status"
+              >
+                <span class="sr-only">{{ t("loading") }}</span>
               </div>
             </div>
+            <span v-else>
+              <div
+                class="alert alert-danger alert-dismissible fade show"
+                v-if="imageDataError"
+                role="alert"
+              >
+                <strong>{{ t("errors.title") }} :</strong>
+                {{ getErrorMsg(imageDataError) }}
+              </div>
+              <div class="row pb-4">
+                <div class="col">
+                  <h5 class="title_metadata">
+                    {{ t("components.image.metadata.title") }}
+                  </h5>
+                  <ul class="metadata" v-if="image_data != null">
+                    <li>
+                      {{ t("components.image.metadata.id") }} :
+                      {{ image_data.id }}
+                    </li>
+                    <li>
+                      {{ t("components.image.metadata.name") }} :
+                      {{ image_data.name }}
+                    </li>
+                    <li>
+                      {{ t("components.image.metadata.type") }} :
+                      {{ image_data.type }}
+                    </li>
+                    <li>
+                      {{ t("components.image.metadata.size") }} :
+                      {{ image_data.size }}
+                    </li>
+                  </ul>
+                </div>
+                <div class="col"></div>
+                <div class="col text-right">
+                  <!-- Bin and download buttons -->
+                  <p class="m-0">
+                    <button
+                      type="button"
+                      class="btn btn-outline-dark mx-4 mt-4"
+                      data-toggle="modal"
+                      data-target="#modalDelete"
+                      :title="t('components.image.metadata.removeImage')"
+                    >
+                      &#128465;
+                    </button>
+                  </p>
+                  <p class="m-0">
+                    <button
+                      type="button"
+                      v-if="defaultImageBlob"
+                      @click="downloadImage($event)"
+                      role="original"
+                      class="btn btn-outline-dark mx-4 mt-4"
+                      :title="
+                        t('components.image.metadata.downloadOriginalImage')
+                      "
+                    >
+                      {{ t("components.image.metadata.downloadOriginalImage") }}
+                      📥
+                    </button>
+                  </p>
+                  <p class="m-0">
+                    <button
+                      type="button"
+                      v-if="processedImageBlob"
+                      @click="downloadImage($event)"
+                      role="processed"
+                      class="btn btn-outline-dark mx-4 mt-4"
+                      :title="
+                        t('components.image.metadata.downloadProcessedImage')
+                      "
+                    >
+                      {{
+                        t("components.image.metadata.downloadProcessedImage")
+                      }}
+                      📥
+                    </button>
+                  </p>
+                </div>
+              </div>
+            </span>
           </div>
         </nav>
         <div class="page-content" style="word-wrap: break-word">
-          <div class="imgContainer">
-            <!-- Image -->
-            <img :src="imageBlob" @error="imagePreviewError($event)" />
+          <div class="h-100" style="width: calc(100% - 16px)">
             <div
-              class="alert alert-warning alert-dismissible fade show"
+              class="alert alert-warning alert-dismissible fade show w-100 mx-2"
               v-if="warning"
               role="alert"
             >
-              <strong>Warning !</strong> {{ warning.message }}
+              <strong>{{ t("warnings.title") }} !</strong>
+              {{ warning.message }}
               <button
                 type="button"
                 class="close"
-                data-dismiss="alert"
+                @click="warning = null"
                 aria-label="Close"
               >
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div
-              class="alert alert-danger alert-dismissible fade show"
+              class="alert alert-danger alert-dismissible fade show w-100 mx-2"
               v-if="imageError"
               role="alert"
             >
-              <strong>Error :</strong> {{ getErrorMsg(imageError) }}
+              <strong>{{ t("errors.title") }} :</strong>
+              {{ getErrorMsg(imageError) }}
+            </div>
+            <div
+              :class="
+                processedImageBlob != null
+                  ? 'imgContainer col-sm-6 col-12'
+                  : 'imgContainer col-12'
+              "
+            >
+              <!-- Image -->
+              <img
+                v-if="defaultImageBlob != null"
+                :src="defaultImageBlob"
+                @error="imagePreviewError($event, true)"
+              />
+              <div
+                v-else
+                class="spinner-border"
+                style="width: 3rem; height: 3rem"
+                role="status"
+              >
+                <span class="sr-only">{{ t("loading") }}</span>
+              </div>
+            </div>
+            <div
+              class="imgContainer col-sm-6 col-12"
+              v-if="processedImageBlob != null"
+            >
+              <!-- Image -->
+              <img
+                v-if="processedImageBlob != null"
+                :src="processedImageBlob"
+                @error="imagePreviewError($event, true)"
+              />
+              <div
+                v-else
+                class="spinner-border"
+                style="width: 3rem; height: 3rem"
+                role="status"
+              >
+                <span class="sr-only">{{ t("loading") }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -146,13 +245,16 @@ import emitter from "tiny-emitter/instance";
 import AlgorithmMenuItem from "@/components/AlgorithmMenuItem.vue";
 import httpApi from "../http-api.js";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.vue";
+import { useI18n } from "vue-i18n";
+
 export default {
   name: "Image",
   data() {
     return {
+      t: useI18n({ useScope: "global" }).t,
       defaultImageBlob: null,
       processedImageBlob: null,
-      imageBlob: null,
+      algosLoading: false,
       algos: [],
       image_data: null,
       imageError: null,
@@ -166,10 +268,10 @@ export default {
     ConfirmDeleteDialog,
   },
   mounted() {
+    document.title = this.t("titles.image");
     emitter.on("updateImage", () => {
       this.defaultImageBlob = null;
       this.processedImageBlob = null;
-      this.imageBlob = null;
       this.image_data = null;
       this.imageError = null;
       this.imageDataError = null;
@@ -179,12 +281,17 @@ export default {
     this.loadImage();
     this.lastroute = this.$route.fullPath;
     // Get algos from backend
+    this.algosLoading = true;
     httpApi
       .get_algos()
       .then((res) => {
         this.algos = res.data;
+        this.algosLoading = false;
       })
-      .catch((err) => (this.algorithmsError = err));
+      .catch((err) => {
+        this.algorithmsError = err;
+        this.algosLoading = false;
+      });
   },
   methods: {
     loadImage() {
@@ -196,7 +303,6 @@ export default {
           reader.readAsDataURL(res.data);
           reader.addEventListener("load", () => {
             this.defaultImageBlob = reader.result;
-            this.imageBlob = reader.result;
           });
         })
         .catch((err) => {
@@ -209,15 +315,20 @@ export default {
         .get_imageData(this.$route.params.id)
         .then((res) => {
           this.image_data = res.data;
+          document.title = this.t("titles.image") + " | " + this.image_data.name;
         })
         .catch((err) => (this.imageDataError = err));
     },
-    imagePreviewError() {
+    imagePreviewError(e, isDefault) {
+      console.info(e);
       if (this.image_data != null) {
         this.warning = new Error(
-          'Your browser cannot display : "' + this.image_data.type + '"'
+          this.t("warnings.unsupportedImage") + ` : "${this.image_data.type}"`
         );
-        this.imageBlob = require("../assets/iconmonstr-picture-1.svg");
+        if (isDefault)
+          this.defaultImageBlob = require("../assets/iconmonstr-picture-1.svg");
+        else
+          this.processedImageBlob = require("../assets/iconmonstr-picture-1.svg");
       }
     },
     downloadImage(e) {
@@ -233,7 +344,6 @@ export default {
       reader.readAsDataURL(blob);
       reader.addEventListener("load", () => {
         this.processedImageBlob = reader.result;
-        this.imageBlob = reader.result;
       });
     },
     getErrorMsg(err) {
@@ -262,13 +372,23 @@ export default {
 /* For main image */
 div.imgContainer {
   position: relative;
-  width: 100%;
+  display: inline-block;
+  margin: 0 4px;
   height: 100%;
   user-select: none;
   z-index: 1;
 }
 
-div.imgContainer img {
+@media (min-width: 576px) {
+  div.imgContainer.col-sm-6 {
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: calc(50% - 8px);
+  }
+}
+
+div.imgContainer img,
+div.imgContainer div.spinner-border {
   max-width: 100%;
   max-height: 100%;
   height: auto;

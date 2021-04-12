@@ -11,7 +11,9 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modalDeleteLabel">Delete image</h5>
+          <h5 class="modal-title" id="modalDeleteLabel">
+            {{ t("components.confirmDeleteDialog.title") }}
+          </h5>
           <button
             type="button"
             class="close"
@@ -22,25 +24,37 @@
           </button>
         </div>
         <div class="modal-body text-center">
-          Are you sure to delete this image ?
+          {{ t("components.confirmDeleteDialog.content") }}
         </div>
         <div
           class="alert alert-danger alert-dismissible fade show"
           v-if="error"
           role="alert"
         >
-          <strong>Error :</strong> {{ getErrorMsg(error) }}
+          <strong>{{ t("errors.title") }} :</strong> {{ getErrorMsg(error) }}
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-dismiss="modal">
-            No
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-dismiss="modal"
+            :disabled="loading"
+          >
+            {{ t("components.confirmDeleteDialog.cancel") }}
           </button>
           <button
             type="button"
             class="btn btn-success"
             @click="btnDeleteImage($event)"
+            :disabled="loading"
           >
-            Yes
+            {{ t("components.confirmDeleteDialog.validate") }}
+            <span
+              v-if="loading"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
           </button>
         </div>
       </div>
@@ -49,7 +63,9 @@
 </template>
 
 <script>
+import { useI18n } from "vue-i18n";
 import httpApi from "../http-api.js";
+
 export default {
   name: "ImageDelete",
   props: {
@@ -57,20 +73,26 @@ export default {
   },
   data() {
     return {
+      t: useI18n({ useScope: "global" }).t,
+      loading: false,
       error: null,
     };
   },
   methods: {
     btnDeleteImage() {
+      this.loading = true;
       httpApi
         .delete_image(this.id)
         .then(() => {
+          this.loading = false;
+
           // Close modal
           document.body.removeChild(document.querySelector(".modal-backdrop"));
 
           this.$router.push({ name: "Home" });
         })
         .catch((err) => {
+          this.loading = false;
           this.error = err;
         });
     },

@@ -1,14 +1,10 @@
 package pdl.backend;
 
-import java.io.IOException;
-import java.util.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import exceptions.BadParamsException;
 import exceptions.ImageConversionException;
-import exceptions.UnknownAlgorithmException;
+import exceptions.ImageWebException;
 import imageProcessing.AlgorithmArgs;
 import imageProcessing.AlgorithmNames;
 import imageProcessing.AlgorithmProcess;
@@ -16,15 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
+
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 public class ImageController {
@@ -58,21 +52,10 @@ public class ImageController {
                             .ok()
                             .contentType(MediaType.valueOf(img.getType()))
                             .body(bytes);
-                } catch (BadParamsException e) {
-                    return ResponseEntity
-                            .badRequest()
-                            .contentType(MediaType.TEXT_PLAIN)
-                            .body(e.toString());
-                } catch (UnknownAlgorithmException uae) {
-                    return ResponseEntity
-                            .badRequest()
-                            .contentType(MediaType.TEXT_PLAIN)
-                            .body(uae.getMessage());
-                } catch (ImageConversionException ice) {
-                    return ResponseEntity
-                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .contentType(MediaType.TEXT_PLAIN)
-                            .body(ice.getMessage());
+                } catch (ImageWebException e) {
+                    return ResponseEntity.status(e.status)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(e.toJSON());
                 }
             }
         } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -107,20 +90,21 @@ public class ImageController {
     }
 
     @RequestMapping(value = "/images", method = RequestMethod.POST)
-    public ResponseEntity<?> addImage(@RequestParam("image") MultipartFile file,
-                                      RedirectAttributes redirectAttributes) {
-        if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG.toString()) && !Objects.equals(file.getContentType(), "image/tiff"))
-            return ResponseEntity
-                    .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body("Unsupported image type ! Image will be image/jpeg or image/tiff");
+    public ResponseEntity<ObjectNode> addImage(@RequestParam("image") MultipartFile file,
+                                               RedirectAttributes redirectAttributes) {
+        if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG_VALUE) && !Objects.equals(file.getContentType(), "image/tiff")) {
+            ObjectNode jsonNode = mapper.createObjectNode();
+            jsonNode.put("type", "UnsupportedMediaTypeException");
+            jsonNode.put("message", "Unsupported image type ! Image will be image/jpeg or image/tiff");
+            return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
+        }
         try {
             byte[] filecontent = file.getBytes();
             HashMap<String, Object> imageMetaData = AlgorithmProcess.getImageMetaData(filecontent);
             long fileSize = (long) imageMetaData.get("size");
             long width = (long) imageMetaData.get("width");
             long height = (long) imageMetaData.get("height");
-            long dimention = (long) imageMetaData.get("dimention");
+            long dimention = (long) imageMetaData.get("dimension");
             String size = String.format("%d*%d*%d", width, height, dimention);
 
             Image image = new Image(file.getOriginalFilename(), filecontent, file.getContentType(), size, fileSize);
@@ -133,16 +117,16 @@ public class ImageController {
             return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
 
         } catch (ImageConversionException e) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_ACCEPTABLE)
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body("Bad image file send !");
+            ObjectNode jsonNode = mapper.createObjectNode();
+            jsonNode.put("type", "BadImageFileException");
+            jsonNode.put("message", "Bad image file send !");
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body("Error on open file!");
+            ObjectNode jsonNode = mapper.createObjectNode();
+            jsonNode.put("type", "UnknownException");
+            jsonNode.put("message", "Error on open file!");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
         }
     }
 
@@ -196,16 +180,5 @@ public class ImageController {
             algoNames.add(node);
         });
         return algoNames;
-    }
-
-    // REDIRECTION FOR FRONTEND (when user reload the page)
-    @RequestMapping("/about")
-    protected RedirectView redirect() {
-        return new RedirectView("/");
-    }
-
-    @RequestMapping("/image/{id}")
-    protected RedirectView redirectA() {
-        return new RedirectView("/");
     }
 }

@@ -1,6 +1,22 @@
 <template>
   <div>
-    <h1>This is an about page</h1>
+    <h1>{{ t("components.about.title") }}</h1>
     <!-- TODO: about -->
   </div>
 </template>
+
+<script>
+import { useI18n } from "vue-i18n";
+
+export default {
+  name: "About",
+  data() {
+    return {
+      t: useI18n({ useScope: "global" }).t,
+    };
+  },
+  mounted() {
+    document.title = this.t("titles.about");
+  }
+};
+</script>
