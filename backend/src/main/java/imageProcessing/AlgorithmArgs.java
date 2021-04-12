@@ -36,8 +36,10 @@ public class AlgorithmArgs {
     }
 
     public String getTitle() {
-        String local = Middleware.getLocale().getLanguage();
-        return titles.containsKey(local)? titles.get(local) : titles.get(Middleware.defaultLocale.getLanguage());
+        String requestLocale = Middleware.getLocale().getLanguage();
+        return titles.containsKey(requestLocale) ?
+                titles.get(requestLocale) :
+                titles.getOrDefault(Middleware.defaultLocale.getLanguage(), "Undefined title");
     }
 
 }

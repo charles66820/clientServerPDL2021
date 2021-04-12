@@ -23,24 +23,29 @@ public final class Internationalization {
 
         for (File file : files) {
             try {
-                allJsonLang.put(file.getName().replaceFirst("[.][^.]+$", ""), new JSONObject(FileToString(file)));
+                String jsonString = FileToString(file);
+                // Filename without extension
+                String fileName = file.getName().replaceFirst("[.][^.]+$", "");
+                if (jsonString != null)
+                    allJsonLang.put(fileName, new JSONObject(jsonString));
             } catch (JSONException e) {
-                throw new RuntimeException("Error on load translation file : " + e.getMessage());
+                // Juste print error because "allJsonLang" is not affected
+                System.err.println("Error on load translation files : " + e.getMessage());
             }
         }
     }
 
     public String FileToString(File file) {
-        BufferedReader reader;
         StringBuilder JSONFile = new StringBuilder();
         try {
-            reader = new BufferedReader(new FileReader(file));
+            BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;
             while ((line = reader.readLine()) != null) {
                 JSONFile.append(line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.format("Error on open (%s) : %s\n", file, e.getMessage());
+            return null;
         }
         return JSONFile.toString();
     }

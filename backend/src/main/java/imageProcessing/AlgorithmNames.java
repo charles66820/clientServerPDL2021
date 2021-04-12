@@ -41,36 +41,51 @@ public enum AlgorithmNames {
         try {
             for (String lang : Internationalization.getInstance().getAllJsonLang().keySet()) {
                 JSONObject json = Internationalization.getInstance().getAllJsonLang().get(lang);
-                JSONObject algoNamesNode = json.getJSONObject("AlgorithmsNames").getJSONObject(name);
+                if (json.has("AlgorithmsNames")) {
+                    JSONObject algosNode = json.getJSONObject("AlgorithmsNames");
+                    if (algosNode.has(this.name)) {
+                        JSONObject algoNode = algosNode.getJSONObject(this.name);
 
-                // Define this algorithm titles
-                titles.put(lang, algoNamesNode.getString("title"));
+                        // Define this algorithm titles
+                        if (algoNode.has("title"))
+                            titles.put(lang, algoNode.getString("title"));
 
-                // Define all args titles
-                if (this.args != null && this.args.size() > 0) {
-                    JSONObject argsNode = algoNamesNode.getJSONObject("args");
-                    for (AlgorithmArgs arg : this.args) {
-                        String argTitle = argsNode.getJSONObject(arg.name).getString("title");
-                        arg.titles.put(lang, argTitle);
-                        // Define all options titles
-                        if (arg.options != null && arg.options.size() > 0) {
-                            JSONObject optionsNode = argsNode.getJSONObject(arg.name).getJSONObject("options");
-                            for (AlgorithmArgs option : arg.options) {
-                                String optionTitle = optionsNode.getJSONObject(option.name).getString("title");
-                                option.titles.put(lang, optionTitle);
+                        // Define all args titles
+                        if (this.args != null && this.args.size() > 0 && algoNode.has("args")) {
+                            JSONObject argsNode = algoNode.getJSONObject("args");
+                            for (AlgorithmArgs arg : this.args) {
+                                if (argsNode.has(arg.name)) {
+                                    JSONObject argNode = argsNode.getJSONObject(arg.name);
+                                    if (argNode.has("title"))
+                                        arg.titles.put(lang, argNode.getString("title"));
+                                    // Define all options titles
+                                    if (arg.options != null && arg.options.size() > 0 && argNode.has("options")) {
+                                        JSONObject optionsNode = argNode.getJSONObject("options");
+                                        for (AlgorithmArgs option : arg.options) {
+                                            if (optionsNode.has(option.name)) {
+                                                JSONObject optionNode = optionsNode.getJSONObject(option.name);
+                                                if (optionNode.has("title"))
+                                                    option.titles.put(lang, optionNode.getString("title"));
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         } catch (JSONException e) {
-            throw new RuntimeException("Error on load translation file : " + e.getMessage());
+            // Juste print error because "Undefined title" exist if a translation is not defined
+            System.err.println("Error on load translation file : " + e.getMessage());
         }
     }
 
     public String getTitle() {
-        String local = Middleware.getLocale().getLanguage();
-        return titles.containsKey(local) ? titles.get(local) : titles.get(Middleware.defaultLocale.getLanguage());
+        String requestLocale = Middleware.getLocale().getLanguage();
+        return titles.containsKey(requestLocale) ?
+                titles.get(requestLocale) :
+                titles.getOrDefault(Middleware.defaultLocale.getLanguage(), "Undefined title");
     }
 
     public String getName() {
