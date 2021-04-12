@@ -1,0 +1,59 @@
+{
+  "AlgorithmsNames" : {
+    "increaseLuminosity": {
+      "title": "Luminosity",
+      "args": {
+        "gain": {
+          "title": "Gain"
+        }
+      }
+    },
+    "coloredFilter": {
+      "title" : "Colored Filter",
+      "args": {
+        "hue": {
+          "title": "Hue"
+        }
+      }
+    },
+    "histogramContrast": {
+      "title": "Histogram",
+      "args": {
+        "channel": {
+          "title": "HSV Channel",
+          "options": {
+            "s": {
+              "title": "Saturation"
+            },
+            "v": {
+              "title": "Value"
+            }
+          }
+        }
+      }
+    },
+    "blurFilter": {
+      "title" : "Blur Filter",
+      "args" :
+      {
+        "filterName" : {
+          "title": "Name filter",
+          "options": {
+            "meanFilter": {
+              "title": "Mean Filter"
+            },
+            "gaussFilter": {
+              "title": "Gaussian Filter"
+            }
+          }
+        },
+        "blur" : {
+          "title" : "Blur Filter"
+        }
+      }
+    },
+    "contourFilter": {
+      "title" : "Contour Filter"
+    }
+  }
+}

@@ -20,7 +20,7 @@ public class ImageDao implements Dao<Image> {
 
   public ImageDao() {
       if (getClass().getResource("/images") != null) {
-          String pathName = getClass().getResource("/images").getPath();
+          String pathName = Objects.requireNonNull(getClass().getResource("/images")).getPath();
           File path = new File(pathName);
           try {
               ArrayList<File> allImg = new ArrayList<>();

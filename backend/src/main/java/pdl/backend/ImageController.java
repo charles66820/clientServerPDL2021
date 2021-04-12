@@ -156,12 +156,11 @@ public class ImageController {
             ObjectNode node = mapper.createObjectNode();
             node.put("name", n.getName());
             node.put("title", n.getTitle());
-
             ArrayNode argsList = node.putArray("args");
             for (AlgorithmArgs arg : n.getArgs()) {
                 ObjectNode argNode = mapper.createObjectNode();
                 argNode.put("name", arg.name);
-                argNode.put("title", arg.title);
+                argNode.put("title", arg.getTitle());
                 argNode.put("type", arg.type);
                 argNode.put("min", arg.min);
                 argNode.put("max", arg.max);
@@ -171,7 +170,7 @@ public class ImageController {
                     for (AlgorithmArgs option : arg.options) {
                         ObjectNode optionNode = mapper.createObjectNode();
                         optionNode.put("name", option.name);
-                        optionNode.put("title", option.title);
+                        optionNode.put("title", option.getTitle());
                         optionNode.put("type", option.type);
                         optionsList.add(optionNode);
                     }
