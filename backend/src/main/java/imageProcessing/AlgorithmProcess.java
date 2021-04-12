@@ -257,6 +257,7 @@ public class AlgorithmProcess {
 
     //Colored Filter
     public static void rgbToHsv(int r, int g, int b, float[] hsv) {
+        assert r > 0 && r < 255 && g > 0 && g < 255 && b > 0 && b < 255;
         float max = Math.max(r, g);
         max = Math.max(max, b);
         float min = Math.min(r, g);
@@ -283,6 +284,7 @@ public class AlgorithmProcess {
     }
 
     public static void hsvToRgb(float h, float s, float v, int[] rgb) {
+        assert h > 0 && h < 360 && s > 0 && s < 100 && v > 0 && v < 100;
         // Change range from 0..100 to 0..1:
         s /= 100f;
         v /= 100f;
