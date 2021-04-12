@@ -265,16 +265,20 @@ public class AlgorithmProcess {
 
         // conversion HSV
         hsv[2] = Math.round(((max / 255) * 10f) * 100f) / 10f;   // Value
+
         // Hue
+        float h = 0;
         if (max == min) {
-            hsv[0] = 0;
+            h = 0;
         } else if (max == r) {
-            hsv[0] = (60 * ((g - b) / (max - min)) + 360) % 360;
+            h = (60 * ((g - b) / (max - min)) + 360) % 360;
         } else if (max == g) {
-            hsv[0] = 60 * ((b - r) / (max - min)) + 120;
+            h = 60 * ((b - r) / (max - min)) + 120;
         } else {
-            hsv[0] = 60 * ((r - g) / (max - min)) + 240;
+            h = 60 * ((r - g) / (max - min)) + 240;
         }
+        hsv[0] = Math.round(h);
+
         // Saturation
         if (max == 0) {
             hsv[1] = 0;
