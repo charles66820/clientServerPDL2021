@@ -55,7 +55,6 @@ public class AlgorithmProcess {
         }
     }
 
-    //TODO: add badParam in a list when we have BadParamsException
     public static byte[] applyAlgorithm(Image image, Map<String, String> params) throws BadParamsException, ImageConversionException, UnknownAlgorithmException {
         //Test if "algorithm" is in the query param
         if (!params.containsKey("algorithm")) {
