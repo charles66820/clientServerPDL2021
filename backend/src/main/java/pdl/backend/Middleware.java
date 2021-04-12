@@ -1,5 +1,6 @@
 package pdl.backend;
 
+import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -12,19 +13,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.Properties;
 
 @Component("middleware")
 public class Middleware extends OncePerRequestFilter {
-    private Properties supportedLanguages = new Properties();
+    public static final Locale defaultLocale = Locale.ENGLISH;
     public static Locale requestLocale = Locale.ENGLISH;
 
     @Override
     @RequestMapping()
     @ResponseBody
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        initProperties();
-
+        requestLocale = Locale.ENGLISH;
         if (httpServletRequest.getLocale() != requestLocale) {
             detectLocaleFromRequest(httpServletRequest);
         }
@@ -33,17 +32,12 @@ public class Middleware extends OncePerRequestFilter {
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
-    private void initProperties() {
-        supportedLanguages = new Properties();
-        supportedLanguages.put("DEFAULT", Locale.ENGLISH.getLanguage());
-        supportedLanguages.put("fr", Locale.FRENCH.getLanguage());
-    }
-
     private void detectLocaleFromRequest(HttpServletRequest request) {
         Enumeration<Locale> locales = request.getLocales();
         while (locales.hasMoreElements()) {
             Locale l = locales.nextElement();
-            if (supportedLanguages.contains(l.getLanguage())) {
+            // Check if l is in supportedLanguages
+            if (Internationalization.getInstance().getAllJsonLang().containsKey(l.getLanguage())) {
                 requestLocale = l;
                 break;
             }
@@ -57,4 +51,5 @@ public class Middleware extends OncePerRequestFilter {
     public static Locale getLocale() {
         return requestLocale;
     }
+
 }
