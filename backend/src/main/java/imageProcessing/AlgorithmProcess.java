@@ -283,6 +283,10 @@ public class AlgorithmProcess {
     }
 
     public static void hsvToRgb(float h, float s, float v, int[] rgb) {
+        // Change range from 0..100 to 0..1:
+        s /= 100f;
+        v /= 100f;
+
         int hi = ((int) Math.floor(h / 60)) % 6;
         float f = (h / 60) - hi;
         float l = (v * (1 - s)) * 255;
