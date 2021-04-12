@@ -354,9 +354,9 @@ public class AlgorithmProcess {
         final IntervalView<UnsignedByteType> cG = Views.hyperSlice(input, 2, 1); // Dimension 2 channel 1 (green)
         final IntervalView<UnsignedByteType> cB = Views.hyperSlice(input, 2, 2); // Dimension 2 channel 2 (blue)
 
-        int[] hist = new int[101];
+        int[] hist = new int[1001];
 
-        for (int i = 0; i < 101; i++) {
+        for (int i = 0; i < 1001; i++) {
             hist[i] = 0;
         }
 
@@ -364,13 +364,13 @@ public class AlgorithmProcess {
         LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
             float[] hsv = new float[3];
             rgbToHsv(r.get(), g.get(), b.get(), hsv);
-            hist[(int) (hsv[channel] * 100)]++;
+            hist[(int) (hsv[channel] * 10)]++;
         });
 
         //Calcul of cumulative histogram
-        int[] histocum = new int[101];
+        int[] histocum = new int[1001];
         histocum[0] = hist[0];
-        for (int i = 1; i < 101; i++) {
+        for (int i = 1; i < 1001; i++) {
             histocum[i] = histocum[i - 1] + hist[i];
         }
 
@@ -378,9 +378,9 @@ public class AlgorithmProcess {
         LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
             float[] hsv = new float[3];
             rgbToHsv(r.get(), g.get(), b.get(), hsv);
-            if (hsv[channel] > 100) hsv[channel] = 100;
+            hsv[channel] = ((float) histocum[(int) (hsv[channel] * 10)] * 1001 / N) / 10;
+
             int[] rgb = new int[3];
-            hsv[channel] = ((float) histocum[(int) (hsv[channel] * 100)] * 101 / N) / 100;
             hsvToRgb(hsv[0], hsv[1], hsv[2], rgb);
             r.set(rgb[0]);
             g.set(rgb[1]);
