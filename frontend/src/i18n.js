@@ -4,29 +4,22 @@ import axios from "axios";
 
 const SUPPORT_LOCALES = ["en", "fr"]
 
+let mode;
+let i18n;
 
-import en from './locales/en.json'
+async function initI18n(options) {
+  i18n = createI18n(options);
+  await setI18nLanguage(options.locale);
+  mode = i18n.mode;
+  return i18n;
+}
 
-const options = {
-  globalInjection: true,
-  legacy: false,
-  locale: localStorage.lang? localStorage.lang : "en",
-  fallbackLocale: "en",
-  messages: {
-    en
-  }
-};
-
-const i18n = createI18n(options);
-
-setI18nLanguage(i18n, options.locale);
-
-async function setI18nLanguage(i18n, locale) {
+async function setI18nLanguage(locale) {
   if (!SUPPORT_LOCALES.includes(locale)) return;
 
   // load locale messages
   if (!i18n.global.availableLocales.includes(locale))
-    await loadLocaleMessages(i18n, locale);
+    await loadLocaleMessages(locale);
 
   if (i18n.mode === "legacy")
     i18n.global.locale = locale;
@@ -37,7 +30,7 @@ async function setI18nLanguage(i18n, locale) {
   document.querySelector("html").setAttribute("lang", locale);
 }
 
-async function loadLocaleMessages(i18n, locale) {
+async function loadLocaleMessages(locale) {
   const messages = await import(
     `./locales/${locale}.json`
   );
@@ -50,6 +43,7 @@ async function loadLocaleMessages(i18n, locale) {
 
 export {
   SUPPORT_LOCALES,
-  i18n,
+  mode,
+  initI18n,
   setI18nLanguage
 }
