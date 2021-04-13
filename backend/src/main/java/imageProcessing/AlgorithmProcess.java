@@ -14,7 +14,6 @@ import net.imglib2.loops.LoopBuilder;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
-import org.scijava.util.StringUtils;
 import pdl.backend.Image;
 
 import javax.imageio.ImageIO;

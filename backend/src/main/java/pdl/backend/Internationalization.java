@@ -3,11 +3,15 @@ package pdl.backend;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Objects;
 
 public final class Internationalization {
     private final HashMap<String, JSONObject> allJsonLang = new HashMap<>();

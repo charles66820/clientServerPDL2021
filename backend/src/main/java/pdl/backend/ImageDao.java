@@ -1,5 +1,9 @@
 package pdl.backend;
 
+import exceptions.ImageConversionException;
+import imageProcessing.AlgorithmProcess;
+import org.springframework.stereotype.Repository;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URLConnection;
@@ -8,10 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import exceptions.ImageConversionException;
-import imageProcessing.AlgorithmProcess;
-import org.springframework.stereotype.Repository;
 
 @Repository
 public class ImageDao implements Dao<Image> {

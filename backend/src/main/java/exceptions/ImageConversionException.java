@@ -1,6 +1,5 @@
 package exceptions;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.http.HttpStatus;
 
 public class ImageConversionException extends ImageWebException {

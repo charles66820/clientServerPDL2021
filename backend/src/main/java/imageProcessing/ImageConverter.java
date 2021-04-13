@@ -1,11 +1,5 @@
 package imageProcessing;
 
-import java.io.IOException;
-
-import net.imglib2.img.Img;
-import org.scijava.Context;
-import org.scijava.io.location.BytesLocation;
-
 import io.scif.FormatException;
 import io.scif.Reader;
 import io.scif.SCIFIO;
@@ -14,8 +8,13 @@ import io.scif.formats.JPEGFormat;
 import io.scif.img.ImgOpener;
 import io.scif.img.ImgSaver;
 import io.scif.img.SCIFIOImgPlus;
+import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
+import org.scijava.Context;
+import org.scijava.io.location.BytesLocation;
+
+import java.io.IOException;
 
 public class ImageConverter {
 
