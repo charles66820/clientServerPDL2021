@@ -20,6 +20,7 @@ public class ImageWebException extends Exception {
 
     /**
      * Create a node in JSON with all informations of the exception
+     *
      * @return node in JSON
      */
     public ObjectNode toJSON() {

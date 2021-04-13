@@ -14,7 +14,7 @@ public class BadParamsException extends ImageWebException {
     private HashMap<String, Object> paramValue; //key = name of argument
     public final HttpStatus status = HttpStatus.BAD_REQUEST;
 
-    public BadParamsException(String message, List<AlgorithmArgs> badParamsList, HashMap<String , Object> paramValue) {
+    public BadParamsException(String message, List<AlgorithmArgs> badParamsList, HashMap<String, Object> paramValue) {
         super(message);
         this.badParamsList = badParamsList;
         this.paramValue = paramValue;
@@ -32,12 +32,12 @@ public class BadParamsException extends ImageWebException {
     public ObjectNode toJSON() {
         ObjectNode node = super.toJSON();
         // If we don't have a list of parameters
-        if(badParamsList == null) {
+        if (badParamsList == null) {
             return node;
         }
         // List of bad parameters
         ArrayNode badParamsListNode = node.putArray("badParams");
-        for(AlgorithmArgs param : badParamsList) {
+        for (AlgorithmArgs param : badParamsList) {
             ObjectNode paramNode = super.mapper.createObjectNode();
             paramNode.put("name", param.name);
             paramNode.put("title", param.getTitle());
@@ -70,7 +70,7 @@ public class BadParamsException extends ImageWebException {
                 paramNode.put("value", this.paramValue.get(param.name).toString());
                 // Display expected value for the selector
                 ArrayNode expectedValueListNode = paramNode.putArray("expectedValue");
-                for(AlgorithmArgs value : param.options) {
+                for (AlgorithmArgs value : param.options) {
                     ObjectNode expectedValueNode = super.mapper.createObjectNode();
                     expectedValueNode.put("name", value.name);
                     expectedValueNode.put("title", value.getTitle());

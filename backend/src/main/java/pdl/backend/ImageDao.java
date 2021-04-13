@@ -1,7 +1,6 @@
 package pdl.backend;
 
 import exceptions.ImageConversionException;
-import imageProcessing.AlgorithmProcess;
 import org.springframework.stereotype.Repository;
 
 import java.io.File;

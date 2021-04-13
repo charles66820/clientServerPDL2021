@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface Dao<T> {
-  
-  void create(final T t);
 
-  Optional<T> retrieve(final long id);
+    void create(final T t);
 
-  List<T> retrieveAll();
+    Optional<T> retrieve(final long id);
 
-  void update(final T t, final String[] params);
+    List<T> retrieveAll();
 
-  void delete(final T t);
+    void update(final T t, final String[] params);
+
+    void delete(final T t);
 }

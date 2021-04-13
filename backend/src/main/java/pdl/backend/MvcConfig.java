@@ -9,8 +9,8 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-      // REDIRECTION FOR FRONTEND (when user reload the page)
-      registry.addViewController("/about").setViewName("forward:/index.html");
-      registry.addViewController("/image/*").setViewName("forward:/index.html");
+        // REDIRECTION FOR FRONTEND (when user reload the page)
+        registry.addViewController("/about").setViewName("forward:/index.html");
+        registry.addViewController("/image/*").setViewName("forward:/index.html");
     }
 }
