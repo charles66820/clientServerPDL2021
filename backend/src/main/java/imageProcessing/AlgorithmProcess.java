@@ -7,8 +7,6 @@ import io.scif.FormatException;
 import io.scif.img.SCIFIOImgPlus;
 import net.imglib2.Cursor;
 import net.imglib2.Interval;
-import net.imglib2.IterableInterval;
-import net.imglib2.RandomAccess;
 import net.imglib2.algorithm.gauss3.Gauss3;
 import net.imglib2.algorithm.neighborhood.Neighborhood;
 import net.imglib2.algorithm.neighborhood.RectangleShape;
@@ -16,7 +14,6 @@ import net.imglib2.img.Img;
 import net.imglib2.loops.LoopBuilder;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.util.Intervals;
-import net.imglib2.view.ExtendedRandomAccessibleInterval;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 import pdl.backend.Image;
@@ -171,6 +168,14 @@ public class AlgorithmProcess {
                 break;
             case CONTOUR_FILTER:
                 bytes = contourFilter(image.getData(), image.getType().equals("image/tiff") ? "TIFF" : "JPEG");
+                break;
+            case GREY_FILTER:
+                greyFilter(img);
+                try {
+                    bytes = ImageConverter.imageToRawBytes(img);
+                } catch (FormatException | IOException e) {
+                    throw new ImageConversionException("Error during conversion ! ");
+                }
                 break;
             default:
                 throw new UnknownAlgorithmException("This algorithm cannot be executed by the server !", algoName.getName(), algoName.getTitle());
@@ -397,7 +402,7 @@ public class AlgorithmProcess {
 
     // Blur Filter
     public static void meanFilter(final Img<UnsignedByteType> img, double size) {
-        // TODO: fix border
+        // TODO: fix border + color image
         /*Img<UnsignedByteType> input = img.copy();
         final RandomAccess<UnsignedByteType> rIn = input.randomAccess();
         final RandomAccess<UnsignedByteType> rOut = img.randomAccess();
@@ -474,6 +479,31 @@ public class AlgorithmProcess {
             gaussFilter(img, size);
         } else {
             throw new BadParamsException("Filter name does not exit !");
+        }
+    }
+
+    // Grey Filter
+    public static void greyFilter(Img<UnsignedByteType> input) {
+        if (input.numDimensions() < 3) {
+            return;
+        }
+        final IntervalView<UnsignedByteType> inputR = Views.hyperSlice(input, 2, 0);
+        final IntervalView<UnsignedByteType> inputG = Views.hyperSlice(input, 2, 1);
+        final IntervalView<UnsignedByteType> inputB = Views.hyperSlice(input, 2, 2);
+
+        final Cursor<UnsignedByteType> cursorR = inputR.cursor();
+        final Cursor<UnsignedByteType> cursorG = inputG.cursor();
+        final Cursor<UnsignedByteType> cursorB = inputB.cursor();
+
+        while (cursorR.hasNext() && cursorG.hasNext() && cursorB.hasNext()) {
+            cursorR.fwd();
+            cursorG.fwd();
+            cursorB.fwd();
+
+            int val = (int) (0.3 * cursorR.get().get() + 0.59 * cursorG.get().get() + 0.11 * cursorB.get().get());
+            cursorR.get().set(val);
+            cursorG.get().set(val);
+            cursorB.get().set(val);
         }
     }
 

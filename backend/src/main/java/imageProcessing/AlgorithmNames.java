@@ -32,7 +32,9 @@ public enum AlgorithmNames {
         }}));
         add(new AlgorithmArgs("blur", "number", 0, 30, true));
     }}),     //mean or gaussian and level of blur
-    CONTOUR_FILTER("contourFilter", new ArrayList<>());
+    CONTOUR_FILTER("contourFilter", new ArrayList<>()
+    ),
+    GREY_FILTER("greyFilter", new ArrayList<>());
 
     private final HashMap<String, String> titles = new HashMap<>();
     private final List<AlgorithmArgs> args;
