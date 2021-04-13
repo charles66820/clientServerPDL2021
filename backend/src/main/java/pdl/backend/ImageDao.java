@@ -33,16 +33,8 @@ public class ImageDao implements Dao<Image> {
               if (!allImg.isEmpty()) {
                   for (File image : allImg) {
                       fileContent = Files.readAllBytes(image.toPath());
-
-                      HashMap<String, Object> imageMetaData = AlgorithmProcess.getImageMetaData(fileContent);
                       String type = URLConnection.guessContentTypeFromName(image.getName());
-                      long fileSize = (long) imageMetaData.get("size");
-                      long width = (long) imageMetaData.get("width");
-                      long height = (long) imageMetaData.get("height");
-                      long dimension = (long) imageMetaData.get("dimension");
-                      String size = String.format("%d*%d*%d", width, height, dimension);
-
-                      Image img = new Image(image.getName(), fileContent, type, size, fileSize);
+                      Image img = new Image(image.getName(), fileContent, type);
                       images.put(img.getId(), img);
                   }
               }

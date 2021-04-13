@@ -4,8 +4,6 @@ import exceptions.BadParamsException;
 import exceptions.ImageConversionException;
 import exceptions.UnknownAlgorithmException;
 import io.scif.FormatException;
-import io.scif.ImageMetadata;
-import io.scif.Metadata;
 import io.scif.img.SCIFIOImgPlus;
 import net.imglib2.RandomAccess;
 import net.imglib2.algorithm.gauss3.Gauss3;
@@ -30,29 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 public class AlgorithmProcess {
-
-    public static HashMap<String, Object> getImageMetaData(Image image) throws ImageConversionException {
-        return getImageMetaData(image.getData());
-    }
-
-    public static HashMap<String, Object> getImageMetaData(byte[] image) throws ImageConversionException {
-        try {
-            HashMap<String, Object> res = new HashMap<>();
-            SCIFIOImgPlus<UnsignedByteType> img = ImageConverter.imageFromJPEGBytes(image);
-            Metadata metadata = img.getMetadata();
-            res.put("size", metadata.getDatasetSize());
-            res.put("formatName", metadata.getFormatName());
-
-            for (ImageMetadata imageMetadata : metadata.getAll()) {
-                res.put("width", imageMetadata.getAxisLength(0));
-                res.put("height", imageMetadata.getAxisLength(1));
-                res.put("dimension", imageMetadata.getAxisLength(2));
-            }
-            return res;
-        } catch (IOException | FormatException e) {
-            throw new ImageConversionException("Error during conversion !");
-        }
-    }
 
     public static byte[] applyAlgorithm(Image image, Map<String, String> params) throws BadParamsException, ImageConversionException, UnknownAlgorithmException {
         //Test if "algorithm" is in the query param
@@ -136,22 +111,15 @@ public class AlgorithmProcess {
         }
 
         // Create a new output image with the same dimension of the input
-        byte[] bytes = image.getData();
-        SCIFIOImgPlus<UnsignedByteType> img;
-        SCIFIOImgPlus<UnsignedByteType> output;
-        try {
-            img = ImageConverter.imageFromJPEGBytes(bytes);
-            output = img.copy(); // FIXME : doing better than a copy
-        } catch (IOException | FormatException err) {
-            throw new ImageConversionException("Error during input conversion !");
-        }
+        byte[] bytes;
+        SCIFIOImgPlus<UnsignedByteType> img = image.getImageData();
 
         switch (algoName) {
             case LUMINOSITY:
                 try {
                     float luminosity = Float.parseFloat(params.get("gain"));
-                    increaseLuminosity(img, output, luminosity);
-                    bytes = ImageConverter.imageToJPEGBytes(output);
+                    increaseLuminosity(img, luminosity);
+                    bytes = ImageConverter.imageToRawBytes(img);
                 } catch (NumberFormatException e) {
                     throw new BadParamsException("Parameter \"gain\" must be a float number !");
                 } catch (FormatException | IOException ex) {
@@ -161,9 +129,8 @@ public class AlgorithmProcess {
             case COLORED_FILTER:
                 float hue = Float.parseFloat(params.get("hue"));
                 coloredFilter(img, hue);
-                output = img;
                 try {
-                    bytes = ImageConverter.imageToJPEGBytes(output);
+                    bytes = ImageConverter.imageToRawBytes(img);
                 } catch (FormatException | IOException e) {
                     throw new ImageConversionException("Error during conversion ! ");
                 }
@@ -172,7 +139,7 @@ public class AlgorithmProcess {
                 String channel = params.get("channel");
                 histogramContrast(img, channel);
                 try {
-                    bytes = ImageConverter.imageToJPEGBytes(img);
+                    bytes = ImageConverter.imageToRawBytes(img);
                 } catch (FormatException | IOException e) {
                     throw new ImageConversionException("Error during conversion ! ");
                 }
@@ -180,15 +147,15 @@ public class AlgorithmProcess {
             case BLUR_FILTER:
                 String filterName = params.get("filterName");
                 double blurLvl = Double.parseDouble(params.get("blur"));
-                blurFilter(img, output, filterName, blurLvl);
+                blurFilter(img, filterName, blurLvl);
                 try {
-                    bytes = ImageConverter.imageToJPEGBytes(output);
+                    bytes = ImageConverter.imageToRawBytes(img);
                 } catch (FormatException | IOException e) {
                     throw new ImageConversionException("Error during conversion ! ");
                 }
                 break;
             case CONTOUR_FILTER:
-                bytes = contourFilter(bytes);
+                bytes = contourFilter(image.getData());
                 break;
             default:
                 throw new UnknownAlgorithmException("This algorithm cannot be executed by the server !", algoName.getName(), algoName.getTitle());
@@ -200,8 +167,7 @@ public class AlgorithmProcess {
 
     //contour
     private static byte[] contourFilter(byte[] input) throws ImageConversionException {
-        SCIFIOImgPlus<UnsignedByteType> output = null;
-        BufferedImage source = null;
+        BufferedImage source;
         try {
             InputStream is = new ByteArrayInputStream(input);
             source = ImageIO.read(is);
@@ -229,9 +195,8 @@ public class AlgorithmProcess {
     }
 
     //Luminosity
-    private static void increaseLuminosity(Img<UnsignedByteType> input, final Img<UnsignedByteType> output, float luminosity) {
-        final RandomAccess<UnsignedByteType> r = input.randomAccess();
-        final RandomAccess<UnsignedByteType> out = output.randomAccess();
+    private static void increaseLuminosity(Img<UnsignedByteType> input, float luminosity) {
+        final RandomAccess<UnsignedByteType> img = input.randomAccess();
 
         final int iw = (int) input.max(0);
         final int ih = (int) input.max(1);
@@ -240,15 +205,11 @@ public class AlgorithmProcess {
             for (int x = 0; x <= iw; ++x) {
                 int newValue = 0;
                 for (int channel = 0; channel < 3; channel++) {
-                    r.setPosition(x, 0);
-                    r.setPosition(y, 1);
-                    r.setPosition(channel, 2);
-
-                    out.setPosition(x, 0);
-                    out.setPosition(y, 1);
-                    out.setPosition(channel, 2);
-                    newValue = Math.round(r.get().get() * (1 + luminosity / 100));
-                    out.get().set(Math.max(Math.min(newValue, 255), 0));
+                    img.setPosition(x, 0);
+                    img.setPosition(y, 1);
+                    img.setPosition(channel, 2);
+                    newValue = Math.round(img.get().get() * (1 + luminosity / 100));
+                    img.get().set(Math.max(Math.min(newValue, 255), 0));
                 }
             }
         }
@@ -399,9 +360,10 @@ public class AlgorithmProcess {
     }
 
     //Blur Filter
-    public static void meanFilter(final Img<UnsignedByteType> input, final Img<UnsignedByteType> output, double size) {
+    public static void meanFilter(final Img<UnsignedByteType> img, double size) {
+        Img<UnsignedByteType> input = img.copy();
         final RandomAccess<UnsignedByteType> rIn = input.randomAccess();
-        final RandomAccess<UnsignedByteType> rOut = output.randomAccess();
+        final RandomAccess<UnsignedByteType> rOut = img.randomAccess();
 
         // Browse of the image
         for (double x = size; x < input.max(0) - size; x++) {        // 0 == width
@@ -424,9 +386,9 @@ public class AlgorithmProcess {
         }
         //Apply convolution on the other channel
         if (input.numDimensions() > 2) {
-            final IntervalView<UnsignedByteType> cR = Views.hyperSlice(output, 2, 0); // Dimension 2 channel 0 (red)
-            final IntervalView<UnsignedByteType> cG = Views.hyperSlice(output, 2, 1); // Dimension 2 channel 1 (green)
-            final IntervalView<UnsignedByteType> cB = Views.hyperSlice(output, 2, 2); // Dimension 2 channel 2 (blue)
+            final IntervalView<UnsignedByteType> cR = Views.hyperSlice(img, 2, 0); // Dimension 2 channel 0 (red)
+            final IntervalView<UnsignedByteType> cG = Views.hyperSlice(img, 2, 1); // Dimension 2 channel 1 (green)
+            final IntervalView<UnsignedByteType> cB = Views.hyperSlice(img, 2, 2); // Dimension 2 channel 2 (blue)
             LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
                 g.set(r.get());
                 b.set(r.get());
@@ -434,15 +396,15 @@ public class AlgorithmProcess {
         }
     }
 
-    public static void gaussFilter(final Img<UnsignedByteType> input, final Img<UnsignedByteType> output, double size) {
-        Gauss3.gauss(size, Views.extendMirrorDouble(input), output);
+    public static void gaussFilter(final Img<UnsignedByteType> img, double size) {
+        Gauss3.gauss(size, Views.extendMirrorDouble(img), img);
     }
 
-    public static void blurFilter(Img<UnsignedByteType> input, final Img<UnsignedByteType> output, String filterName, double size) throws BadParamsException {
+    public static void blurFilter(Img<UnsignedByteType> img, String filterName, double size) throws BadParamsException {
         if (filterName.equals("meanFilter")) {
-            meanFilter(input, output, size);
+            meanFilter(img, size);
         } else if (filterName.equals("gaussFilter")) {
-            gaussFilter(input, output, size);
+            gaussFilter(img, size);
         } else {
             throw new BadParamsException("Filter name does not exit !");
         }

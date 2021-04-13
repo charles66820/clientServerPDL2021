@@ -99,14 +99,7 @@ public class ImageController {
         }
         try {
             byte[] filecontent = file.getBytes();
-            HashMap<String, Object> imageMetaData = AlgorithmProcess.getImageMetaData(filecontent);
-            long fileSize = (long) imageMetaData.get("size");
-            long width = (long) imageMetaData.get("width");
-            long height = (long) imageMetaData.get("height");
-            long dimension = (long) imageMetaData.get("dimension");
-            String size = String.format("%d*%d*%d", width, height, dimension);
-
-            Image image = new Image(file.getOriginalFilename(), filecontent, file.getContentType(), size, fileSize);
+            Image image = new Image(file.getOriginalFilename(), filecontent, file.getContentType());
             imageDao.create(image);
             redirectAttributes.addAttribute("message", "Successfully added !");
 
