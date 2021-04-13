@@ -6,11 +6,17 @@ import exceptions.UnknownAlgorithmException;
 import io.scif.FormatException;
 import io.scif.img.SCIFIOImgPlus;
 import net.imglib2.Cursor;
+import net.imglib2.Interval;
+import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.algorithm.gauss3.Gauss3;
+import net.imglib2.algorithm.neighborhood.Neighborhood;
+import net.imglib2.algorithm.neighborhood.RectangleShape;
 import net.imglib2.img.Img;
 import net.imglib2.loops.LoopBuilder;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.util.Intervals;
+import net.imglib2.view.ExtendedRandomAccessibleInterval;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 import pdl.backend.Image;
@@ -139,6 +145,14 @@ public class AlgorithmProcess {
             case HISTOGRAM:
                 String channel = params.get("channel");
                 histogramContrast(img, channel);
+                try {
+                    bytes = ImageConverter.imageToRawBytes(img);
+                } catch (FormatException | IOException e) {
+                    throw new ImageConversionException("Error during conversion ! ");
+                }
+                break;
+            case HISTOGRAM_GREY:
+                histogramGrey(img);
                 try {
                     bytes = ImageConverter.imageToRawBytes(img);
                 } catch (FormatException | IOException e) {
@@ -280,9 +294,8 @@ public class AlgorithmProcess {
     }
 
     public static void coloredFilter(Img<UnsignedByteType> input, float hue) {
-        // TODO: add gray image support
-        // Start with convert to color image (jpeg) ?
-        // Or send and error ?
+        if (input.numDimensions() < 3) return; // For grey image
+
         if (hue > 360) return;
         final IntervalView<UnsignedByteType> cR = Views.hyperSlice(input, 2, 0); // Dimension 2 channel 0 (red)
         final IntervalView<UnsignedByteType> cG = Views.hyperSlice(input, 2, 1); // Dimension 2 channel 1 (green)
@@ -301,9 +314,8 @@ public class AlgorithmProcess {
         });
     }
 
-    // Histogram
-    public static void histogram(Img<UnsignedByteType> input, int channel) {
-        // TODO: add gray image support (implement histogram for gray color ?)
+    // Histogram for color image
+    public static void histogramColor(Img<UnsignedByteType> input, int channel) {
         long N = input.max(0) * input.max(1);
 
         final IntervalView<UnsignedByteType> cR = Views.hyperSlice(input, 2, 0); // Dimension 2 channel 0 (red)
@@ -346,19 +358,47 @@ public class AlgorithmProcess {
     }
 
     public static void histogramContrast(Img<UnsignedByteType> input, String channel) throws BadParamsException {
+        if(input.numDimensions() < 3) {
+            throw new BadParamsException("This algorithm can't be apply on this image !");
+        }
         if (channel.equals("s")) {
-            histogram(input, 1);
+            histogramColor(input, 1);
         } else if (channel.equals("v")) {
-            histogram(input, 2);
+            histogramColor(input, 2);
         } else {
             throw new BadParamsException("This channel does not exist !");
+        }
+    }
+
+    // Histogram for grey image
+    public static void histogramGrey(Img<UnsignedByteType> input) {
+        final Cursor<UnsignedByteType> cursor = input.cursor();
+
+        int[] hist = new int[256];
+        while (cursor.hasNext()){
+            cursor.fwd();
+            UnsignedByteType val = cursor.get();
+            // Calcul of histogram
+            hist[val.get()] = hist[val.get()] + 1;
+        }
+        // Calcul of cumulative histogram
+        for(int i = 1; i < 256; i++){
+            hist[i] = hist[i] + hist[i-1];
+            System.out.println(i +":"+ hist[i]);
+        }
+        // Transform picture
+        cursor.reset();
+        while(cursor.hasNext()){
+            cursor.fwd();
+            UnsignedByteType val = cursor.get();
+            val.set((hist[val.get()]*255)/hist[255]);
         }
     }
 
     // Blur Filter
     public static void meanFilter(final Img<UnsignedByteType> img, double size) {
         // TODO: fix border
-        Img<UnsignedByteType> input = img.copy();
+        /*Img<UnsignedByteType> input = img.copy();
         final RandomAccess<UnsignedByteType> rIn = input.randomAccess();
         final RandomAccess<UnsignedByteType> rOut = img.randomAccess();
 
@@ -383,6 +423,36 @@ public class AlgorithmProcess {
         }
         //Apply convolution on the other channel
         if (input.numDimensions() > 2) {
+            final IntervalView<UnsignedByteType> cR = Views.hyperSlice(img, 2, 0); // Dimension 2 channel 0 (red)
+            final IntervalView<UnsignedByteType> cG = Views.hyperSlice(img, 2, 1); // Dimension 2 channel 1 (green)
+            final IntervalView<UnsignedByteType> cB = Views.hyperSlice(img, 2, 2); // Dimension 2 channel 2 (blue)
+            LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
+                g.set(r.get());
+                b.set(r.get());
+            });
+        }*/
+        //int size = (int) Math.ceil(double_size);
+        Interval interval = Intervals.expand(img, (long) -size);
+
+        IntervalView<UnsignedByteType> source = Views.interval(img.copy(), interval);
+        final Cursor<UnsignedByteType> sourceCursor = source.cursor();
+
+        IntervalView<UnsignedByteType> dest = Views.interval(img, interval);
+        final Cursor<UnsignedByteType> destCursor = dest.cursor();
+
+        final RectangleShape shape = new RectangleShape((int) size, true);
+
+        for (final Neighborhood<UnsignedByteType> localNeighborhood : shape.neighborhoods(source)) {
+            final UnsignedByteType sourceValue = sourceCursor.next();
+            final UnsignedByteType destValue = destCursor.next();
+
+            int sum = sourceValue.get();
+            for (final UnsignedByteType value : localNeighborhood) sum += value.get();
+            destValue.set((sum / ((((int) size * 2) + 1) * (((int) size * 2) + 1))));
+        }
+
+        //TODO: for color image modify to blur the image
+        if (img.numDimensions() > 2) {
             final IntervalView<UnsignedByteType> cR = Views.hyperSlice(img, 2, 0); // Dimension 2 channel 0 (red)
             final IntervalView<UnsignedByteType> cG = Views.hyperSlice(img, 2, 1); // Dimension 2 channel 1 (green)
             final IntervalView<UnsignedByteType> cB = Views.hyperSlice(img, 2, 2); // Dimension 2 channel 2 (blue)

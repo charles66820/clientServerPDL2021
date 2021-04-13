@@ -23,6 +23,8 @@ public enum AlgorithmNames {
             add(new AlgorithmArgs("v", "", false));
         }}));
     }}),    // channel S or V
+    HISTOGRAM_GREY("histogramGrey", new ArrayList<>()
+    ),
     BLUR_FILTER("blurFilter", new ArrayList<>() {{
         add(new AlgorithmArgs("filterName", "select", true, new ArrayList<>() {{
             add(new AlgorithmArgs("meanFilter", "", false));
