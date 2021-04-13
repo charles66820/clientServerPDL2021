@@ -358,7 +358,7 @@ public class AlgorithmProcess {
     }
 
     public static void histogramContrast(Img<UnsignedByteType> input, String channel) throws BadParamsException {
-        if(input.numDimensions() < 3) {
+        if (input.numDimensions() < 3) {
             throw new BadParamsException("This algorithm can't be apply on this image !");
         }
         if (channel.equals("s")) {
@@ -375,23 +375,23 @@ public class AlgorithmProcess {
         final Cursor<UnsignedByteType> cursor = input.cursor();
 
         int[] hist = new int[256];
-        while (cursor.hasNext()){
+        while (cursor.hasNext()) {
             cursor.fwd();
             UnsignedByteType val = cursor.get();
             // Calcul of histogram
             hist[val.get()] = hist[val.get()] + 1;
         }
         // Calcul of cumulative histogram
-        for(int i = 1; i < 256; i++){
-            hist[i] = hist[i] + hist[i-1];
-            System.out.println(i +":"+ hist[i]);
+        for (int i = 1; i < 256; i++) {
+            hist[i] = hist[i] + hist[i - 1];
+            System.out.println(i + ":" + hist[i]);
         }
         // Transform picture
         cursor.reset();
-        while(cursor.hasNext()){
+        while (cursor.hasNext()) {
             cursor.fwd();
             UnsignedByteType val = cursor.get();
-            val.set((hist[val.get()]*255)/hist[255]);
+            val.set((hist[val.get()] * 255) / hist[255]);
         }
     }
 
