@@ -283,19 +283,9 @@ export default {
       this.loadImage();
     });
     this.loadImage();
-    this.lastroute = this.$route.fullPath;
-    // Get algos from backend
-    this.algosLoading = true;
-    httpApi
-      .get_algos()
-      .then((res) => {
-        this.algos = res.data;
-        this.algosLoading = false;
-      })
-      .catch((err) => {
-        this.algorithmsError = err;
-        this.algosLoading = false;
-      });
+
+    this.$parent.$parent.addUpdateLangListener(this.loadAlgorithms);
+    this.loadAlgorithms();
   },
   methods: {
     loadImage() {
@@ -324,6 +314,20 @@ export default {
             this.t("titles.image") + " | " + this.image_data.name;
         })
         .catch((err) => (this.imageDataError = err));
+    },
+    loadAlgorithms() {
+      // Get algos from backend
+      this.algosLoading = true;
+      httpApi
+        .get_algos()
+        .then((res) => {
+          this.algos = res.data;
+          this.algosLoading = false;
+        })
+        .catch((err) => {
+          this.algorithmsError = err;
+          this.algosLoading = false;
+        });
     },
     imagePreviewError(e, isDefault) {
       console.info(e);

@@ -70,7 +70,7 @@
 import UploadImage from "@/components/UploadImage.vue";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { i18n, setI18nLanguage, SUPPORT_LOCALES } from "./i18n";
+import { mode, setI18nLanguage, SUPPORT_LOCALES } from "./i18n";
 
 export default {
   name: "App",
@@ -83,17 +83,29 @@ export default {
       locale: null,
       currentLocale: null,
       supportLocales: SUPPORT_LOCALES,
+      updateLangListeners: [],
     };
   },
   created() {
     const { t, locale } = useI18n({ useScope: "global" });
     this.locale = locale;
     this.t = t;
-    this.currentLocale = ref(i18n.mode === "legacy" ? locale : locale.value);
+    this.currentLocale = ref(mode === "legacy" ? locale : locale.value);
   },
   methods: {
-    langChange() {
-      setI18nLanguage(i18n, this.currentLocale);
+    async langChange() {
+      await setI18nLanguage(this.currentLocale);
+      // Update
+      for (const updateLangListener of this.updateLangListeners)
+        updateLangListener();
+    },
+    addUpdateLangListener(listener) {
+      const index = this.updateLangListeners.indexOf(listener);
+      if (index == -1) this.updateLangListeners.push(listener);
+    },
+    removeUpdateLangListener(listener) {
+      const index = this.updateLangListeners.indexOf(listener);
+      if (index > -1) this.updateLangListeners.splice(index, 1);
     },
   },
 };
