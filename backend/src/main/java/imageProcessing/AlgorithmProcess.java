@@ -165,7 +165,7 @@ public class AlgorithmProcess {
 
     /* Algorithms available */
 
-    //contour
+    // Contour
     private static byte[] contourFilter(byte[] input) throws ImageConversionException {
         BufferedImage source;
         try {
@@ -194,9 +194,9 @@ public class AlgorithmProcess {
         return out;
     }
 
-    //Luminosity
+    // Luminosity
     private static void increaseLuminosity(Img<UnsignedByteType> input, float luminosity) {
-        final RandomAccess<UnsignedByteType> img = input.randomAccess();
+        final RandomAccess<UnsignedByteType> img = input.randomAccess(); // TODO: change to cursor for support gray image
 
         final int iw = (int) input.max(0);
         final int ih = (int) input.max(1);
@@ -288,6 +288,9 @@ public class AlgorithmProcess {
     }
 
     public static void coloredFilter(Img<UnsignedByteType> input, float hue) {
+        // TODO: add gray image support
+        // Start with convert to color image (jpeg) ?
+        // Or send and error ?
         if (hue > 360) return;
         final IntervalView<UnsignedByteType> cR = Views.hyperSlice(input, 2, 0); // Dimension 2 channel 0 (red)
         final IntervalView<UnsignedByteType> cG = Views.hyperSlice(input, 2, 1); // Dimension 2 channel 1 (green)
@@ -306,8 +309,9 @@ public class AlgorithmProcess {
         });
     }
 
-    //Histogram
+    // Histogram
     public static void histogram(Img<UnsignedByteType> input, int channel) {
+        // TODO: add gray image support (implement histogram for gray color ?)
         long N = input.max(0) * input.max(1);
 
         final IntervalView<UnsignedByteType> cR = Views.hyperSlice(input, 2, 0); // Dimension 2 channel 0 (red)
@@ -359,8 +363,9 @@ public class AlgorithmProcess {
         }
     }
 
-    //Blur Filter
+    // Blur Filter
     public static void meanFilter(final Img<UnsignedByteType> img, double size) {
+        // TODO: fix border
         Img<UnsignedByteType> input = img.copy();
         final RandomAccess<UnsignedByteType> rIn = input.randomAccess();
         final RandomAccess<UnsignedByteType> rOut = img.randomAccess();
