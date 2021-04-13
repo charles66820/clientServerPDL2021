@@ -22,10 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AlgorithmProcess {
 
@@ -155,7 +152,7 @@ public class AlgorithmProcess {
                 }
                 break;
             case CONTOUR_FILTER:
-                bytes = contourFilter(image.getData());
+                bytes = contourFilter(image.getData(), image.getType().equals("image/tiff") ? "TIFF" : "JPEG");
                 break;
             default:
                 throw new UnknownAlgorithmException("This algorithm cannot be executed by the server !", algoName.getName(), algoName.getTitle());
@@ -166,7 +163,7 @@ public class AlgorithmProcess {
     /* Algorithms available */
 
     // Contour
-    private static byte[] contourFilter(byte[] input) throws ImageConversionException {
+    private static byte[] contourFilter(byte[] input, String formatName) throws ImageConversionException {
         BufferedImage source;
         try {
             InputStream is = new ByteArrayInputStream(input);
@@ -186,7 +183,7 @@ public class AlgorithmProcess {
         byte[] out = null;
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(resultat, "JPEG", baos);
+            ImageIO.write(resultat, formatName, baos);
             out = baos.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();

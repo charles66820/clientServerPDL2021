@@ -1,10 +1,8 @@
 package imageProcessing;
 
-import io.scif.FormatException;
-import io.scif.Reader;
-import io.scif.SCIFIO;
-import io.scif.Writer;
+import io.scif.*;
 import io.scif.formats.JPEGFormat;
+import io.scif.formats.TIFFFormat;
 import io.scif.img.ImgOpener;
 import io.scif.img.ImgSaver;
 import io.scif.img.SCIFIOImgPlus;
@@ -13,7 +11,11 @@ import net.imglib2.type.numeric.integer.UnsignedByteType;
 import org.scijava.Context;
 import org.scijava.io.location.BytesLocation;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Iterator;
 
 public class ImageConverter {
 
@@ -24,7 +26,11 @@ public class ImageConverter {
 
         // File render for simulate a file
         final SCIFIO scifio = new SCIFIO(c);
-        final JPEGFormat format = scifio.format().getFormatFromClass(JPEGFormat.class);
+        Iterator<ImageReader> readers = ImageIO.getImageReaders(ImageIO.createImageInputStream(new ByteArrayInputStream(data)));
+        final Format format;
+        if (readers.next().getFormatName().equals("tif"))
+            format = scifio.format().getFormatFromClass(TIFFFormat.class);
+        else format = scifio.format().getFormatFromClass(JPEGFormat.class);
         final Reader reader = format.createReader();
         reader.setSource(new BytesLocation(data));
 
@@ -41,8 +47,7 @@ public class ImageConverter {
         final Context context = imgSaver.getContext();
 
         // File render for simulate a file
-        final SCIFIO scifio = new SCIFIO(context);
-        final JPEGFormat format = scifio.format().getFormatFromClass(JPEGFormat.class);
+        final Format format = img.getMetadata().getFormat();
         // Write data in simulated file
         final Writer writer = format.createWriter();
         final BytesLocation saveLocation = new BytesLocation(10);

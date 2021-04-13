@@ -201,7 +201,7 @@
               <!-- Image -->
               <img
                 v-if="defaultImageBlob != null"
-                :src="defaultImageBlob"
+                :src="defaultImagePreview"
                 @error="imagePreviewError($event, true)"
               />
               <div
@@ -220,8 +220,8 @@
               <!-- Image -->
               <img
                 v-if="processedImageBlob != null"
-                :src="processedImageBlob"
-                @error="imagePreviewError($event, true)"
+                :src="processedImagePreview"
+                @error="imagePreviewError($event, false)"
               />
               <div
                 v-else
@@ -254,6 +254,8 @@ export default {
       t: useI18n({ useScope: "global" }).t,
       defaultImageBlob: null,
       processedImageBlob: null,
+      defaultImagePreview: null,
+      processedImagePreview: null,
       algosLoading: false,
       algos: [],
       image_data: null,
@@ -272,6 +274,8 @@ export default {
     emitter.on("updateImage", () => {
       this.defaultImageBlob = null;
       this.processedImageBlob = null;
+      this.defaultImagePreview = null;
+      this.processedImagePreview = null;
       this.image_data = null;
       this.imageError = null;
       this.imageDataError = null;
@@ -303,6 +307,7 @@ export default {
           reader.readAsDataURL(res.data);
           reader.addEventListener("load", () => {
             this.defaultImageBlob = reader.result;
+            this.defaultImagePreview = this.defaultImageBlob;
           });
         })
         .catch((err) => {
@@ -315,7 +320,8 @@ export default {
         .get_imageData(this.$route.params.id)
         .then((res) => {
           this.image_data = res.data;
-          document.title = this.t("titles.image") + " | " + this.image_data.name;
+          document.title =
+            this.t("titles.image") + " | " + this.image_data.name;
         })
         .catch((err) => (this.imageDataError = err));
     },
@@ -326,9 +332,9 @@ export default {
           this.t("warnings.unsupportedImage") + ` : "${this.image_data.type}"`
         );
         if (isDefault)
-          this.defaultImageBlob = require("../assets/iconmonstr-picture-1.svg");
+          this.defaultImagePreview = require("../assets/iconmonstr-picture-1.svg");
         else
-          this.processedImageBlob = require("../assets/iconmonstr-picture-1.svg");
+          this.processedImagePreview = require("../assets/iconmonstr-picture-1.svg");
       }
     },
     downloadImage(e) {
@@ -344,6 +350,7 @@ export default {
       reader.readAsDataURL(blob);
       reader.addEventListener("load", () => {
         this.processedImageBlob = reader.result;
+        this.processedImagePreview = this.processedImageBlob;
       });
     },
     getErrorMsg(err) {
