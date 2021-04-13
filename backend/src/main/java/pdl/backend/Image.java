@@ -32,7 +32,7 @@ public class Image {
     this.type = type;
 
     try {
-      this.imageData = ImageConverter.imageFromRawBytes(data);
+      this.imageData = ImageConverter.imageFromRawBytes(data, this.type.equals("image/tiff") ? "TIFF" : "JPEG");
     } catch (IOException | FormatException e) {
       throw new ImageConversionException("Error during conversion !");
     }
