@@ -1,5 +1,6 @@
 package pdl.backend;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,7 +22,7 @@ public class Middleware extends OncePerRequestFilter {
     @Override
     @RequestMapping()
     @ResponseBody
-    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest httpServletRequest, @NonNull HttpServletResponse httpServletResponse, @NonNull FilterChain filterChain) throws ServletException, IOException {
         requestLocale = Locale.ENGLISH;
         if (httpServletRequest.getLocale() != requestLocale) {
             detectLocaleFromRequest(httpServletRequest);
