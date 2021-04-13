@@ -40,7 +40,7 @@ public class BadParamsException extends ImageWebException {
         for(AlgorithmArgs param : badParamsList) {
             ObjectNode paramNode = super.mapper.createObjectNode();
             paramNode.put("name", param.name);
-            paramNode.put("title", param.title);
+            paramNode.put("title", param.getTitle());
             paramNode.put("type", param.type);
             paramNode.put("required", param.required);
             // If parameter does not have a value
@@ -73,7 +73,7 @@ public class BadParamsException extends ImageWebException {
                 for(AlgorithmArgs value : param.options) {
                     ObjectNode expectedValueNode = super.mapper.createObjectNode();
                     expectedValueNode.put("name", value.name);
-                    expectedValueNode.put("title", value.title);
+                    expectedValueNode.put("title", value.getTitle());
                     expectedValueListNode.add(expectedValueNode);
                 }
             }
