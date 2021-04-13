@@ -5,6 +5,7 @@ import exceptions.ImageConversionException;
 import exceptions.UnknownAlgorithmException;
 import io.scif.FormatException;
 import io.scif.img.SCIFIOImgPlus;
+import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
 import net.imglib2.algorithm.gauss3.Gauss3;
 import net.imglib2.img.Img;
@@ -117,11 +118,11 @@ public class AlgorithmProcess {
         switch (algoName) {
             case LUMINOSITY:
                 try {
-                    float luminosity = Float.parseFloat(params.get("gain"));
+                    int luminosity = Integer.parseInt(params.get("gain"));
                     increaseLuminosity(img, luminosity);
                     bytes = ImageConverter.imageToRawBytes(img);
                 } catch (NumberFormatException e) {
-                    throw new BadParamsException("Parameter \"gain\" must be a float number !");
+                    throw new BadParamsException("Parameter \"gain\" must be an int number !");
                 } catch (FormatException | IOException ex) {
                     throw new ImageConversionException("Error during conversion ! ");
                 }
@@ -195,23 +196,14 @@ public class AlgorithmProcess {
     }
 
     // Luminosity
-    private static void increaseLuminosity(Img<UnsignedByteType> input, float luminosity) {
-        final RandomAccess<UnsignedByteType> img = input.randomAccess(); // TODO: change to cursor for support gray image
+    private static void increaseLuminosity(Img<UnsignedByteType> input, int luminosity) {
+        Cursor<UnsignedByteType> cursor = input.cursor();
 
-        final int iw = (int) input.max(0);
-        final int ih = (int) input.max(1);
-
-        for (int y = 0; y <= ih; ++y) {
-            for (int x = 0; x <= iw; ++x) {
-                int newValue = 0;
-                for (int channel = 0; channel < 3; channel++) {
-                    img.setPosition(x, 0);
-                    img.setPosition(y, 1);
-                    img.setPosition(channel, 2);
-                    newValue = Math.round(img.get().get() * (1 + luminosity / 100));
-                    img.get().set(Math.max(Math.min(newValue, 255), 0));
-                }
-            }
+        while (cursor.hasNext()) {
+            cursor.fwd();
+            UnsignedByteType val = cursor.get();
+            int new_val = val.get() + luminosity;
+            val.set(Math.min(new_val, 255));
         }
     }
 
