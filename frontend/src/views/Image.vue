@@ -241,17 +241,19 @@
 </template>
 
 <script>
-import emitter from "tiny-emitter/instance";
 import AlgorithmMenuItem from "@/components/AlgorithmMenuItem.vue";
-import httpApi from "../http-api.js";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.vue";
+import emitter from "tiny-emitter/instance";
 import { useI18n } from "vue-i18n";
+import httpApi from "../http-api.js";
+import { getErrorMsg } from "../i18n";
 
 export default {
   name: "Image",
   data() {
     return {
       t: useI18n({ useScope: "global" }).t,
+      getErrorMsg,
       defaultImageBlob: null,
       processedImageBlob: null,
       defaultImagePreview: null,
@@ -356,11 +358,6 @@ export default {
         this.processedImageBlob = reader.result;
         this.processedImagePreview = this.processedImageBlob;
       });
-    },
-    getErrorMsg(err) {
-      return err.response.data.type == "text/plain"
-        ? err.response.data
-        : err.message;
     },
   },
 };
