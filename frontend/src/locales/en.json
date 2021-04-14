@@ -40,7 +40,13 @@
       }
     },
     "about": {
-      "title": "This is an about page"
+      "title": "About us",
+      "content1" : "We are UE PDL Group 6. Here is our site respecting the specifications that the client gave us where you can admire images in a magnificent gallery.",
+      "content2" : "You can also add and remove images to make this gallery more personal!",
+      "content3" : "By clicking on the selected image, you can see the details of the image and apply a large number of effects to it!",
+      "content4" : "To save your new image, download it! And if you don't like it, try another effect or remove it!",
+      "content5" : "All that remains is to admire your magnificent gallery!",
+      "content6" : "From the developers of PACA - PDL Alex Pepi Amandine Semeteys Charles Goedefroit -"
     },
     "uploadImage": {
       "title": "Upload an image",

@@ -40,7 +40,13 @@
       }
     },
     "about": {
-      "title": "Ceci est une page à propos"
+      "title": "A propos de nous",
+      "content1" : "Nous sommes le groupe 6 de l'UE PDL. Voici notre site respectant le cahier des charges que le client nous a donné où vous pouvez admirer des images dans une magnifique galerie.",
+      "content2" : "Vous pouvez également ajouter et supprimer des images pour rendre cette galerie plus personnelle !",
+      "content3" : "En cliquant sur l'image sélectionnée, vous pouvez voir les détails de l'image et y appliquer un grand nombre d'effet !",
+      "content4" : "Pour sauvegarder votre nouvelle image, téléchargez la ! Et si elle ne vous plaît pas, essayez un autre effet ou supprimez la !",
+      "content5" : "Il ne reste plus qu'à admirer votre magnifique galerie !",
+      "content6" : "De la part des développeurs de PACA - PDL Alex Pepi Amandine Semeteys Charles Goedefroit -"
     },
     "uploadImage": {
       "title": "Téléverser une image",
