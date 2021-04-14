@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.http.HttpStatus;
 
-public class ImageWebException extends Exception {
+public abstract class ImageWebException extends Exception {
     public final ObjectMapper mapper = new ObjectMapper();
     private String message;
     public final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;

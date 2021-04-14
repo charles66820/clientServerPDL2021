@@ -1,8 +1,6 @@
 package imageProcessing;
 
-import exceptions.BadParamsException;
-import exceptions.ImageConversionException;
-import exceptions.UnknownAlgorithmException;
+import exceptions.*;
 import io.scif.FormatException;
 import io.scif.img.SCIFIOImgPlus;
 import net.imglib2.Cursor;
@@ -33,7 +31,7 @@ import java.util.Map;
 
 public class AlgorithmProcess {
 
-    public static byte[] applyAlgorithm(Image image, Map<String, String> params) throws BadParamsException, ImageConversionException, UnknownAlgorithmException {
+    public static byte[] applyAlgorithm(Image image, Map<String, String> params) throws ImageWebException {
         //Test if "algorithm" is in the query param
         if (!params.containsKey("algorithm")) {
             throw new BadParamsException("Parameter algorithm after ? is missing !");
@@ -127,7 +125,9 @@ public class AlgorithmProcess {
                 } catch (NumberFormatException e) {
                     throw new BadParamsException("Parameter \"gain\" must be an int number !");
                 } catch (FormatException | IOException ex) {
-                    throw new ImageConversionException("Error during conversion ! ");
+                    throw new ImageConversionException("Error during conversion !");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
                 }
                 break;
             case COLORED_FILTER:
@@ -136,7 +136,9 @@ public class AlgorithmProcess {
                 try {
                     bytes = ImageConverter.imageToRawBytes(img);
                 } catch (FormatException | IOException e) {
-                    throw new ImageConversionException("Error during conversion ! ");
+                    throw new ImageConversionException("Error during conversion !");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
                 }
                 break;
             case HISTOGRAM:
@@ -145,7 +147,9 @@ public class AlgorithmProcess {
                 try {
                     bytes = ImageConverter.imageToRawBytes(img);
                 } catch (FormatException | IOException e) {
-                    throw new ImageConversionException("Error during conversion ! ");
+                    throw new ImageConversionException("Error during conversion !");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
                 }
                 break;
             case HISTOGRAM_GREY:
@@ -153,7 +157,9 @@ public class AlgorithmProcess {
                 try {
                     bytes = ImageConverter.imageToRawBytes(img);
                 } catch (FormatException | IOException e) {
-                    throw new ImageConversionException("Error during conversion ! ");
+                    throw new ImageConversionException("Error during conversion !");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
                 }
                 break;
             case BLUR_FILTER:
@@ -163,18 +169,26 @@ public class AlgorithmProcess {
                 try {
                     bytes = ImageConverter.imageToRawBytes(img);
                 } catch (FormatException | IOException e) {
-                    throw new ImageConversionException("Error during conversion ! ");
+                    throw new ImageConversionException("Error during conversion !");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
                 }
                 break;
             case CONTOUR_FILTER:
-                bytes = contourFilter(image.getData(), image.getType().equals("image/tiff") ? "TIFF" : "JPEG");
+                try {
+                    bytes = contourFilter(image.getData(), image.getType().equals("image/tiff") ? "TIFF" : "JPEG");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
+                }
                 break;
             case GREY_FILTER:
                 greyFilter(img);
                 try {
                     bytes = ImageConverter.imageToRawBytes(img);
                 } catch (FormatException | IOException e) {
-                    throw new ImageConversionException("Error during conversion ! ");
+                    throw new ImageConversionException("Error during conversion !");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
                 }
                 break;
             default:
