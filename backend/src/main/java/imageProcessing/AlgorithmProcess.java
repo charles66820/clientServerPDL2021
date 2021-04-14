@@ -177,6 +177,17 @@ public class AlgorithmProcess {
                     throw new ImageConversionException("Error during conversion ! ");
                 }
                 break;
+            case THRESHOLD_FILTER:
+                try {
+                    int threshold = Integer.parseInt(params.get("threshold"));
+                    thresholdFilter(img, threshold);
+                    bytes = ImageConverter.imageToRawBytes(img);
+                } catch (NumberFormatException e) {
+                    throw new BadParamsException("Parameter \"threshold\" must be an int number !");
+                } catch (FormatException | IOException ex) {
+                    throw new ImageConversionException("Error during conversion !");
+                }
+                break;
             default:
                 throw new UnknownAlgorithmException("This algorithm cannot be executed by the server !", algoName.getName(), algoName.getTitle());
         }
@@ -504,6 +515,20 @@ public class AlgorithmProcess {
             cursorR.get().set(val);
             cursorG.get().set(val);
             cursorB.get().set(val);
+        }
+    }
+
+    // Threshold
+    public static void thresholdFilter(Img<UnsignedByteType> input, int threshold) {
+        final Cursor<UnsignedByteType> in = input.cursor();
+
+        while (in.hasNext()) {
+            in.fwd();
+            final int val = in.get().get();
+            if (val < threshold)
+                in.get().set(0);
+            else
+                in.get().set(255);
         }
     }
 
