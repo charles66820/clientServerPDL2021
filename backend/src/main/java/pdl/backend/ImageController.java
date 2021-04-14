@@ -63,7 +63,8 @@ public class ImageController {
         } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=application/json", produces = MediaType.APPLICATION_JSON_VALUE)
+    // For "/images/{id}"
+    @RequestMapping(method = RequestMethod.GET, headers = "Accept=application/json", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<ObjectNode> getImageData(@PathVariable("id") long id) {
         Optional<Image> image = imageDao.retrieve(id);
