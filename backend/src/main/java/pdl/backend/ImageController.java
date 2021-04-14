@@ -64,6 +64,7 @@ public class ImageController {
     }
 
     @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=application/json", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
     public ResponseEntity<ObjectNode> getImageData(@PathVariable("id") long id) {
         Optional<Image> image = imageDao.retrieve(id);
         ObjectNode node = mapper.createObjectNode();
@@ -81,6 +82,7 @@ public class ImageController {
     }
 
     @RequestMapping(value = "/images/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
     public ResponseEntity<byte[]> deleteImage(@PathVariable("id") long id) {
         Optional<Image> image = imageDao.retrieve(id);
         if (image.isPresent()) {
@@ -91,6 +93,7 @@ public class ImageController {
     }
 
     @RequestMapping(value = "/images", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
     public ResponseEntity<ObjectNode> addImage(@RequestParam("image") MultipartFile file,
                                                RedirectAttributes redirectAttributes) {
         if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG_VALUE) && !Objects.equals(file.getContentType(), "image/tiff")) {
