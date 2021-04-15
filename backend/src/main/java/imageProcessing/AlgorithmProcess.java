@@ -391,7 +391,7 @@ public class AlgorithmProcess {
 
     public static void histogramContrast(Img<UnsignedByteType> input, String channel) throws BadParamsException {
         if (input.numDimensions() < 3) {
-            throw new BadParamsException("This algorithm can't be apply on this image !");
+            throw new BadParamsException("This algorithm can't be apply on this image !", true);
         }
         if (channel.equals("s")) {
             histogramColor(input, 1);
