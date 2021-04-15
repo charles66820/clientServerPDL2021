@@ -34,7 +34,7 @@ public class ImageController {
         this.imageDao = imageDao;
     }
 
-    @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
+    @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=*/*", produces = {MediaType.IMAGE_JPEG_VALUE, "image/tiff", MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     public ResponseEntity<?> getImage(@PathVariable("id") long id, @RequestParam Map<String, String> allRequestParams) {
         Optional<Image> image = imageDao.retrieve(id);
@@ -63,7 +63,9 @@ public class ImageController {
         } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=application/json", produces = MediaType.APPLICATION_JSON_VALUE)
+    // For "/images/{id}"
+    @RequestMapping(method = RequestMethod.GET, headers = "Accept=application/json", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
     public ResponseEntity<ObjectNode> getImageData(@PathVariable("id") long id) {
         Optional<Image> image = imageDao.retrieve(id);
         ObjectNode node = mapper.createObjectNode();
@@ -80,8 +82,8 @@ public class ImageController {
         }
     }
 
-
     @RequestMapping(value = "/images/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
     public ResponseEntity<byte[]> deleteImage(@PathVariable("id") long id) {
         Optional<Image> image = imageDao.retrieve(id);
         if (image.isPresent()) {
@@ -91,7 +93,8 @@ public class ImageController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(value = "/images", method = RequestMethod.POST)
+    @RequestMapping(value = "/images", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
     public ResponseEntity<ObjectNode> addImage(@RequestParam("image") MultipartFile file,
                                                RedirectAttributes redirectAttributes) {
         if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG_VALUE) && !Objects.equals(file.getContentType(), "image/tiff")) {
@@ -125,7 +128,7 @@ public class ImageController {
         }
     }
 
-    @RequestMapping(value = "/images", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/images", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ArrayNode getImageList() {
         ArrayNode nodes = mapper.createArrayNode();
@@ -143,7 +146,7 @@ public class ImageController {
         return nodes;
     }
 
-    @RequestMapping(value = "/algorithms", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/algorithms", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ArrayNode getAlgorithmsList() {
         ArrayNode algoNames = mapper.createArrayNode();

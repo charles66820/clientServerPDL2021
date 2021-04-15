@@ -1,15 +1,17 @@
 package imageProcessing;
 
-import exceptions.BadParamsException;
-import exceptions.ImageConversionException;
-import exceptions.UnknownAlgorithmException;
+import exceptions.*;
 import io.scif.FormatException;
 import io.scif.img.SCIFIOImgPlus;
-import net.imglib2.RandomAccess;
+import net.imglib2.Cursor;
+import net.imglib2.Interval;
 import net.imglib2.algorithm.gauss3.Gauss3;
+import net.imglib2.algorithm.neighborhood.Neighborhood;
+import net.imglib2.algorithm.neighborhood.RectangleShape;
 import net.imglib2.img.Img;
 import net.imglib2.loops.LoopBuilder;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.util.Intervals;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 import pdl.backend.Image;
@@ -29,7 +31,7 @@ import java.util.Map;
 
 public class AlgorithmProcess {
 
-    public static byte[] applyAlgorithm(Image image, Map<String, String> params) throws BadParamsException, ImageConversionException, UnknownAlgorithmException {
+    public static byte[] applyAlgorithm(Image image, Map<String, String> params) throws ImageWebException {
         //Test if "algorithm" is in the query param
         if (!params.containsKey("algorithm")) {
             throw new BadParamsException("Parameter algorithm after ? is missing !");
@@ -117,13 +119,15 @@ public class AlgorithmProcess {
         switch (algoName) {
             case LUMINOSITY:
                 try {
-                    float luminosity = Float.parseFloat(params.get("gain"));
+                    int luminosity = Integer.parseInt(params.get("gain"));
                     increaseLuminosity(img, luminosity);
                     bytes = ImageConverter.imageToRawBytes(img);
                 } catch (NumberFormatException e) {
-                    throw new BadParamsException("Parameter \"gain\" must be a float number !");
+                    throw new BadParamsException("Parameter \"gain\" must be an int number !");
                 } catch (FormatException | IOException ex) {
-                    throw new ImageConversionException("Error during conversion ! ");
+                    throw new ImageConversionException("Error during conversion !");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
                 }
                 break;
             case COLORED_FILTER:
@@ -132,7 +136,9 @@ public class AlgorithmProcess {
                 try {
                     bytes = ImageConverter.imageToRawBytes(img);
                 } catch (FormatException | IOException e) {
-                    throw new ImageConversionException("Error during conversion ! ");
+                    throw new ImageConversionException("Error during conversion !");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
                 }
                 break;
             case HISTOGRAM:
@@ -141,7 +147,19 @@ public class AlgorithmProcess {
                 try {
                     bytes = ImageConverter.imageToRawBytes(img);
                 } catch (FormatException | IOException e) {
-                    throw new ImageConversionException("Error during conversion ! ");
+                    throw new ImageConversionException("Error during conversion !");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
+                }
+                break;
+            case HISTOGRAM_GREY:
+                histogramGrey(img);
+                try {
+                    bytes = ImageConverter.imageToRawBytes(img);
+                } catch (FormatException | IOException e) {
+                    throw new ImageConversionException("Error during conversion !");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
                 }
                 break;
             case BLUR_FILTER:
@@ -151,11 +169,38 @@ public class AlgorithmProcess {
                 try {
                     bytes = ImageConverter.imageToRawBytes(img);
                 } catch (FormatException | IOException e) {
-                    throw new ImageConversionException("Error during conversion ! ");
+                    throw new ImageConversionException("Error during conversion !");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
                 }
                 break;
             case CONTOUR_FILTER:
-                bytes = contourFilter(image.getData(), image.getType().equals("image/tiff") ? "TIFF" : "JPEG");
+                try {
+                    bytes = contourFilter(image.getData(), image.getType().equals("image/tiff") ? "TIFF" : "JPEG");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
+                }
+                break;
+            case GREY_FILTER:
+                greyFilter(img);
+                try {
+                    bytes = ImageConverter.imageToRawBytes(img);
+                } catch (FormatException | IOException e) {
+                    throw new ImageConversionException("Error during conversion !");
+                } catch (Exception e) {
+                    throw new InternalServerException("Error on algorithm execution !");
+                }
+                break;
+            case THRESHOLD_FILTER:
+                try {
+                    int threshold = Integer.parseInt(params.get("threshold"));
+                    thresholdFilter(img, threshold);
+                    bytes = ImageConverter.imageToRawBytes(img);
+                } catch (NumberFormatException e) {
+                    throw new BadParamsException("Parameter \"threshold\" must be an int number !");
+                } catch (FormatException | IOException ex) {
+                    throw new ImageConversionException("Error during conversion !");
+                }
                 break;
             default:
                 throw new UnknownAlgorithmException("This algorithm cannot be executed by the server !", algoName.getName(), algoName.getTitle());
@@ -195,23 +240,14 @@ public class AlgorithmProcess {
     }
 
     // Luminosity
-    private static void increaseLuminosity(Img<UnsignedByteType> input, float luminosity) {
-        final RandomAccess<UnsignedByteType> img = input.randomAccess(); // TODO: change to cursor for support gray image
+    private static void increaseLuminosity(Img<UnsignedByteType> input, int luminosity) {
+        Cursor<UnsignedByteType> cursor = input.cursor();
 
-        final int iw = (int) input.max(0);
-        final int ih = (int) input.max(1);
-
-        for (int y = 0; y <= ih; ++y) {
-            for (int x = 0; x <= iw; ++x) {
-                int newValue = 0;
-                for (int channel = 0; channel < 3; channel++) {
-                    img.setPosition(x, 0);
-                    img.setPosition(y, 1);
-                    img.setPosition(channel, 2);
-                    newValue = Math.round(img.get().get() * (1 + luminosity / 100));
-                    img.get().set(Math.max(Math.min(newValue, 255), 0));
-                }
-            }
+        while (cursor.hasNext()) {
+            cursor.fwd();
+            UnsignedByteType val = cursor.get();
+            int new_val = val.get() + luminosity;
+            val.set(Math.min(new_val, 255));
         }
     }
 
@@ -288,9 +324,8 @@ public class AlgorithmProcess {
     }
 
     public static void coloredFilter(Img<UnsignedByteType> input, float hue) {
-        // TODO: add gray image support
-        // Start with convert to color image (jpeg) ?
-        // Or send and error ?
+        if (input.numDimensions() < 3) return; // For grey image
+
         if (hue > 360) return;
         final IntervalView<UnsignedByteType> cR = Views.hyperSlice(input, 2, 0); // Dimension 2 channel 0 (red)
         final IntervalView<UnsignedByteType> cG = Views.hyperSlice(input, 2, 1); // Dimension 2 channel 1 (green)
@@ -309,9 +344,8 @@ public class AlgorithmProcess {
         });
     }
 
-    // Histogram
-    public static void histogram(Img<UnsignedByteType> input, int channel) {
-        // TODO: add gray image support (implement histogram for gray color ?)
+    // Histogram for color image
+    public static void histogramColor(Img<UnsignedByteType> input, int channel) {
         long N = input.max(0) * input.max(1);
 
         final IntervalView<UnsignedByteType> cR = Views.hyperSlice(input, 2, 0); // Dimension 2 channel 0 (red)
@@ -354,19 +388,47 @@ public class AlgorithmProcess {
     }
 
     public static void histogramContrast(Img<UnsignedByteType> input, String channel) throws BadParamsException {
+        if (input.numDimensions() < 3) {
+            throw new BadParamsException("This algorithm can't be apply on this image !");
+        }
         if (channel.equals("s")) {
-            histogram(input, 1);
+            histogramColor(input, 1);
         } else if (channel.equals("v")) {
-            histogram(input, 2);
+            histogramColor(input, 2);
         } else {
             throw new BadParamsException("This channel does not exist !");
         }
     }
 
+    // Histogram for grey image
+    public static void histogramGrey(Img<UnsignedByteType> input) {
+        final Cursor<UnsignedByteType> cursor = input.cursor();
+
+        int[] hist = new int[256];
+        while (cursor.hasNext()) {
+            cursor.fwd();
+            UnsignedByteType val = cursor.get();
+            // Calcul of histogram
+            hist[val.get()] = hist[val.get()] + 1;
+        }
+        // Calcul of cumulative histogram
+        for (int i = 1; i < 256; i++) {
+            hist[i] = hist[i] + hist[i - 1];
+            System.out.println(i + ":" + hist[i]);
+        }
+        // Transform picture
+        cursor.reset();
+        while (cursor.hasNext()) {
+            cursor.fwd();
+            UnsignedByteType val = cursor.get();
+            val.set((hist[val.get()] * 255) / hist[255]);
+        }
+    }
+
     // Blur Filter
     public static void meanFilter(final Img<UnsignedByteType> img, double size) {
-        // TODO: fix border
-        Img<UnsignedByteType> input = img.copy();
+        // TODO: fix border + color image
+        /*Img<UnsignedByteType> input = img.copy();
         final RandomAccess<UnsignedByteType> rIn = input.randomAccess();
         final RandomAccess<UnsignedByteType> rOut = img.randomAccess();
 
@@ -398,6 +460,36 @@ public class AlgorithmProcess {
                 g.set(r.get());
                 b.set(r.get());
             });
+        }*/
+        //int size = (int) Math.ceil(double_size);
+        Interval interval = Intervals.expand(img, (long) -size);
+
+        IntervalView<UnsignedByteType> source = Views.interval(img.copy(), interval);
+        final Cursor<UnsignedByteType> sourceCursor = source.cursor();
+
+        IntervalView<UnsignedByteType> dest = Views.interval(img, interval);
+        final Cursor<UnsignedByteType> destCursor = dest.cursor();
+
+        final RectangleShape shape = new RectangleShape((int) size, true);
+
+        for (final Neighborhood<UnsignedByteType> localNeighborhood : shape.neighborhoods(source)) {
+            final UnsignedByteType sourceValue = sourceCursor.next();
+            final UnsignedByteType destValue = destCursor.next();
+
+            int sum = sourceValue.get();
+            for (final UnsignedByteType value : localNeighborhood) sum += value.get();
+            destValue.set((sum / ((((int) size * 2) + 1) * (((int) size * 2) + 1))));
+        }
+
+        //TODO: for color image modify to blur the image
+        if (img.numDimensions() > 2) {
+            final IntervalView<UnsignedByteType> cR = Views.hyperSlice(img, 2, 0); // Dimension 2 channel 0 (red)
+            final IntervalView<UnsignedByteType> cG = Views.hyperSlice(img, 2, 1); // Dimension 2 channel 1 (green)
+            final IntervalView<UnsignedByteType> cB = Views.hyperSlice(img, 2, 2); // Dimension 2 channel 2 (blue)
+            LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
+                g.set(r.get());
+                b.set(r.get());
+            });
         }
     }
 
@@ -412,6 +504,45 @@ public class AlgorithmProcess {
             gaussFilter(img, size);
         } else {
             throw new BadParamsException("Filter name does not exit !");
+        }
+    }
+
+    // Grey Filter
+    public static void greyFilter(Img<UnsignedByteType> input) {
+        if (input.numDimensions() < 3) {
+            return;
+        }
+        final IntervalView<UnsignedByteType> inputR = Views.hyperSlice(input, 2, 0);
+        final IntervalView<UnsignedByteType> inputG = Views.hyperSlice(input, 2, 1);
+        final IntervalView<UnsignedByteType> inputB = Views.hyperSlice(input, 2, 2);
+
+        final Cursor<UnsignedByteType> cursorR = inputR.cursor();
+        final Cursor<UnsignedByteType> cursorG = inputG.cursor();
+        final Cursor<UnsignedByteType> cursorB = inputB.cursor();
+
+        while (cursorR.hasNext() && cursorG.hasNext() && cursorB.hasNext()) {
+            cursorR.fwd();
+            cursorG.fwd();
+            cursorB.fwd();
+
+            int val = (int) (0.3 * cursorR.get().get() + 0.59 * cursorG.get().get() + 0.11 * cursorB.get().get());
+            cursorR.get().set(val);
+            cursorG.get().set(val);
+            cursorB.get().set(val);
+        }
+    }
+
+    // Threshold
+    public static void thresholdFilter(Img<UnsignedByteType> input, int threshold) {
+        final Cursor<UnsignedByteType> in = input.cursor();
+
+        while (in.hasNext()) {
+            in.fwd();
+            final int val = in.get().get();
+            if (val < threshold)
+                in.get().set(0);
+            else
+                in.get().set(255);
         }
     }
 

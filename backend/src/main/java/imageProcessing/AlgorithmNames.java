@@ -23,6 +23,8 @@ public enum AlgorithmNames {
             add(new AlgorithmArgs("v", "", false));
         }}));
     }}),    // channel S or V
+    HISTOGRAM_GREY("histogramGrey", new ArrayList<>()
+    ),  //no parameters
     BLUR_FILTER("blurFilter", new ArrayList<>() {{
         add(new AlgorithmArgs("filterName", "select", true, new ArrayList<>() {{
             add(new AlgorithmArgs("meanFilter", "", false));
@@ -30,7 +32,13 @@ public enum AlgorithmNames {
         }}));
         add(new AlgorithmArgs("blur", "number", 0, 30, true));
     }}),     //mean or gaussian and level of blur
-    CONTOUR_FILTER("contourFilter", new ArrayList<>());
+    CONTOUR_FILTER("contourFilter", new ArrayList<>()
+    ),  //no parameters
+    GREY_FILTER("greyFilter", new ArrayList<>()
+    ),  //no parameters
+    THRESHOLD_FILTER("thresholdFilter", new ArrayList<>() {{
+        add(new AlgorithmArgs("threshold", "number", 0, 255, true));
+    }});    //threshold value
 
     private final HashMap<String, String> titles = new HashMap<>();
     private final List<AlgorithmArgs> args;
