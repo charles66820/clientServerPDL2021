@@ -2,7 +2,7 @@
   <div class="main-container pb-4">
     <div class="container pb-4">
       <h2 class="mt-4">
-        {{ t("components.images.title") }}
+        {{ $t("components.images.title") }}
       </h2>
       <div>
         <div
@@ -11,7 +11,7 @@
           :key="warning.type"
           role="alert"
         >
-          <strong>{{ t("warnings.title") }} !</strong> {{ warning.message }}
+          <strong>{{ $t("warnings.title") }} !</strong> {{ warning.message }}
           <button
             type="button"
             class="close"
@@ -27,7 +27,7 @@
           :key="err.type"
           role="alert"
         >
-          <strong>{{ t("errors.title") }} :</strong> {{ getErrorMsg(err) }}
+          <strong>{{ $t("errors.title") }} :</strong> {{ getErrorMsg(err) }}
         </div>
       </div>
       <div class="imageCarousel shadow my-4">
@@ -36,10 +36,10 @@
             v-if="selectedImage"
             class="imageTitle"
             :to="{ name: 'Image', params: { id: selectedImage.id } }"
-            :title="t('components.images.actionLbl')"
+            :title="$t('components.images.actionLbl')"
             >{{ selectedImage.name }}
             <button class="btn btn-primary imageAction">
-              {{ t("components.images.actionBtn") }}
+              {{ $t("components.images.actionBtn") }}
             </button>
           </router-link>
           <img
@@ -53,7 +53,7 @@
             style="width: 3rem; height: 3rem"
             role="status"
           >
-            <span class="sr-only">{{ t("loading") }}</span>
+            <span class="sr-only">{{ $t("loading") }}</span>
           </div>
         </div>
         <hr class="m-0" />
@@ -73,7 +73,7 @@
             style="width: 1rem; height: 1rem"
             role="status"
           >
-            <span class="sr-only">{{ t("loading") }}</span>
+            <span class="sr-only">{{ $t("loading") }}</span>
           </div>
         </ul>
       </div>
@@ -83,7 +83,6 @@
 
 <script>
 import emitter from "tiny-emitter/instance";
-import { useI18n } from "vue-i18n";
 import httpApi from "../http-api.js";
 import { getErrorMsg } from "../i18n";
 
@@ -94,7 +93,6 @@ export default {
   },
   data() {
     return {
-      t: useI18n({ useScope: "global" }).t,
       getErrorMsg,
       loading: false,
       selectedImage: null,
@@ -133,13 +131,13 @@ export default {
     },
     imageViewError(e, image) {
       this.warning = new Error(
-        this.t("warnings.unsupportedImage") + ` : "${image.type}"`
+        this.$t("warnings.unsupportedImage") + ` : "${image.type}"`
       );
       e.target.src = require("../assets/iconmonstr-picture-1.svg");
     },
   },
   mounted() {
-    document.title = this.t("titles.images");
+    document.title = this.$t("titles.images");
     emitter.on("updateImages", this.loadImages);
     this.loadImages();
   },

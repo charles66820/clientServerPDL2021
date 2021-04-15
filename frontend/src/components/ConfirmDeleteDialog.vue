@@ -12,7 +12,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="modalDeleteLabel">
-            {{ t("components.confirmDeleteDialog.title") }}
+            {{ $t("components.confirmDeleteDialog.title") }}
           </h5>
           <button
             type="button"
@@ -24,14 +24,14 @@
           </button>
         </div>
         <div class="modal-body text-center">
-          {{ t("components.confirmDeleteDialog.content") }}
+          {{ $t("components.confirmDeleteDialog.content") }}
         </div>
         <div
           class="alert alert-danger alert-dismissible fade show"
           v-if="error"
           role="alert"
         >
-          <strong>{{ t("errors.title") }} :</strong> {{ getErrorMsg(error) }}
+          <strong>{{ $t("errors.title") }} :</strong> {{ getErrorMsg(error) }}
         </div>
         <div class="modal-footer">
           <button
@@ -40,7 +40,7 @@
             data-dismiss="modal"
             :disabled="loading"
           >
-            {{ t("components.confirmDeleteDialog.cancel") }}
+            {{ $t("components.confirmDeleteDialog.cancel") }}
           </button>
           <button
             type="button"
@@ -48,7 +48,7 @@
             @click="btnDeleteImage($event)"
             :disabled="loading"
           >
-            {{ t("components.confirmDeleteDialog.validate") }}
+            {{ $t("components.confirmDeleteDialog.validate") }}
             <span
               v-if="loading"
               class="spinner-border spinner-border-sm"
@@ -63,7 +63,6 @@
 </template>
 
 <script>
-import { useI18n } from "vue-i18n";
 import httpApi from "../http-api.js";
 import { getErrorMsg } from "../i18n";
 
@@ -74,7 +73,6 @@ export default {
   },
   data() {
     return {
-      t: useI18n({ useScope: "global" }).t,
       getErrorMsg,
       loading: false,
       error: null,

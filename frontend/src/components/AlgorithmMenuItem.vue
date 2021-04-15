@@ -42,7 +42,8 @@
           :key="err.type"
           role="alert"
         >
-          <strong>{{ t("errors.title") }} :</strong> {{ getErrorMsg(err) }}
+          <strong>{{ $t("errors.title") }} : </strong>
+          <span v-html="getErrorMsg(err)"></span>
         </div>
         <div class="form-row">
           <div class="col-sm-12">
@@ -51,7 +52,7 @@
               class="btn btn-primary float-right"
               :disabled="loading"
             >
-              {{ t("components.image.algorithm.apply") }}
+              {{ $t("components.image.algorithm.apply") }}
               <span
                 v-if="loading"
                 class="spinner-border spinner-border-sm"
@@ -67,7 +68,6 @@
 </template>
 
 <script>
-import { useI18n } from "vue-i18n";
 import httpApi from "../http-api.js";
 import { getErrorMsg } from "../i18n";
 
@@ -79,7 +79,6 @@ export default {
   },
   data() {
     return {
-      t: useI18n({ useScope: "global" }).t,
       getErrorMsg,
       loading: false,
       errors: [],

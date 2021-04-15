@@ -13,7 +13,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="uploadImageLabel">
-                {{ t("components.uploadImage.title") }}
+                {{ $t("components.uploadImage.title") }}
               </h5>
               <button
                 type="button"
@@ -32,7 +32,7 @@
                   v-if="warning"
                   role="alert"
                 >
-                  <strong>{{ t("warnings.title") }} !</strong>
+                  <strong>{{ $t("warnings.title") }} !</strong>
                   {{ warning.message }}
                   <button
                     type="button"
@@ -48,7 +48,7 @@
                   v-if="error"
                   role="alert"
                 >
-                  <strong>{{ t("errors.title") }} :</strong>
+                  <strong>{{ $t("errors.title") }} :</strong>
                   {{ getErrorMsg(error) }}
                 </div>
                 <div
@@ -58,7 +58,7 @@
                   @drop="dropAreaDrop($event)"
                   @click="dropAreaClicked()"
                 >
-                  <span>{{ t("components.uploadImage.content") }}</span>
+                  <span>{{ $t("components.uploadImage.content") }}</span>
                   <img
                     id="imagePreview"
                     :src="null"
@@ -90,7 +90,7 @@
                   class="btn btn-primary"
                   :disabled="loading"
                 >
-                  {{ t("components.uploadImage.submit") }}
+                  {{ $t("components.uploadImage.submit") }}
                   <span
                     v-if="loading"
                     class="spinner-border spinner-border-sm"
@@ -108,7 +108,6 @@
 </template>
 
 <script>
-import { useI18n } from "vue-i18n";
 import emitter from "tiny-emitter/instance";
 import httpApi from "../http-api.js";
 import { getErrorMsg } from "../i18n";
@@ -117,7 +116,6 @@ export default {
   name: "App",
   data() {
     return {
-      t: useI18n({ useScope: "global" }).t,
       getErrorMsg,
       loading: false,
       uploadProgress: null,
@@ -213,7 +211,7 @@ export default {
     imagePreviewError() {
       if (this.imageType != "") {
         this.warning = new Error(
-          this.t("warnings.unsupportedImage") + ` : "${this.imageType}"`
+          this.$t("warnings.unsupportedImage") + ` : "${this.imageType}"`
         );
         document.querySelector(
           "#imagePreview"

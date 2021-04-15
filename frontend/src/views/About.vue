@@ -1,12 +1,12 @@
 <template>
   <div>
-    <h1>{{ t("components.about.title") }}</h1>
-    <p>{{ t("components.about.content1") }}</p>
-    <p>{{ t("components.about.content2") }}</p>
-    <p>{{ t("components.about.content3") }}</p>
-    <p>{{ t("components.about.content4") }}</p>
-    <p>{{ t("components.about.content5") }}</p>
-    <p>{{ t("components.about.content6") }}</p>
+    <h1>{{ $t("components.about.title") }}</h1>
+    <p>{{ $t("components.about.content1") }}</p>
+    <p>{{ $t("components.about.content2") }}</p>
+    <p>{{ $t("components.about.content3") }}</p>
+    <p>{{ $t("components.about.content4") }}</p>
+    <p>{{ $t("components.about.content5") }}</p>
+    <p>{{ $t("components.about.content6") }}</p>
   </div>
 </template>
 
@@ -21,7 +21,7 @@ export default {
     };
   },
   mounted() {
-    document.title = this.t("titles.about");
+    document.title = this.$t("titles.about");
   }
 };
 </script>

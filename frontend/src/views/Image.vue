@@ -5,12 +5,12 @@
       <div
         class="btn btn-sm text-body bg-white shadow-sm toggle-sidePanel"
         onclick="this.parentNode.parentNode.classList.toggle('toggled');"
-        :title="t('components.image.toggleAlgorithms')"
+        :title="$t('components.image.toggleAlgorithms')"
       ></div>
       <!-- Panel title -->
       <div class="sidePanel-header border-bottom">
         <span class="text-body mr-4">{{
-          t("components.image.algorithmsTitle")
+          $t("components.image.algorithmsTitle")
         }}</span>
       </div>
       <!-- Panel content -->
@@ -30,7 +30,7 @@
             v-if="algorithmsError"
             role="alert"
           >
-            <strong>{{ t("errors.title") }} :</strong>
+            <strong>{{ $t("errors.title") }} :</strong>
             {{ getErrorMsg(algorithmsError) }}
           </div>
         </ul>
@@ -43,7 +43,7 @@
             style="width: 3rem; height: 3rem"
             role="status"
           >
-            <span class="sr-only">{{ t("loading") }}</span>
+            <span class="sr-only">{{ $t("loading") }}</span>
           </div>
         </div>
       </div>
@@ -56,12 +56,12 @@
             class="btn btn-sm text-body bg-white shadow-sm toggle-sidePanel"
             style="padding-top: 0px"
             onclick="this.parentNode.parentNode.classList.toggle('toggled');"
-            :title="t('components.image.toggleMetadata')"
+            :title="$t('components.image.toggleMetadata')"
           ></div>
           <!-- Panel title -->
           <div class="sidePanel-header border-bottom">
             <span class="text-body mr-4">{{
-              t("components.image.metadataTitle")
+              $t("components.image.metadataTitle")
             }}</span>
           </div>
           <!-- Panel content -->
@@ -78,7 +78,7 @@
                 style="width: 3rem; height: 3rem"
                 role="status"
               >
-                <span class="sr-only">{{ t("loading") }}</span>
+                <span class="sr-only">{{ $t("loading") }}</span>
               </div>
             </div>
             <span v-else>
@@ -87,29 +87,29 @@
                 v-if="imageDataError"
                 role="alert"
               >
-                <strong>{{ t("errors.title") }} :</strong>
+                <strong>{{ $t("errors.title") }} :</strong>
                 {{ getErrorMsg(imageDataError) }}
               </div>
               <div class="row pb-4">
                 <div class="col">
                   <h5 class="title_metadata">
-                    {{ t("components.image.metadata.title") }}
+                    {{ $t("components.image.metadata.title") }}
                   </h5>
                   <ul class="metadata" v-if="image_data != null">
                     <li>
-                      {{ t("components.image.metadata.id") }} :
+                      {{ $t("components.image.metadata.id") }} :
                       {{ image_data.id }}
                     </li>
                     <li>
-                      {{ t("components.image.metadata.name") }} :
+                      {{ $t("components.image.metadata.name") }} :
                       {{ image_data.name }}
                     </li>
                     <li>
-                      {{ t("components.image.metadata.type") }} :
+                      {{ $t("components.image.metadata.type") }} :
                       {{ image_data.type }}
                     </li>
                     <li>
-                      {{ t("components.image.metadata.size") }} :
+                      {{ $t("components.image.metadata.size") }} :
                       {{ image_data.size }}
                     </li>
                   </ul>
@@ -123,7 +123,7 @@
                       class="btn btn-outline-dark mx-4 mt-4"
                       data-toggle="modal"
                       data-target="#modalDelete"
-                      :title="t('components.image.metadata.removeImage')"
+                      :title="$t('components.image.metadata.removeImage')"
                     >
                       &#128465;
                     </button>
@@ -136,10 +136,10 @@
                       role="original"
                       class="btn btn-outline-dark mx-4 mt-4"
                       :title="
-                        t('components.image.metadata.downloadOriginalImage')
+                        $t('components.image.metadata.downloadOriginalImage')
                       "
                     >
-                      {{ t("components.image.metadata.downloadOriginalImage") }}
+                      {{ $t("components.image.metadata.downloadOriginalImage") }}
                       📥
                     </button>
                   </p>
@@ -151,11 +151,11 @@
                       role="processed"
                       class="btn btn-outline-dark mx-4 mt-4"
                       :title="
-                        t('components.image.metadata.downloadProcessedImage')
+                        $t('components.image.metadata.downloadProcessedImage')
                       "
                     >
                       {{
-                        t("components.image.metadata.downloadProcessedImage")
+                        $t("components.image.metadata.downloadProcessedImage")
                       }}
                       📥
                     </button>
@@ -172,7 +172,7 @@
               v-if="warning"
               role="alert"
             >
-              <strong>{{ t("warnings.title") }} !</strong>
+              <strong>{{ $t("warnings.title") }} !</strong>
               {{ warning.message }}
               <button
                 type="button"
@@ -188,7 +188,7 @@
               v-if="imageError"
               role="alert"
             >
-              <strong>{{ t("errors.title") }} :</strong>
+              <strong>{{ $t("errors.title") }} :</strong>
               {{ getErrorMsg(imageError) }}
             </div>
             <div
@@ -210,7 +210,7 @@
                 style="width: 3rem; height: 3rem"
                 role="status"
               >
-                <span class="sr-only">{{ t("loading") }}</span>
+                <span class="sr-only">{{ $t("loading") }}</span>
               </div>
             </div>
             <div
@@ -229,7 +229,7 @@
                 style="width: 3rem; height: 3rem"
                 role="status"
               >
-                <span class="sr-only">{{ t("loading") }}</span>
+                <span class="sr-only">{{ $t("loading") }}</span>
               </div>
             </div>
           </div>
@@ -244,7 +244,6 @@
 import AlgorithmMenuItem from "@/components/AlgorithmMenuItem.vue";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.vue";
 import emitter from "tiny-emitter/instance";
-import { useI18n } from "vue-i18n";
 import httpApi from "../http-api.js";
 import { getErrorMsg } from "../i18n";
 
@@ -252,7 +251,6 @@ export default {
   name: "Image",
   data() {
     return {
-      t: useI18n({ useScope: "global" }).t,
       getErrorMsg,
       defaultImageBlob: null,
       processedImageBlob: null,
@@ -272,7 +270,7 @@ export default {
     ConfirmDeleteDialog,
   },
   mounted() {
-    document.title = this.t("titles.image");
+    document.title = this.$t("titles.image");
     emitter.on("updateImage", () => {
       this.defaultImageBlob = null;
       this.processedImageBlob = null;
@@ -313,7 +311,7 @@ export default {
         .then((res) => {
           this.image_data = res.data;
           document.title =
-            this.t("titles.image") + " | " + this.image_data.name;
+            this.$t("titles.image") + " | " + this.image_data.name;
         })
         .catch((err) => (this.imageDataError = err));
     },
@@ -335,7 +333,7 @@ export default {
       console.info(e);
       if (this.image_data != null) {
         this.warning = new Error(
-          this.t("warnings.unsupportedImage") + ` : "${this.image_data.type}"`
+          this.$t("warnings.unsupportedImage") + ` : "${this.image_data.type}"`
         );
         if (isDefault)
           this.defaultImagePreview = require("../assets/iconmonstr-picture-1.svg");
