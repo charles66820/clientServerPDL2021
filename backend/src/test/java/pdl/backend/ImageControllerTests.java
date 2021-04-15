@@ -88,7 +88,7 @@ public class ImageControllerTests {
         this.mockMvc.perform(get("/images/" + testImageId).accept(MediaType.APPLICATION_JSON)) // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", "application/json"))
+                .andExpect(header().string("Content-Type", oneOf("application/json")))
                 .andExpect(jsonPath("$").hasJsonPath())
                 .andExpect(jsonPath("$", allOf(
                         hasKey("id"),
@@ -258,15 +258,11 @@ public class ImageControllerTests {
     @Test
     @Order(17)
     public void getImageAfterColoredFilterShouldReturnSuccess() throws Exception {
-        try {
-            // hue is between min and max
-            this.mockMvc.perform(get("/images/1?algorithm=coloredFilter&hue=300")) // .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(header().exists("Content-Type"))
-                    .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
-        } catch (NestedServletException e) {
-            throw new Exception(e.getMessage());
-        }
+        // hue is between min and max
+        this.mockMvc.perform(get("/images/1?algorithm=coloredFilter&hue=300")) // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
     }
 
     @Test
@@ -299,29 +295,27 @@ public class ImageControllerTests {
 
         // hue isn't a number
         this.mockMvc.perform(get("/images/0?algorithm=coloredFilter&hue=test"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
 
         // missing hue parameter
         this.mockMvc.perform(get("/images/0?algorithm=coloredFilter"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test
     @Order(19)
     public void getImageAfterHistogramContrastShouldReturnSuccess() throws Exception {
-        try {
-            this.mockMvc.perform(get("/images/1?algorithm=histogramContrast&channel=s")) // .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(header().exists("Content-Type"))
-                    .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
+        //histogram contrast working with channel s
+        this.mockMvc.perform(get("/images/1?algorithm=histogramContrast&channel=s")) // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
 
-            this.mockMvc.perform(get("/images/1?algorithm=histogramContrast&channel=v")) // .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(header().exists("Content-Type"))
-                    .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
-        } catch (NestedServletException e) {
-            throw new Exception(e.getMessage());
-        }
+        //histogram contrast working with channel v
+        this.mockMvc.perform(get("/images/1?algorithm=histogramContrast&channel=v")) // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
     }
 
     @Test
@@ -338,13 +332,13 @@ public class ImageControllerTests {
                         hasKey("message"),
                         hasKey("badParams"))))
                 .andExpect(jsonPath("$.badParams").isArray())
-                .andExpect(jsonPath("$.badParams[0]", allOf(
+                .andExpect(jsonPath("$.badParams", everyItem(allOf(
                         hasKey("name"),
                         hasKey("title"),
                         hasKey("type"),
                         hasKey("required"),
                         hasKey("expectedValue")
-                )))
+                ))))
                 .andExpect(jsonPath("$.badParams[0].expectedValue").isArray())
                 .andExpect(jsonPath("$.badParams[0].expectedValue", everyItem(allOf(
                         hasKey("name"),
@@ -379,71 +373,70 @@ public class ImageControllerTests {
     @Test
     @Order(22)
     public void getImageAfterBlurFilterShouldReturnError() throws Exception {
-        try {
-            // missing filterName param
-            this.mockMvc.perform(get("/images/1?algorithm=blurFilter&blur=3"))
-                    .andExpect(status().isInternalServerError());
+        // missing filterName param
+        this.mockMvc.perform(get("/images/1?algorithm=blurFilter&blur=3"))
+                .andExpect(status().isInternalServerError());
 
-            // missing blur param
-            this.mockMvc.perform(get("/images/1?algorithm=blurFilter&filterName=meanFilter"))
-                    .andExpect(status().isInternalServerError());
+        // missing blur param
+        this.mockMvc.perform(get("/images/1?algorithm=blurFilter&filterName=meanFilter"))
+                .andExpect(status().isInternalServerError());
 
-            // missing all params
-            this.mockMvc.perform(get("/images/1?algorithm=blurFilter"))
-                    .andExpect(status().isInternalServerError());
+        // missing all params
+        this.mockMvc.perform(get("/images/1?algorithm=blurFilter"))
+                .andExpect(status().isInternalServerError());
 
-            // blur value < min
-            this.mockMvc.perform(get("/images/1?algorithm=blurFilter&filterName=meanFilter&blur=-2"))
-                    .andExpect(status().isInternalServerError())
-                    .andExpect(header().exists("Content-Type"))
-                    .andExpect(header().string("Content-Type", "application/json"))
-                    .andExpect(jsonPath("$").hasJsonPath())
-                    .andExpect(jsonPath("$", allOf(
-                            hasKey("type"),
-                            hasKey("message"),
-                            hasKey("badParams"))))
-                    .andExpect(jsonPath("$.badParams").isArray())
-                    .andExpect(jsonPath("$.badParams", everyItem(allOf(
-                            hasKey("name"),
-                            hasKey("title"),
-                            hasKey("type"),
-                            hasKey("required"),
-                            hasKey("value"),
-                            hasKey("min"),
-                            hasKey("max")
-                    ))));
+        // blur value < min
+        this.mockMvc.perform(get("/images/1?algorithm=blurFilter&filterName=meanFilter&blur=-2"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", "application/json"))
+                .andExpect(jsonPath("$").hasJsonPath())
+                .andExpect(jsonPath("$", allOf(
+                        hasKey("type"),
+                        hasKey("message"),
+                        hasKey("badParams"))))
+                .andExpect(jsonPath("$.badParams").isArray())
+                .andExpect(jsonPath("$.badParams", everyItem(allOf(
+                        hasKey("name"),
+                        hasKey("title"),
+                        hasKey("type"),
+                        hasKey("required"),
+                        hasKey("value"),
+                        hasKey("min"),
+                        hasKey("max")
+                ))));
 
-            // blur value > max
-            this.mockMvc.perform(get("/images/1?algorithm=blurFilter&filterName=meanFilter&blur=50"))
-                    .andExpect(status().isInternalServerError());
+        // blur value > max
+        this.mockMvc.perform(get("/images/1?algorithm=blurFilter&filterName=meanFilter&blur=50"))
+                .andExpect(status().isInternalServerError());
 
-            // filter name is wrong but blur is right
-            this.mockMvc.perform(get("/images/1?algorithm=blurFilter&filterName=gauss&blur=3"))
-                    .andExpect(status().isInternalServerError());
+        // filter name is wrong but blur is right
+        this.mockMvc.perform(get("/images/1?algorithm=blurFilter&filterName=gauss&blur=3"))
+                .andExpect(status().isInternalServerError());
 
-            // filter name is wrong and blur too
-            this.mockMvc.perform(get("/images/1?algorithm=blurFilter&filterName=mean&blur=-2"))
-                    .andExpect(status().isInternalServerError())
-                    .andExpect(header().exists("Content-Type"))
-                    .andExpect(header().string("Content-Type", "application/json"))
-                    .andExpect(jsonPath("$").hasJsonPath())
-                    .andExpect(jsonPath("$", allOf(
-                            hasKey("type"),
-                            hasKey("message"),
-                            hasKey("badParams"))))
-                    .andExpect(jsonPath("$.badParams").isArray())
-                    .andExpect(jsonPath("$.badParams", everyItem(allOf(
-                            hasKey("name"),
-                            hasKey("title"),
-                            hasKey("type"),
-                            hasKey("required"),
-                            hasKey("value"),
-                            hasKey("expectedValue")))))
-                    .andExpect(jsonPath("$.badParams.expectedValue").isArray());
-        } catch (NestedServletException e) {
-            throw new Exception(e.getMessage());
-        }
-
+        // filter name is wrong and blur too
+        this.mockMvc.perform(get("/images/1?algorithm=blurFilter&filterName=mean&blur=-2"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", "application/json"))
+                .andExpect(jsonPath("$").hasJsonPath())
+                .andExpect(jsonPath("$", allOf(
+                        hasKey("type"),
+                        hasKey("message"),
+                        hasKey("badParams"))))
+                .andExpect(jsonPath("$.badParams").isArray())
+                .andExpect(jsonPath("$.badParams", everyItem(allOf(
+                        hasKey("name"),
+                        hasKey("title"),
+                        hasKey("type"),
+                        hasKey("required"),
+                        hasKey("value"),
+                        hasKey("expectedValue")))))
+                .andExpect(jsonPath("$.badParams[0].expectedValue").isArray())
+                .andExpect(jsonPath("$.badParams[0].expectedValue", everyItem(allOf(
+                        hasKey("name"),
+                        hasKey("title")
+                ))));
     }
 
     @Test
@@ -461,6 +454,15 @@ public class ImageControllerTests {
     public void getImageAfterContourFilterShouldReturnError() throws Exception {
         // bad name for contour filter
         this.mockMvc.perform(get("/images/1?algorithm=contour"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isInternalServerError())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", "application/json"))
+                .andExpect(jsonPath("$").hasJsonPath())
+                .andExpect(jsonPath("$", allOf(
+                        hasKey("type"),
+                        hasKey("message"),
+                        hasKey("name"),
+                        hasKey("title")
+                )));
     }
 }

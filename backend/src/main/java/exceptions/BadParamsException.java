@@ -45,7 +45,7 @@ public class BadParamsException extends ImageWebException {
             paramNode.put("required", param.required);
 
             // If parameter does not have a value
-            Object value;
+            Object value = null;
             if (this.paramValue.containsKey(param.name)) {
                 value = this.paramValue.get(param.name);
             }
