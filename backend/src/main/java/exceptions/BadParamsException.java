@@ -10,22 +10,18 @@ import java.util.List;
 
 public class BadParamsException extends ImageWebException {
 
-    private List<AlgorithmArgs> badParamsList;
-    private HashMap<String, Object> paramValue; //key = name of argument
-    public final HttpStatus status = HttpStatus.BAD_REQUEST;
+    private final List<AlgorithmArgs> badParamsList;
+    private final HashMap<String, Object> paramValue; //key = name of argument
 
     public BadParamsException(String message, List<AlgorithmArgs> badParamsList, HashMap<String, Object> paramValue) {
         super(message);
         this.badParamsList = badParamsList;
         this.paramValue = paramValue;
+        this.status = HttpStatus.BAD_REQUEST;
     }
 
     public BadParamsException(String message) {
-        super(message);
-    }
-
-    public BadParamsException() {
-        super();
+        this(message, null, null);
     }
 
     @Override

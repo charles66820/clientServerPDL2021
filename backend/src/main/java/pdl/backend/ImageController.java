@@ -66,7 +66,7 @@ public class ImageController {
                             .contentType(MediaType.valueOf(img.getType()))
                             .body(bytes);
                 } catch (ImageWebException e) {
-                    return ResponseEntity.status(e.status)
+                    return ResponseEntity.status(e.getStatus())
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(e.toJSON());
                 }

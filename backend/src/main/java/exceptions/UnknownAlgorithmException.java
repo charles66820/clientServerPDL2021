@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 public class UnknownAlgorithmException extends ImageWebException {
     private final String algoName;
     private final String algoTitle;
-    public final HttpStatus status = HttpStatus.BAD_REQUEST;
 
     public UnknownAlgorithmException(String message, String algoName) {
         this(message, algoName, null);
@@ -16,6 +15,7 @@ public class UnknownAlgorithmException extends ImageWebException {
         super(message);
         this.algoName = algoName;
         this.algoTitle = algoTitle;
+        this.status = HttpStatus.BAD_REQUEST;
     }
 
     @Override

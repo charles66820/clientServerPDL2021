@@ -6,16 +6,16 @@ import org.springframework.http.HttpStatus;
 
 public abstract class ImageWebException extends Exception {
     public final ObjectMapper mapper = new ObjectMapper();
-    private String message;
-    public final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+    private final String message;
+    protected HttpStatus status;
 
     public ImageWebException(String message) {
         super(message);
         this.message = message;
     }
 
-    public ImageWebException() {
-        super();
+    public HttpStatus getStatus() {
+        return this.status;
     }
 
     /**
