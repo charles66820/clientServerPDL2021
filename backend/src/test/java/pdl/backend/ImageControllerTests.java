@@ -6,17 +6,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
 import java.util.Base64;
 
 @SpringBootTest
@@ -24,31 +26,16 @@ import java.util.Base64;
 @TestMethodOrder(OrderAnnotation.class)
 
 public class ImageControllerTests {
-
     @Autowired
     private MockMvc mockMvc;
 
     private int testImageId = 0;
     private static long testTiffImageId = -1;
 
-    @BeforeAll
-    private static void initTiffImageId() {
-        ImageDao imageDao = Mockito.mock(ImageDao.class);
-        for (Image image : imageDao.retrieveAll()) {
-            if (image.getType().equals("image/tiff")) {
-                testTiffImageId = image.getId();
-                break;
-            }
-        }
-        if (testTiffImageId == -1) {
-            System.out.println("WARNING : there isn't any tiff images ! ");
-        }
-    }
-
     @Test
     @Order(1)
     public void getImageListShouldReturnSuccess() throws Exception {
-        this.mockMvc.perform(get("/images")) // .andDo(print())
+        MockHttpServletResponse response = this.mockMvc.perform(get("/images")) // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Content-Type"))
                 .andExpect(header().string("Content-Type", "application/json"))
@@ -59,7 +46,18 @@ public class ImageControllerTests {
                         hasKey("type"),
                         hasKey("size"),
                         hasKey("fileSize")
-                ))));
+                )))).andReturn().getResponse();
+
+        // try to get a tiff picture to make more tests on algorithms
+        JSONArray JSONResponse = new JSONArray(response.getContentAsString());
+        for (int i=0; i<JSONResponse.length(); i++) {
+            JSONObject o = (JSONObject)JSONResponse.get(i);
+            String type = o.getString("type");
+            if (type.equals("image/tiff")) {
+                testTiffImageId = Long.parseLong(o.getString("id"));
+                break;
+            }
+        }
     }
 
     @Test
@@ -175,6 +173,8 @@ public class ImageControllerTests {
 
         this.mockMvc.perform(multipart("/images").file(file)) // .andDo(print())
                 .andExpect(status().isUnsupportedMediaType())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", "application/json"))
                 .andExpect(jsonPath("$").hasJsonPath())
                 .andExpect(jsonPath("$", allOf(
                         hasKey("type"),
@@ -197,6 +197,8 @@ public class ImageControllerTests {
 
         this.mockMvc.perform(multipart("/images").file(file)) // .andDo(print())
                 .andExpect(status().isNotAcceptable())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", "application/json"))
                 .andExpect(jsonPath("$").hasJsonPath())
                 .andExpect(jsonPath("$", allOf(
                         hasKey("type"),
@@ -237,17 +239,11 @@ public class ImageControllerTests {
     @Order(15)
     public void getImageAfterLuminosityShouldReturnSuccess() throws Exception {
         // gain is between min and max required
-        this.mockMvc.perform(get("/images/1?algorithm=increaseLuminosity&gain=25")) // .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
+        getSuccessImageJPEG("/images/1?algorithm=increaseLuminosity&gain=25");
 
         // luminosity with tiff image
         if (testTiffImageId != -1) {
-            this.mockMvc.perform(get("/images/" + testTiffImageId + "?algorithm=increaseLuminosity&gain=25"))
-                    .andExpect(status().isOk())
-                    .andExpect(header().exists("Content-Type"))
-                    .andExpect(header().string("Content-Type", is("image/tiff")));
+            getSuccessImageTIFF("/images/" + testTiffImageId + "?algorithm=increaseLuminosity&gain=25");
         }
     }
 
@@ -271,10 +267,12 @@ public class ImageControllerTests {
     @Order(17)
     public void getImageAfterColoredFilterShouldReturnSuccess() throws Exception {
         // hue is between min and max
-        this.mockMvc.perform(get("/images/1?algorithm=coloredFilter&hue=300")) // .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
+        getSuccessImageJPEG("/images/1?algorithm=coloredFilter&hue=300");
+
+        // test with a tiff image
+        if (testTiffImageId != -1) {
+            getSuccessImageTIFF("/images/" + testTiffImageId +"?algorithm=coloredFilter&hue=300");
+        }
     }
 
     @Test
@@ -297,16 +295,10 @@ public class ImageControllerTests {
     @Order(19)
     public void getImageAfterHistogramContrastShouldReturnSuccess() throws Exception {
         //histogram contrast working with channel s
-        this.mockMvc.perform(get("/images/1?algorithm=histogramContrast&channel=s")) // .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
+        getSuccessImageJPEG("/images/1?algorithm=histogramContrast&channel=s");
 
         //histogram contrast working with channel v
-        this.mockMvc.perform(get("/images/1?algorithm=histogramContrast&channel=v")) // .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
+        getSuccessImageJPEG("/images/1?algorithm=histogramContrast&channel=v");
     }
 
     @Test
@@ -321,22 +313,36 @@ public class ImageControllerTests {
         // missing channel parameter
         this.mockMvc.perform(get("/images/1?algorithm=histogramContrast"))
                 .andExpect(status().isBadRequest());
+
+        // can't apply this algo on tiff image
+        if (testTiffImageId != -1) {
+            this.mockMvc.perform(get("/images/" + testTiffImageId + "?algorithm=histogramContrast&channel=v"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(header().exists("Content-Type"))
+                    .andExpect(header().string("Content-Type", "application/json"))
+                    .andExpect(jsonPath("$").hasJsonPath())
+                    .andExpect(jsonPath("$", allOf(
+                            hasKey("type"),
+                            hasKey("message")
+                    )))
+                    .andExpect(jsonPath("$.type", is("BadParamsException")))
+                    .andExpect(jsonPath("$.incompatibleSelectedImage").exists());
+        }
     }
 
     @Test
     @Order(21)
     public void getImageAfterBlurFilterShouldReturnSuccess() throws Exception {
         // blur filter with meanFilter and blur
-        this.mockMvc.perform(get("/images/1?algorithm=blurFilter&filterName=meanFilter&blur=3"))
-                .andExpect(status().isOk())
-                .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
+        getSuccessImageJPEG("/images/1?algorithm=blurFilter&filterName=meanFilter&blur=3");
 
         // blur filter with gaussFilter and blur
-        this.mockMvc.perform(get("/images/1?algorithm=blurFilter&filterName=gaussFilter&blur=3"))
-                .andExpect(status().isOk())
-                .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
+        getSuccessImageJPEG("/images/1?algorithm=blurFilter&filterName=gaussFilter&blur=3");
+
+        // blur filter on tiff image
+        if (testTiffImageId != -1) {
+            getSuccessImageTIFF("/images/" + testTiffImageId + "?algorithm=blurFilter&filterName=gaussFilter&blur=3");
+        }
     }
 
     @Test
@@ -370,10 +376,12 @@ public class ImageControllerTests {
     @Order(23)
     public void getImageAfterContourFilterShouldReturnSuccess() throws Exception {
         // contourFilter working
-        this.mockMvc.perform(get("/images/1?algorithm=contourFilter"))
-                .andExpect(status().isOk())
-                .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
+        getSuccessImageJPEG("/images/1?algorithm=contourFilter");
+
+        // contour filter on tiff image
+        if (testTiffImageId != -1) {
+            getSuccessImageTIFF("/images/" + testTiffImageId +"?algorithm=contourFilter");
+        }
     }
 
     @Test
@@ -407,17 +415,36 @@ public class ImageControllerTests {
                         hasKey("message"),
                         hasKey("name"),
                         hasKey("title")
-                )));
+                )))
+                .andExpect(jsonPath("$.type", is("UnknownAlgorithmException")));
+
+        // test on tiff image
+        if (testTiffImageId != -1) {
+            this.mockMvc.perform(get("/images/" + testTiffImageId +"?algorithm=random"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(header().exists("Content-Type"))
+                    .andExpect(header().string("Content-Type", "application/json"))
+                    .andExpect(jsonPath("$").hasJsonPath())
+                    .andExpect(jsonPath("$", allOf(
+                            hasKey("type"),
+                            hasKey("message"),
+                            hasKey("name"),
+                            hasKey("title")
+                    )))
+                    .andExpect(jsonPath("$.type", is("UnknownAlgorithmException")));
+        }
     }
 
     @Test
     @Order(26)
     public void getImageAfterGrayHistogramShouldReturnSuccess() throws Exception {
         // histogram grey working on an image
-        this.mockMvc.perform(get("/images/1?algorithm=histogramGrey"))
-                .andExpect(status().isOk())
-                .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
+        getSuccessImageJPEG("/images/1?algorithm=histogramGrey");
+
+        // histogram grey working on tiff image
+        if (testTiffImageId != -1) {
+            getSuccessImageTIFF("/images/" + testTiffImageId + "?algorithm=histogramGrey");
+        }
 
     }
 
@@ -425,20 +452,24 @@ public class ImageControllerTests {
     @Order(27)
     public void getImageAfterGreyFilterShouldReturnSuccess() throws Exception {
         // grey filter working on image
-        this.mockMvc.perform(get("/images/1?algorithm=greyFilter"))
-                .andExpect(status().isOk())
-                .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
+        getSuccessImageJPEG("/images/1?algorithm=greyFilter");
+
+        // grey filter on tiff image
+        if (testTiffImageId != -1) {
+            getSuccessImageTIFF("/images/" + testTiffImageId + "?algorithm=greyFilter");
+        }
     }
 
     @Test
     @Order(28)
     public void getImageAfterThresholdFilterShouldReturnSuccess() throws Exception {
         // threshold filter with param between min and max authorised
-        this.mockMvc.perform(get("/images/1?algorithm=thresholdFilter&threshold=100"))
-                .andExpect(status().isOk())
-                .andExpect(header().exists("Content-Type"))
-                .andExpect(header().string("Content-Type", oneOf("image/jpeg", "image/tiff")));
+        getSuccessImageJPEG("/images/1?algorithm=thresholdFilter&threshold=100");
+
+        // threshold filter with tiff image
+        if (testTiffImageId != - 1) {
+            getSuccessImageTIFF("/images/" + testTiffImageId + "?algorithm=thresholdFilter&threshold=100");
+        }
     }
 
     @Test
@@ -457,9 +488,6 @@ public class ImageControllerTests {
         testErrorMessageWithOnlyBadParamsArray("/images/1?algorithm=thresholdFilter");
 
     }
-
-    // TODO A METHOD TO EXECUTE BEFORE TEST TO CATCH A TIFF IMAGE AND APPLY IT TO EACH ALGORITHM
-    // check property incompatibleSelectedImage
 
     private void testErrorMessageWithOnlyBadParamsArray(String route) throws Exception {
         this.mockMvc.perform(get(route))
@@ -507,5 +535,19 @@ public class ImageControllerTests {
                         hasKey("name"),
                         hasKey("title")
                 ))));
+    }
+
+    private void getSuccessImageJPEG(String route) throws Exception {
+        this.mockMvc.perform(get(route))
+                .andExpect(status().isOk())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", is("image/jpeg")));
+    }
+
+    private void getSuccessImageTIFF(String route) throws Exception {
+        this.mockMvc.perform(get(route))
+                .andExpect(status().isOk())
+                .andExpect(header().exists("Content-Type"))
+                .andExpect(header().string("Content-Type", is("image/tiff")));
     }
 }

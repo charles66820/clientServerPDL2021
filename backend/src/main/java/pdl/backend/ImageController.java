@@ -25,7 +25,7 @@ public class ImageController {
 
     @Autowired
     private ObjectMapper mapper;
-    private final ImageDao imageDao;
+    public final ImageDao imageDao;
 
     @Autowired
     public ImageController(ImageDao imageDao) {
