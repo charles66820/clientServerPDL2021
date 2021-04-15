@@ -17,10 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 public class ImageController {
@@ -34,11 +31,24 @@ public class ImageController {
         this.imageDao = imageDao;
     }
 
-    @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, headers = "Accept=*/*", produces = {MediaType.IMAGE_JPEG_VALUE, "image/tiff", MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, produces = {MediaType.IMAGE_JPEG_VALUE, "image/tiff", MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    public ResponseEntity<?> getImage(@PathVariable("id") long id, @RequestParam Map<String, String> allRequestParams) {
+    public ResponseEntity<?> getImage(@RequestHeader("Accept") ArrayList<String> accepts, @PathVariable("id") long id, @RequestParam Map<String, String> allRequestParams) {
         Optional<Image> image = imageDao.retrieve(id);
         if (image.isPresent()) {
+            if (accepts != null && accepts.contains("application/json")) {
+                // Send image data
+                ObjectNode node = mapper.createObjectNode();
+                Image img = image.get();
+                node.put("id", img.getId());
+                node.put("name", img.getName());
+                node.put("type", img.getType());
+                node.put("size", img.getSize());
+                node.put("fileSize", img.getFileSize());
+                return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(node);
+            }
+
+            // Send Image
             Image img = image.get();
             byte[] bytes = img.getData();
 
@@ -61,25 +71,6 @@ public class ImageController {
                 }
             }
         } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
-    // For "/images/{id}"
-    @RequestMapping(method = RequestMethod.GET, headers = "Accept=application/json", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<ObjectNode> getImageData(@PathVariable("id") long id) {
-        Optional<Image> image = imageDao.retrieve(id);
-        ObjectNode node = mapper.createObjectNode();
-        if (image.isPresent()) {
-            Image img = image.get();
-            node.put("id", img.getId());
-            node.put("name", img.getName());
-            node.put("type", img.getType());
-            node.put("size", img.getSize());
-            node.put("fileSize", img.getFileSize());
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(node);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
     @RequestMapping(value = "/images/{id}", method = RequestMethod.DELETE)
