@@ -16,7 +16,7 @@ function get_imageData(imageId) {
 
 function get_image_with_algo(imageId, queryString) {
     let imageUrl = "/images/" + imageId + "?" + queryString;
-    return axios.get(imageUrl, { headers: {accept: "image/*,*/*" }/*, responseType: "blob"*/ });
+    return axios.get(imageUrl, { headers: {accept: "image/*,*/*" }, responseType: "blob" });
 }
 
 function delete_image(imageId) {

@@ -130,6 +130,27 @@ function getErrorMsg(err) {
   return errorMessage;
 }
 
+axios.interceptors.response.use(res => res,
+  err => {
+    if (err.request.responseType === 'blob' &&
+      err.response.data instanceof Blob &&
+      err.response.data.type &&
+      err.response.data.type.toLowerCase().indexOf('json') != -1
+    ) {
+      return new Promise((resolve, reject) => {
+        let reader = new FileReader();
+        reader.addEventListener("load", () => {
+          err.response.data = JSON.parse(reader.result);
+          resolve(Promise.reject(err));
+        });
+        reader.addEventListener("error", () => reject(err));
+        reader.readAsText(err.response.data);
+      });
+    }
+    return Promise.reject(err);
+  }
+);
+
 export {
   SUPPORT_LOCALES,
   mode,
