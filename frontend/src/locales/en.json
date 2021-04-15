@@ -41,12 +41,12 @@
     },
     "about": {
       "title": "About us",
-      "content1" : "We are UE PDL Group 6. Here is our site respecting the specifications that the client gave us where you can admire images in a magnificent gallery.",
-      "content2" : "You can also add and remove images to make this gallery more personal!",
-      "content3" : "By clicking on the selected image, you can see the details of the image and apply a large number of effects to it!",
-      "content4" : "To save your new image, download it! And if you don't like it, try another effect or remove it!",
-      "content5" : "All that remains is to admire your magnificent gallery!",
-      "content6" : "From the developers of PACA - PDL Alex Pepi Amandine Semeteys Charles Goedefroit -"
+      "content1": "We are UE PDL Group 6. Here is our site respecting the specifications that the client gave us where you can admire images in a magnificent gallery.",
+      "content2": "You can also add and remove images to make this gallery more personal!",
+      "content3": "By clicking on the selected image, you can see the details of the image and apply a large number of effects to it!",
+      "content4": "To save your new image, download it! And if you don't like it, try another effect or remove it!",
+      "content5": "All that remains is to admire your magnificent gallery!",
+      "content6": "From the developers of PACA - PDL Alex Pepi Amandine Semeteys Charles Goedefroit -"
     },
     "uploadImage": {
       "title": "Upload an image",
@@ -61,7 +61,36 @@
     }
   },
   "errors": {
-    "title": "Error"
+    "title": "Error",
+    "notAnError": "Not an error",
+    "nothing": "nothing",
+    "or": "or",
+    "BadParamsException": {
+      "incompatibleSelectedImageContent": "This algorithm can't be apply on this image",
+      "badParamsContent": "The following parameter is not valid",
+      "badParamsContentPlurals": "The following parameters are not valid",
+      "numberParam": "{title} is required and must be between {min} and {max}",
+      "butCannotBe": "but cannot be {value}",
+      "selectParam": "{title} is required and must be",
+      "selectOther": "{title} is required and cannot be {value}",
+      "unknownErrorContent": "Unknown error ({msg})"
+    },
+    "ImageConversionException": {
+      "content": "Error during image conversion"
+    },
+    "UnknownAlgorithmException": {
+      "canNotBeExecutedContent": "The {title} algorithm cannot be executed by the server",
+      "content": "Unknown algorithm"
+    },
+    "UnsupportedMediaTypeException": {
+      "content": "The image sent is not supported, it must be"
+    },
+    "BadImageFileException": {
+      "content": "The file sent is invalid"
+    },
+    "UnknownException": {
+      "content": "Unknown server error ({msg})"
+    }
   },
   "warnings": {
     "title": "Warning",
