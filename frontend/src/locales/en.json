@@ -72,7 +72,7 @@
       "numberParam": "{title} is required and must be between {min} and {max}",
       "butCannotBe": "but cannot be {value}",
       "selectParam": "{title} is required and must be",
-      "selectOther": "{title} is required and cannot be {value}",
+      "otherParam": "{title} is required and cannot be {value}",
       "unknownErrorContent": "Unknown error ({msg})"
     },
     "ImageConversionException": {

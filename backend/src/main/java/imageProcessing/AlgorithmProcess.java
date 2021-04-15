@@ -61,7 +61,6 @@ public class AlgorithmProcess {
                         argValid = false;
                         badArgList.add(arg);
                         valueMap.put(arg.name, null);
-                        break;
                     } else {
                         try {
                             float argLong = Float.parseFloat(params.get(arg.name));
@@ -69,13 +68,11 @@ public class AlgorithmProcess {
                                 argValid = false;
                                 badArgList.add(arg);
                                 valueMap.put(arg.name, params.get(arg.name));
-                                break;
                             }
                         } catch (NumberFormatException nbr) {
                             argValid = false;
                             badArgList.add(arg);
                             valueMap.put(arg.name, params.get(arg.name));
-                            break;
                         }
                     }
                 }
@@ -92,7 +89,6 @@ public class AlgorithmProcess {
                     if (!argValid) {
                         badArgList.add(arg);
                         valueMap.put(arg.name, params.get(arg.name));
-                        break;
                     }
                 }
                 //If arg is not a number or select type don't verified it
@@ -103,7 +99,6 @@ public class AlgorithmProcess {
                     argValid = false;
                     badArgList.add(arg);
                     valueMap.put(arg.name, params.get(arg.name));
-                    break;
                 }
             }
         }

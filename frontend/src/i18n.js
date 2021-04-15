@@ -57,7 +57,6 @@ function getErrorMsg(err) {
       break;
     case "application/json":
     case "application/json;charset=UTF-8":
-      console.log(res.data);
       switch (res.data.type) {
         case "BadParamsException": {
           if (res.data.incompatibleSelectedImage)
@@ -66,10 +65,10 @@ function getErrorMsg(err) {
             errorMessage = ((res.data.badParams.length > 1) ? i18n.global.t("errors.BadParamsException.badParamsContentPlurals") : i18n.global.t("errors.BadParamsException.badParamsContent")) + " :";
             for (const param of res.data.badParams) {
               if (param.type == "number") {
-                errorMessage += "&#10; - " + i18n.global.t("errors.BadParamsException.numberParam", { title: param.title, min: param.min, max: param.max });
+                errorMessage += "<br> - " + i18n.global.t("errors.BadParamsException.numberParam", { title: param.title, min: param.min, max: param.max });
                 if (param.value != undefined && param.value != "null" && param.value != "") errorMessage += " " + i18n.global.t("errors.BadParamsException.butCannotBe", { value: param.value });
               } else if (param.type == "select") {
-                errorMessage += "&#10; - " + i18n.global.t("errors.BadParamsException.selectParam") + " ";
+                errorMessage += "<br> - " + i18n.global.t("errors.BadParamsException.selectParam", { title: param.title }) + " ";
                 let expectedValues = param.expectedValue;
                 if (!expectedValues || expectedValues.length == 0) {
                   errorMessage += i18n.global.t("errors.nothing");
