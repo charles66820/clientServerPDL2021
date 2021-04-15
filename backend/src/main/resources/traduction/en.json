@@ -56,16 +56,16 @@
     },
     "contourFilter": {
       "title": "Contour Filter"
-    }
-  },
-  "greyFilter": {
-    "title": "Grey Filter"
-  },
-  "thresholdFilter": {
-    "title": "Threshold Filter",
-    "args": {
-      "threshold": {
-        "title": "Threshold"
+    },
+    "greyFilter": {
+      "title": "Grey Filter"
+    },
+    "thresholdFilter": {
+      "title": "Threshold Filter",
+      "args": {
+        "threshold": {
+          "title": "Threshold"
+        }
       }
     }
   }

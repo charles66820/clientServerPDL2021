@@ -411,7 +411,7 @@ public class AlgorithmProcess {
         // Calcul of cumulative histogram
         for (int i = 1; i < 256; i++) {
             hist[i] = hist[i] + hist[i - 1];
-            System.out.println(i + ":" + hist[i]);
+            //System.out.println(i + ":" + hist[i]);
         }
         // Transform picture
         cursor.reset();
