@@ -1,5 +1,6 @@
 package pdl.backend;
 
+import imageProcessing.ImageConverter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
