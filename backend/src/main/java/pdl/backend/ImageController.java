@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -33,7 +34,7 @@ public class ImageController {
 
     @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, produces = {MediaType.IMAGE_JPEG_VALUE, "image/tiff", MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    public ResponseEntity<?> getImage(@RequestHeader("Accept") ArrayList<String> accepts, @PathVariable("id") long id, @RequestParam Map<String, String> allRequestParams) {
+    public ResponseEntity<?> getImage(@Nullable @RequestHeader("Accept") ArrayList<String> accepts, @PathVariable("id") long id, @RequestParam Map<String, String> allRequestParams) {
         Optional<Image> image = imageDao.retrieve(id);
         if (image.isPresent()) {
             if (accepts != null && accepts.contains("application/json")) {

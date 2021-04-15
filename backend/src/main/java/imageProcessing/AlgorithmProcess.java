@@ -263,7 +263,7 @@ public class AlgorithmProcess {
         hsv[2] = Math.round(((max / 255) * 10f) * 100f) / 10f;   // Value
 
         // Hue
-        float h = 0;
+        float h;
         if (max == min) {
             h = 0;
         } else if (max == r) {
@@ -379,6 +379,8 @@ public class AlgorithmProcess {
             hsv[channel] = ((float) histocum[(int) (hsv[channel] * 10)] * 1001 / N) / 10;
 
             int[] rgb = new int[3];
+            if (hsv[1] > 100) hsv[1] = 100;
+            if (hsv[2] > 100) hsv[2] = 100;
             hsvToRgb(hsv[0], hsv[1], hsv[2], rgb);
             r.set(rgb[0]);
             g.set(rgb[1]);
