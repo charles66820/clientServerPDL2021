@@ -95,7 +95,6 @@ public class ImageController {
             ArrayNode acceptedTypes = jsonNode.putArray("acceptedTypes");
             acceptedTypes.add("image/jpeg");
             acceptedTypes.add("image/tiff");
-            acceptedTypes.add("image/png");
             jsonNode.put("message", "Unsupported image type ! Image will be image/jpeg or image/tiff");
             return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
         }

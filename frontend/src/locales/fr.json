@@ -41,12 +41,12 @@
     },
     "about": {
       "title": "A propos de nous",
-      "content1" : "Nous sommes le groupe 6 de l'UE PDL. Voici notre site respectant le cahier des charges que le client nous a donné où vous pouvez admirer des images dans une magnifique galerie.",
-      "content2" : "Vous pouvez également ajouter et supprimer des images pour rendre cette galerie plus personnelle !",
-      "content3" : "En cliquant sur l'image sélectionnée, vous pouvez voir les détails de l'image et y appliquer un grand nombre d'effet !",
-      "content4" : "Pour sauvegarder votre nouvelle image, téléchargez la ! Et si elle ne vous plaît pas, essayez un autre effet ou supprimez la !",
-      "content5" : "Il ne reste plus qu'à admirer votre magnifique galerie !",
-      "content6" : "De la part des développeurs de PACA - PDL Alex Pepi Amandine Semeteys Charles Goedefroit -"
+      "content1": "Nous sommes le groupe 6 de l'UE PDL. Voici notre site respectant le cahier des charges que le client nous a donné où vous pouvez admirer des images dans une magnifique galerie.",
+      "content2": "Vous pouvez également ajouter et supprimer des images pour rendre cette galerie plus personnelle !",
+      "content3": "En cliquant sur l'image sélectionnée, vous pouvez voir les détails de l'image et y appliquer un grand nombre d'effet !",
+      "content4": "Pour sauvegarder votre nouvelle image, téléchargez la ! Et si elle ne vous plaît pas, essayez un autre effet ou supprimez la !",
+      "content5": "Il ne reste plus qu'à admirer votre magnifique galerie !",
+      "content6": "De la part des développeurs de PACA - PDL Alex Pepi Amandine Semeteys Charles Goedefroit -"
     },
     "uploadImage": {
       "title": "Téléverser une image",
@@ -61,7 +61,36 @@
     }
   },
   "errors": {
-    "title": "Erreur"
+    "title": "Erreur",
+    "notAnError": "Pas une erreur",
+    "nothing": "rien",
+    "or": "ou",
+    "BadParamsException": {
+      "incompatibleSelectedImageContent": "Cet algorithme ne peut pas être appliqué sur cette image",
+      "badParamsContent": "le paramètre suivant n'est pas valide",
+      "badParamsContentPlurals": "les paramètres suivants ne sont pas valides",
+      "numberParam": "{title} est requis et il doit valoir entre {min} et {max}",
+      "butCannotBe": "mais il ne peut pas valoir {value}",
+      "selectParam": "{title} est requis et il doit valoir",
+      "otherParam": "{title} est requis et il ne peut pas valoir {value}",
+      "unknownErrorContent": "Erreur inconnue ({msg})"
+    },
+    "ImageConversionException": {
+      "content": "Erreur lors de la conversion d'image"
+    },
+    "UnknownAlgorithmException": {
+      "canNotBeExecutedContent": "L'algorithme {title} ne peut pas être exécuté par le serveur",
+      "content": "Algorithme inconnue"
+    },
+    "UnsupportedMediaTypeException": {
+      "content": "L'image envoyée n'est pas prise en charge, elle doit être"
+    },
+    "BadImageFileException": {
+      "content": "Le fichier envoyé est invalide"
+    },
+    "UnknownException": {
+      "content": "Erreur du serveur inconnue ({msg})"
+    }
   },
   "warnings": {
     "title": "Attention",

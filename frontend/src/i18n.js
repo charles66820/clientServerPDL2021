@@ -41,10 +41,10 @@ async function loadLocaleMessages(locale) {
   return nextTick();
 }
 
-async function getErrorMsg(err) {
+function getErrorMsg(err) {
   let errorMessage;
 
-  if (err == null) return "Not an error";
+  if (err == null) return i18n.global.t("errors.notAnError");
   if (err.response == undefined) return err.message;
 
   let res = err.response;
@@ -57,24 +57,68 @@ async function getErrorMsg(err) {
       break;
     case "application/json":
     case "application/json;charset=UTF-8":
-      switch (res.data.type) { // TODO: after debug
-        case "BadParamsException":
-          errorMessage = "Bad params";
+      console.log(res.data);
+      switch (res.data.type) {
+        case "BadParamsException": {
+          if (res.data.incompatibleSelectedImage)
+            errorMessage = i18n.global.t("errors.BadParamsException.incompatibleSelectedImageContent") + " !";
+          else if (res.data.badParams && res.data.badParams.length > 0) {
+            errorMessage = ((res.data.badParams.length > 1) ? i18n.global.t("errors.BadParamsException.badParamsContentPlurals") : i18n.global.t("errors.BadParamsException.badParamsContent")) + " :";
+            for (const param of res.data.badParams) {
+              if (param.type == "number") {
+                errorMessage += "&#10; - " + i18n.global.t("errors.BadParamsException.numberParam", { title: param.title, min: param.min, max: param.max });
+                if (param.value != undefined && param.value != "null" && param.value != "") errorMessage += " " + i18n.global.t("errors.BadParamsException.butCannotBe", { value: param.value });
+              } else if (param.type == "select") {
+                errorMessage += "&#10; - " + i18n.global.t("errors.BadParamsException.selectParam") + " ";
+                let expectedValues = param.expectedValue;
+                if (!expectedValues || expectedValues.length == 0) {
+                  errorMessage += i18n.global.t("errors.nothing");
+                } else {
+                  for (let i = 0; i < expectedValues.length - 1; i++) {
+                    if (i != 0) errorMessage += ", ";
+                    errorMessage += expectedValues[i].title;
+                  }
+                  if (expectedValues.length > 1) errorMessage += " " + i18n.global.t("errors.or") + " ";
+                  errorMessage += expectedValues[expectedValues.length - 1].title + " !";
+                }
+                if (param.value != undefined && param.value != "null" && param.value != "") errorMessage += " " + i18n.global.t("errors.BadParamsException.butCannotBe", { value: param.value });
+              } else errorMessage += "&#10; - " + i18n.global.t("errors.BadParamsException.otherParam", { title: param.title, value: param.value });
+            }
+          } else {
+            errorMessage = i18n.global.t("errors.BadParamsException.unknownErrorContent", { msg: res.data.message });
+          }
           break;
+        }
         case "ImageConversionException":
-          errorMessage = "Error on image conversion";
+          errorMessage = i18n.global.t("errors.ImageConversionException.content") + " !";
           break;
         case "UnknownAlgorithmException":
-          errorMessage = "Unknown algorithm";
+          if (res.data.title) {
+            errorMessage = i18n.global.t("errors.UnknownAlgorithmException.canNotBeExecutedContent", { title: res.data.title }) + " !";
+            break;
+          }
+          errorMessage = i18n.global.t("errors.UnknownAlgorithmException.content") + " !";
           break;
-        case "UnsupportedMediaTypeException":
-          errorMessage = "Unsupported image type ! Image will be image/jpeg or image/tiff";
+        case "UnsupportedMediaTypeException": {
+          errorMessage = i18n.global.t("errors.UnsupportedMediaTypeException.content") + " ";
+          let acceptedTypes = res.data.acceptedTypes;
+          if (!acceptedTypes || acceptedTypes.length == 0) {
+            errorMessage += i18n.global.t("errors.nothing") + " !";
+            break;
+          }
+          for (let i = 0; i < acceptedTypes.length - 1; i++) {
+            if (i != 0) errorMessage += ", ";
+            errorMessage += acceptedTypes[i];
+          }
+          if (acceptedTypes.length > 1) errorMessage += " " + i18n.global.t("errors.or") + " ";
+          errorMessage += acceptedTypes[acceptedTypes.length - 1] + " !";
           break;
+        }
         case "BadImageFileException":
-          errorMessage = "Bad image file send !";
+          errorMessage = i18n.global.t("errors.BadImageFileException.content") + " !";
           break;
         case "UnknownException":
-          errorMessage = "Unknown error (" + res.data.message + ")";
+          errorMessage = i18n.global.t("errors.UnknownException.content", { msg: res.data.message });
           break;
         default:
           errorMessage = res.data.message ? res.data.message : defaultErrorMessage;

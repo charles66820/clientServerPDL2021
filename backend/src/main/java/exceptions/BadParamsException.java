@@ -12,21 +12,32 @@ public class BadParamsException extends ImageWebException {
 
     private final List<AlgorithmArgs> badParamsList;
     private final HashMap<String, Object> paramValue; //key = name of argument
+    private final boolean incompatibleSelectedImage;
 
-    public BadParamsException(String message, List<AlgorithmArgs> badParamsList, HashMap<String, Object> paramValue) {
+    public BadParamsException(String message, List<AlgorithmArgs> badParamsList, HashMap<String, Object> paramValue, boolean incompatibleSelectedImage) {
         super(message);
         this.badParamsList = badParamsList;
         this.paramValue = paramValue;
+        this.incompatibleSelectedImage = incompatibleSelectedImage;
         this.status = HttpStatus.BAD_REQUEST;
     }
 
+    public BadParamsException(String message, List<AlgorithmArgs> badParamsList, HashMap<String, Object> paramValue) {
+        this(message, badParamsList, paramValue, false);
+    }
+
+    public BadParamsException(String message, boolean incompatibleSelectedImage) {
+        this(message, null, null, incompatibleSelectedImage);
+    }
+
     public BadParamsException(String message) {
-        this(message, null, null);
+        this(message, null, null, false);
     }
 
     @Override
     public ObjectNode toJSON() {
         ObjectNode node = super.toJSON();
+        node.put("incompatibleSelectedImage", this.incompatibleSelectedImage);
         // If we don't have a list of parameters
         if (badParamsList == null) {
             return node;
