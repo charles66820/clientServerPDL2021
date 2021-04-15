@@ -43,43 +43,41 @@ public class BadParamsException extends ImageWebException {
             paramNode.put("title", param.getTitle());
             paramNode.put("type", param.type);
             paramNode.put("required", param.required);
+
             // If parameter does not have a value
-            if (!this.paramValue.containsKey(param.name)) {
-                paramNode.put("value", "null");
+            Object value;
+            if (this.paramValue.containsKey(param.name)) {
+                value = this.paramValue.get(param.name);
             }
+
             // If parameter is a number
-            else if (param.type.equals("number")) {
-                if (this.paramValue.get(param.name) == null) {
-                    paramNode.put("value", "null");
-                    paramNode.put("min", param.min);
-                    paramNode.put("max", param.max);
-                } else {
-                    try {
-                        paramNode.put("value", Integer.parseInt(this.paramValue.get(param.name).toString()));
-                        paramNode.put("min", param.min);
-                        paramNode.put("max", param.max);
-                    } catch (NumberFormatException nbr) {
-                        paramNode.put("value", this.paramValue.get(param.name).toString());
-                        paramNode.put("min", param.min);
-                        paramNode.put("max", param.max);
-                    }
-                }
+            if (param.type.equals("number")) {
+                if (value == null) paramNode.put("value", "null");
+                else if (value instanceof Integer)
+                    paramNode.put("value", (Integer) value);
+                else paramNode.put("value", value.toString());
+
+                paramNode.put("min", param.min);
+                paramNode.put("max", param.max);
             }
             // If parameter is a selector
             else if (param.type.equals("select")) {
-                paramNode.put("value", this.paramValue.get(param.name).toString());
+                if (value == null) paramNode.put("value", "null");
+                else paramNode.put("value", value.toString());
+
                 // Display expected value for the selector
                 ArrayNode expectedValueListNode = paramNode.putArray("expectedValue");
-                for (AlgorithmArgs value : param.options) {
+                for (AlgorithmArgs option : param.options) {
                     ObjectNode expectedValueNode = super.mapper.createObjectNode();
-                    expectedValueNode.put("name", value.name);
-                    expectedValueNode.put("title", value.getTitle());
+                    expectedValueNode.put("name", option.name);
+                    expectedValueNode.put("title", option.getTitle());
                     expectedValueListNode.add(expectedValueNode);
                 }
             }
             // If parameter has another type
             else {
-                paramNode.put("value", this.paramValue.get(param.name).toString());
+                if (value == null) paramNode.put("value", "null");
+                else paramNode.put("value", value.toString());
             }
             badParamsListNode.add(paramNode);
         }
