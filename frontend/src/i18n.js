@@ -41,9 +41,56 @@ async function loadLocaleMessages(locale) {
   return nextTick();
 }
 
+async function getErrorMsg(err) {
+  let errorMessage;
+
+  if (err == null) return "Not an error";
+  if (err.response == undefined) return err.message;
+
+  let res = err.response;
+
+  let defaultErrorMessage = res.statusText ? res.statusText : err.message;
+
+  switch (res.headers["content-type"]) {
+    case "text/plain":
+      errorMessage = res.data;
+      break;
+    case "application/json":
+    case "application/json;charset=UTF-8":
+      switch (res.data.type) { // TODO: after debug
+        case "BadParamsException":
+          errorMessage = "Bad params";
+          break;
+        case "ImageConversionException":
+          errorMessage = "Error on image conversion";
+          break;
+        case "UnknownAlgorithmException":
+          errorMessage = "Unknown algorithm";
+          break;
+        case "UnsupportedMediaTypeException":
+          errorMessage = "Unsupported image type ! Image will be image/jpeg or image/tiff";
+          break;
+        case "BadImageFileException":
+          errorMessage = "Bad image file send !";
+          break;
+        case "UnknownException":
+          errorMessage = "Unknown error (" + res.data.message + ")";
+          break;
+        default:
+          errorMessage = res.data.message ? res.data.message : defaultErrorMessage;
+      }
+      break;
+    default:
+      errorMessage = defaultErrorMessage;
+  }
+
+  return errorMessage;
+}
+
 export {
   SUPPORT_LOCALES,
   mode,
   initI18n,
-  setI18nLanguage
+  setI18nLanguage,
+  getErrorMsg
 }

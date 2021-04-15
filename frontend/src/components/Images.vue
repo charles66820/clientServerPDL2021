@@ -85,6 +85,7 @@
 import emitter from "tiny-emitter/instance";
 import { useI18n } from "vue-i18n";
 import httpApi from "../http-api.js";
+import { getErrorMsg } from "../i18n";
 
 export default {
   name: "Images",
@@ -94,6 +95,7 @@ export default {
   data() {
     return {
       t: useI18n({ useScope: "global" }).t,
+      getErrorMsg,
       loading: false,
       selectedImage: null,
       images: [],
@@ -134,12 +136,6 @@ export default {
         this.t("warnings.unsupportedImage") + ` : "${image.type}"`
       );
       e.target.src = require("../assets/iconmonstr-picture-1.svg");
-    },
-    getErrorMsg(err) {
-      return err.response != null &&
-        err.response.headers["content-type"] == "text/plain"
-        ? err.response.data
-        : err.message;
     },
   },
   mounted() {
