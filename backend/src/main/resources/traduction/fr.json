@@ -32,6 +32,9 @@
         }
       }
     },
+    "histogramGrey": {
+      "title": "Histogramme Gris"
+    },
     "blurFilter": {
       "title" : "Filtre de flou",
       "args" :
@@ -54,6 +57,17 @@
     },
     "contourFilter": {
       "title" : "Filtre de contour"
+    },
+    "greyFilter": {
+      "title": "Filtre de gris"
+    },
+    "thresholdFilter": {
+      "title": "Filtre avec seuil",
+      "args": {
+        "threshold": {
+          "title": "Seuil"
+        }
+      }
     }
   }
 }

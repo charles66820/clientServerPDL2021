@@ -1,5 +1,5 @@
 {
-  "AlgorithmsNames" : {
+  "AlgorithmsNames": {
     "increaseLuminosity": {
       "title": "Luminosity",
       "args": {
@@ -9,7 +9,7 @@
       }
     },
     "coloredFilter": {
-      "title" : "Colored Filter",
+      "title": "Colored Filter",
       "args": {
         "hue": {
           "title": "Hue"
@@ -32,11 +32,13 @@
         }
       }
     },
+    "histogramGrey": {
+      "title": "Histogram Grey"
+    },
     "blurFilter": {
-      "title" : "Blur Filter",
-      "args" :
-      {
-        "filterName" : {
+      "title": "Blur Filter",
+      "args": {
+        "filterName": {
           "title": "Name filter",
           "options": {
             "meanFilter": {
@@ -47,13 +49,24 @@
             }
           }
         },
-        "blur" : {
-          "title" : "Blur Filter"
+        "blur": {
+          "title": "Blur Filter"
         }
       }
     },
     "contourFilter": {
-      "title" : "Contour Filter"
+      "title": "Contour Filter"
+    }
+  },
+  "greyFilter": {
+    "title": "Grey Filter"
+  },
+  "thresholdFilter": {
+    "title": "Threshold Filter",
+    "args": {
+      "threshold": {
+        "title": "Threshold"
+      }
     }
   }
 }
