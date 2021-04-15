@@ -10,10 +10,8 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  bti:
+    runs-on: [ubuntu-latest, windows-latest]
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -23,5 +21,5 @@ jobs:
         distribution: 'adopt'
     - name: Build, test and install with Maven
       run: mvn clean install
-    - name: Run with Maven
-      run: mvn --projects backend spring-boot:run
+    # - name: Run with Maven
+    #   run: mvn --projects backend spring-boot:run
