@@ -528,10 +528,8 @@ public class ImageControllerTests {
                         hasKey("title"),
                         hasKey("type"),
                         hasKey("required"),
-                        hasKey("value"),
-                        hasKey("expectedValue")))))
-                .andExpect(jsonPath("$.badParams[0].expectedValue").isArray())
-                .andExpect(jsonPath("$.badParams[0].expectedValue", everyItem(allOf(
+                        hasKey("value")))))
+                .andExpect(jsonPath("$.badParams[*].expectedValue[*]", everyItem(allOf(
                         hasKey("name"),
                         hasKey("title")
                 ))));
