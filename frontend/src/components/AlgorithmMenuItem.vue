@@ -69,6 +69,7 @@
 <script>
 import { useI18n } from "vue-i18n";
 import httpApi from "../http-api.js";
+import { getErrorMsg } from "../i18n";
 
 export default {
   name: "AlgorithmMenuItem",
@@ -79,6 +80,7 @@ export default {
   data() {
     return {
       t: useI18n({ useScope: "global" }).t,
+      getErrorMsg,
       loading: false,
       errors: [],
     };
@@ -108,12 +110,6 @@ export default {
           this.errors.push(err);
           this.loading = false;
         });
-    },
-    getErrorMsg(err) {
-      return err.response != null &&
-        err.response.headers["content-type"] == "text/plain"
-        ? err.response.data
-        : err.message;
     },
   },
 };

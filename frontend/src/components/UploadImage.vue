@@ -111,12 +111,14 @@
 import { useI18n } from "vue-i18n";
 import emitter from "tiny-emitter/instance";
 import httpApi from "../http-api.js";
+import { getErrorMsg } from "../i18n";
 
 export default {
   name: "App",
   data() {
     return {
       t: useI18n({ useScope: "global" }).t,
+      getErrorMsg,
       loading: false,
       uploadProgress: null,
       imageType: "",
@@ -220,12 +222,6 @@ export default {
     },
     modalClosed() {
       this.error = null;
-    },
-    getErrorMsg(err) {
-      return err.response != null &&
-        err.response.headers["content-type"] == "text/plain"
-        ? err.response.data
-        : err.message;
     },
   },
 };
