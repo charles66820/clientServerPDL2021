@@ -248,8 +248,8 @@
 import AlgorithmMenuItem from "@/components/AlgorithmMenuItem.vue";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.vue";
 import emitter from "tiny-emitter/instance";
-import httpApi from "../http-api.js";
-import { getErrorMsg } from "../i18n";
+import httpApi from "@/http-api.js";
+import { getErrorMsg } from "@/i18n";
 
 export default {
   name: "Image",
@@ -340,9 +340,9 @@ export default {
           this.$t("warnings.unsupportedImage") + ` : "${this.image_data.type}"`
         );
         if (isDefault)
-          this.defaultImagePreview = require("../assets/iconmonstr-picture-1.svg");
+          this.defaultImagePreview = require("@/assets/iconmonstr-picture-1.svg");
         else
-          this.processedImagePreview = require("../assets/iconmonstr-picture-1.svg");
+          this.processedImagePreview = require("@/assets/iconmonstr-picture-1.svg");
       }
     },
     downloadImage(e) {

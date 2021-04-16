@@ -68,8 +68,8 @@
 </template>
 
 <script>
-import httpApi from "../http-api.js";
-import { getErrorMsg } from "../i18n";
+import httpApi from "@/http-api.js";
+import { getErrorMsg } from "@/i18n";
 
 export default {
   name: "AlgorithmMenuItem",

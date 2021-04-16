@@ -110,8 +110,8 @@
 
 <script>
 import emitter from "tiny-emitter/instance";
-import httpApi from "../http-api.js";
-import { getErrorMsg } from "../i18n";
+import httpApi from "@/http-api.js";
+import { getErrorMsg } from "@/i18n";
 
 export default {
   name: "App",
@@ -216,7 +216,7 @@ export default {
         );
         document.querySelector(
           "#imagePreview"
-        ).src = require("../assets/iconmonstr-picture-1.svg");
+        ).src = require("@/assets/iconmonstr-picture-1.svg");
       }
     },
     modalClosed() {

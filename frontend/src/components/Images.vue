@@ -88,8 +88,8 @@
 
 <script>
 import emitter from "tiny-emitter/instance";
-import httpApi from "../http-api.js";
-import { getErrorMsg } from "../i18n";
+import httpApi from "@/http-api.js";
+import { getErrorMsg } from "@/i18n";
 
 export default {
   name: "Images",
@@ -138,7 +138,7 @@ export default {
       this.warning = new Error(
         this.$t("warnings.unsupportedImage") + ` : "${image.type}"`
       );
-      e.target.src = require("../assets/iconmonstr-picture-1.svg");
+      e.target.src = require("@/assets/iconmonstr-picture-1.svg");
     },
   },
   mounted() {

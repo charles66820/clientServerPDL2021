@@ -15,11 +15,6 @@ import { useI18n } from "vue-i18n";
 
 export default {
   name: "About",
-  data() {
-    return {
-      t: useI18n({ useScope: "global" }).t,
-    };
-  },
   mounted() {
     document.title = this.$t("titles.about");
   }
@@ -37,5 +32,4 @@ p {
   font-size: large;
   text-align: center;
 }
-
 </style>

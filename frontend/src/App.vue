@@ -79,7 +79,6 @@ export default {
   },
   data() {
     return {
-      t: null,
       locale: null,
       currentLocale: null,
       supportLocales: SUPPORT_LOCALES,
