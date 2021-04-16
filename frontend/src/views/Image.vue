@@ -2,11 +2,11 @@
   <div class="page-wrapper toggled main-panel-container">
     <nav class="sidePanel-wrapper left bg-white border-left shadow">
       <!-- Side panel toggler -->
-      <div
+      <button
         class="btn btn-sm text-body bg-white shadow-sm toggle-sidePanel"
         onclick="this.parentNode.parentNode.classList.toggle('toggled');"
         :title="$t('components.image.toggleAlgorithms')"
-      ></div>
+      ></button>
       <!-- Panel title -->
       <div class="sidePanel-header border-bottom">
         <span class="text-body mr-4">{{
@@ -52,12 +52,12 @@
       <div class="page-wrapper toggled">
         <nav class="sidePanel-wrapper bottom bg-white border-top shadow">
           <!-- Side panel toggler -->
-          <div
+          <button
             class="btn btn-sm text-body bg-white shadow-sm toggle-sidePanel"
             style="padding-top: 0px"
             onclick="this.parentNode.parentNode.classList.toggle('toggled');"
             :title="$t('components.image.toggleMetadata')"
-          ></div>
+          ></button>
           <!-- Panel title -->
           <div class="sidePanel-header border-bottom">
             <span class="text-body mr-4">{{
@@ -139,7 +139,9 @@
                         $t('components.image.metadata.downloadOriginalImage')
                       "
                     >
-                      {{ $t("components.image.metadata.downloadOriginalImage") }}
+                      {{
+                        $t("components.image.metadata.downloadOriginalImage")
+                      }}
                       📥
                     </button>
                   </p>
@@ -203,6 +205,7 @@
                 v-if="defaultImageBlob != null"
                 :src="defaultImagePreview"
                 @error="imagePreviewError($event, true)"
+                :alt="$t('loading')"
               />
               <div
                 v-else
@@ -222,6 +225,7 @@
                 v-if="processedImageBlob != null"
                 :src="processedImagePreview"
                 @error="imagePreviewError($event, false)"
+                :alt="$t('loading')"
               />
               <div
                 v-else

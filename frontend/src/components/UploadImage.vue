@@ -63,6 +63,7 @@
                     id="imagePreview"
                     :src="null"
                     @error="imagePreviewError($event)"
+                    :alt="$t('loading')"
                   />
                   <input
                     type="file"

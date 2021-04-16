@@ -46,6 +46,7 @@
             v-if="selectedImage"
             :src="selectedImage.blob"
             @error="imageViewError($event, selectedImage)"
+            :alt="$t('loading')"
           />
           <div
             v-if="selectedImage == null"
@@ -65,7 +66,11 @@
             :data-id="image.id"
             @click="selectImage($event)"
           >
-            <img :src="image.blob" @error="imageViewError($event, image)" />
+            <img
+              :src="image.blob"
+              @error="imageViewError($event, image)"
+              :alt="$t('loading')"
+            />
           </li>
           <div
             v-if="loading"
