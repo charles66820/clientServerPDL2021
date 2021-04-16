@@ -339,6 +339,7 @@ public class AlgorithmProcess {
 
     // Histogram for color image
     public static void histogramColor(Img<UnsignedByteType> input, int channel) {
+        // NOTE: M1 Here
         long N = input.max(0) * input.max(1);
 
         final IntervalView<UnsignedByteType> cR = Views.hyperSlice(input, 2, 0); // Dimension 2 channel 0 (red)
@@ -421,6 +422,7 @@ public class AlgorithmProcess {
 
     // Blur Filter
     public static void meanFilter(final Img<UnsignedByteType> img, int size) {
+        // BUG: Borders
         Img<UnsignedByteType> input = img.copy();
         final RandomAccess<UnsignedByteType> rIn = input.randomAccess();
         final RandomAccess<UnsignedByteType> rOut = img.randomAccess();
