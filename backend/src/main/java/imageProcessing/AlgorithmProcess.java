@@ -4,14 +4,11 @@ import exceptions.*;
 import io.scif.FormatException;
 import io.scif.img.SCIFIOImgPlus;
 import net.imglib2.Cursor;
-import net.imglib2.Interval;
+import net.imglib2.RandomAccess;
 import net.imglib2.algorithm.gauss3.Gauss3;
-import net.imglib2.algorithm.neighborhood.Neighborhood;
-import net.imglib2.algorithm.neighborhood.RectangleShape;
 import net.imglib2.img.Img;
 import net.imglib2.loops.LoopBuilder;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
-import net.imglib2.util.Intervals;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 import pdl.backend.Image;
@@ -423,9 +420,8 @@ public class AlgorithmProcess {
     }
 
     // Blur Filter
-    public static void meanFilter(final Img<UnsignedByteType> img, double size) {
-        // TODO: fix border + color image
-        /*Img<UnsignedByteType> input = img.copy();
+    public static void meanFilter(final Img<UnsignedByteType> img, int size) {
+        Img<UnsignedByteType> input = img.copy();
         final RandomAccess<UnsignedByteType> rIn = input.randomAccess();
         final RandomAccess<UnsignedByteType> rOut = img.randomAccess();
 
@@ -442,44 +438,13 @@ public class AlgorithmProcess {
                         rIn.setPosition((int) i, 0);
                         rIn.setPosition((int) j, 1);
                         r += rIn.get().get();
-
                     }
                 }
-                rOut.get().set((int) (r / ((2 * size + 1) * (2 * size + 1))));
+                rOut.get().set((r / ((2 * size + 1) * (2 * size + 1))));
             }
         }
-        //Apply convolution on the other channel
+        // Apply convolution on the other channel
         if (input.numDimensions() > 2) {
-            final IntervalView<UnsignedByteType> cR = Views.hyperSlice(img, 2, 0); // Dimension 2 channel 0 (red)
-            final IntervalView<UnsignedByteType> cG = Views.hyperSlice(img, 2, 1); // Dimension 2 channel 1 (green)
-            final IntervalView<UnsignedByteType> cB = Views.hyperSlice(img, 2, 2); // Dimension 2 channel 2 (blue)
-            LoopBuilder.setImages(cR, cG, cB).forEachPixel((r, g, b) -> {
-                g.set(r.get());
-                b.set(r.get());
-            });
-        }*/
-        //int size = (int) Math.ceil(double_size);
-        Interval interval = Intervals.expand(img, (long) -size);
-
-        IntervalView<UnsignedByteType> source = Views.interval(img.copy(), interval);
-        final Cursor<UnsignedByteType> sourceCursor = source.cursor();
-
-        IntervalView<UnsignedByteType> dest = Views.interval(img, interval);
-        final Cursor<UnsignedByteType> destCursor = dest.cursor();
-
-        final RectangleShape shape = new RectangleShape((int) size, true);
-
-        for (final Neighborhood<UnsignedByteType> localNeighborhood : shape.neighborhoods(source)) {
-            final UnsignedByteType sourceValue = sourceCursor.next();
-            final UnsignedByteType destValue = destCursor.next();
-
-            int sum = sourceValue.get();
-            for (final UnsignedByteType value : localNeighborhood) sum += value.get();
-            destValue.set((sum / ((((int) size * 2) + 1) * (((int) size * 2) + 1))));
-        }
-
-        //TODO: for color image modify to blur the image
-        if (img.numDimensions() > 2) {
             final IntervalView<UnsignedByteType> cR = Views.hyperSlice(img, 2, 0); // Dimension 2 channel 0 (red)
             final IntervalView<UnsignedByteType> cG = Views.hyperSlice(img, 2, 1); // Dimension 2 channel 1 (green)
             final IntervalView<UnsignedByteType> cB = Views.hyperSlice(img, 2, 2); // Dimension 2 channel 2 (blue)
@@ -496,7 +461,7 @@ public class AlgorithmProcess {
 
     public static void blurFilter(Img<UnsignedByteType> img, String filterName, double size) throws BadParamsException {
         if (filterName.equals("meanFilter")) {
-            meanFilter(img, size);
+            meanFilter(img, (int) size);
         } else if (filterName.equals("gaussFilter")) {
             gaussFilter(img, size);
         } else {
