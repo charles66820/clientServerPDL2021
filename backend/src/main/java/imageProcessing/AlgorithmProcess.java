@@ -206,7 +206,7 @@ public class AlgorithmProcess {
     /* Algorithms available */
 
     // Contour
-    private static byte[] contourFilter(byte[] input, String formatName) throws ImageConversionException {
+    private static byte[] contourFilter(byte[] input, String type) throws ImageConversionException {
         BufferedImage source;
         try {
             InputStream is = new ByteArrayInputStream(input);
@@ -225,6 +225,7 @@ public class AlgorithmProcess {
         BufferedImage resultat = convolution2.filter(resultatIntermediaire, null);
         byte[] out = null;
         try {
+            String formatName = type.equals("image/tiff") ? "TIFF" : type.equals("image/png") ? "PNG" : "JPEG";
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(resultat, formatName, baos);
             out = baos.toByteArray();
