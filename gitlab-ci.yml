@@ -1,0 +1,5 @@
+image: openjdk:11.0.10-jdk
+
+btil:
+  script:
+    - ./mvnw clean install
