@@ -22,6 +22,7 @@ export default {
 <style scoped>
 h1 {
   margin-left: 10px;
+  margin-bottom: 2rem;
 }
 
 p {
