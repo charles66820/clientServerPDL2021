@@ -32,7 +32,7 @@ public class ImageController {
         this.imageDao = imageDao;
     }
 
-    @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, produces = {MediaType.IMAGE_JPEG_VALUE, "image/tiff", MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/images/{id}", method = RequestMethod.GET, produces = {MediaType.IMAGE_JPEG_VALUE, "image/tiff", MediaType.IMAGE_PNG_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     public ResponseEntity<?> getImage(@Nullable @RequestHeader("Accept") ArrayList<String> accepts, @PathVariable("id") long id, @RequestParam Map<String, String> allRequestParams) {
         Optional<Image> image = imageDao.retrieve(id);
@@ -89,13 +89,14 @@ public class ImageController {
     @ResponseBody
     public ResponseEntity<ObjectNode> addImage(@RequestParam("image") MultipartFile file,
                                                RedirectAttributes redirectAttributes) {
-        if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG_VALUE) && !Objects.equals(file.getContentType(), "image/tiff")) {
+        if (!Objects.equals(file.getContentType(), MediaType.IMAGE_JPEG_VALUE) && !Objects.equals(file.getContentType(), "image/tiff" && !Objects.equals(file.getContentType(), MediaType.IMAGE_PNG_VALUE))) {
             ObjectNode jsonNode = mapper.createObjectNode();
             jsonNode.put("type", "UnsupportedMediaTypeException");
             ArrayNode acceptedTypes = jsonNode.putArray("acceptedTypes");
             acceptedTypes.add("image/jpeg");
             acceptedTypes.add("image/tiff");
-            jsonNode.put("message", "Unsupported image type ! Image will be image/jpeg or image/tiff");
+            acceptedTypes.add("image/png");
+            jsonNode.put("message", "Unsupported image type ! Image will be image/jpeg, image/tiff or image/png");
             return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).contentType(MediaType.APPLICATION_JSON).body(jsonNode);
         }
         try {
