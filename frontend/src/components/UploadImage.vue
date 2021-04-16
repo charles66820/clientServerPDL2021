@@ -261,6 +261,10 @@ function renderFile(file, elem) {
   visibility: visible;
 }
 
+.imgContainer.init img {
+  visibility: hidden;
+}
+
 #imagePreview {
   max-width: 100%;
   max-height: 100%;
