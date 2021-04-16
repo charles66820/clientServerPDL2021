@@ -37,14 +37,14 @@ public class AlgorithmProcess {
             throw new BadParamsException("Parameter algorithm after ? is missing !");
         }
 
-        String algoalgorithmName = params.get("algorithm");
-        if (algoalgorithmName.equals("")) {
+        String algorithmName = params.get("algorithm");
+        if (algorithmName.equals("")) {
             throw new BadParamsException("Name of algorithm is missing !");
         }
 
-        AlgorithmNames algoName = AlgorithmNames.fromString(algoalgorithmName);
+        AlgorithmNames algoName = AlgorithmNames.fromString(algorithmName);
         if (algoName == null)
-            throw new UnknownAlgorithmException("This algorithm doesn't exist !", algoalgorithmName);
+            throw new UnknownAlgorithmException("This algorithm doesn't exist !", algorithmName);
 
         List<AlgorithmArgs> badArgList = new ArrayList<>();
         HashMap<String, Object> valueMap = new HashMap<>();
@@ -411,7 +411,6 @@ public class AlgorithmProcess {
         // Calcul of cumulative histogram
         for (int i = 1; i < 256; i++) {
             hist[i] = hist[i] + hist[i - 1];
-            //System.out.println(i + ":" + hist[i]);
         }
         // Transform picture
         cursor.reset();
