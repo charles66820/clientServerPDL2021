@@ -112,6 +112,10 @@
                       {{ $t("components.image.metadata.size") }} :
                       {{ image_data.size }}
                     </li>
+                    <li>
+                      {{ $t("components.image.metadata.fileSize") }} :
+                      {{ humanFileSize(image_data.fileSize) }}
+                    </li>
                   </ul>
                 </div>
                 <div class="col"></div>
@@ -249,13 +253,14 @@ import AlgorithmMenuItem from "@/components/AlgorithmMenuItem.vue";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.vue";
 import emitter from "tiny-emitter/instance";
 import httpApi from "@/http-api.js";
-import { getErrorMsg } from "@/i18n";
+import { getErrorMsg, humanFileSize } from "@/i18n";
 
 export default {
   name: "Image",
   data() {
     return {
       getErrorMsg,
+      humanFileSize,
       defaultImageBlob: null,
       processedImageBlob: null,
       defaultImagePreview: null,

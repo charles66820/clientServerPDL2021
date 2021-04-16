@@ -130,6 +130,29 @@ function getErrorMsg(err) {
   return errorMessage;
 }
 
+function humanFileSize(bytes) {
+  const units = [
+    i18n.global.t("units.B"),
+    i18n.global.t("units.KB"),
+    i18n.global.t("units.MB"),
+    i18n.global.t("units.GB"),
+    i18n.global.t("units.TB"),
+    i18n.global.t("units.PB"),
+    i18n.global.t("units.EB"),
+    i18n.global.t("units.ZB"),
+    i18n.global.t("units.YB")
+  ];
+  if (Math.abs(bytes) < 1000) return bytes + " " + units[0];
+
+  let u = -1;
+  do {
+    bytes /= 1000;
+    ++u;
+  } while (Math.round(Math.abs(bytes) * 10 ** 1) / 10 ** 1 >= 1000 && u < units.length - 2);
+
+  return bytes.toFixed(1) + " " + units[u + 1];
+}
+
 axios.interceptors.response.use(res => res,
   err => {
     if (err.request.responseType === 'blob' &&
@@ -156,5 +179,6 @@ export {
   mode,
   initI18n,
   setI18nLanguage,
-  getErrorMsg
+  getErrorMsg,
+  humanFileSize
 }

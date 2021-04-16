@@ -34,6 +34,7 @@
         "name": "Nom",
         "type": "Type",
         "size": "Taille",
+        "fileSize": "Taille du fichier",
         "removeImage": "Supprimer l'image",
         "downloadOriginalImage": "Télécharger l'image originale",
         "downloadProcessedImage": "Télécharger l'image traitée"
@@ -97,6 +98,17 @@
     "unsupportedImage": "Votre navigateur ne peut pas afficher"
   },
   "loading": "Chargement...",
+  "units": {
+    "B": "o",
+    "KB": "Ko",
+    "MB": "Mo",
+    "GB": "Go",
+    "TB": "To",
+    "PB": "Po",
+    "EB": "Eo",
+    "ZB": "Zo",
+    "YB": "Yo"
+  },
   "langs": {
     "en": "English",
     "fr": "Français"

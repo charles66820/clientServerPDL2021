@@ -34,6 +34,7 @@
         "name": "Name",
         "type": "Type",
         "size": "Size",
+        "fileSize": "File size",
         "removeImage": "Remove image",
         "downloadOriginalImage": "Download original image",
         "downloadProcessedImage": "Download processed image"
@@ -97,6 +98,17 @@
     "unsupportedImage": "Your browser cannot display"
   },
   "loading": "Loading...",
+  "units": {
+    "B": "B",
+    "KB": "kB",
+    "MB": "MB",
+    "GB": "GB",
+    "TB": "TB",
+    "PB": "PB",
+    "EB": "EB",
+    "ZB": "ZB",
+    "YB": "YB"
+  },
   "langs": {
     "en": "English",
     "fr": "Français"
