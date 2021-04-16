@@ -158,6 +158,7 @@ public class ImageController {
                 argNode.put("min", arg.min);
                 argNode.put("max", arg.max);
                 argNode.put("required", arg.required);
+                argNode.put("precision", arg.precision);
                 if (arg.options != null && arg.options.size() > 0) {
                     ArrayNode optionsList = argNode.putArray("options");
                     for (AlgorithmArgs option : arg.options) {
