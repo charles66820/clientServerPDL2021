@@ -171,7 +171,7 @@ public class AlgorithmProcess {
                 break;
             case CONTOUR_FILTER:
                 try {
-                    bytes = contourFilter(image.getData(), image.getType().equals("image/tiff") ? "TIFF" : "JPEG");
+                    bytes = contourFilter(image.getData(), image.getType());
                 } catch (Exception e) {
                     throw new InternalServerException("Error on algorithm execution !");
                 }

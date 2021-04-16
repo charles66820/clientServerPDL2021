@@ -1,6 +1,7 @@
 package imageProcessing;
 
 import io.scif.*;
+import io.scif.formats.APNGFormat;
 import io.scif.formats.JPEGFormat;
 import io.scif.formats.TIFFFormat;
 import io.scif.img.ImgOpener;
@@ -23,8 +24,9 @@ public class ImageConverter {
         // File render for simulate a file
         final SCIFIO scifio = new SCIFIO(c);
         final Format format;
-        if (formatName.equals("TIFF"))
-            format = scifio.format().getFormatFromClass(TIFFFormat.class);
+
+        if (formatName.equals("image/tiff")) format = scifio.format().getFormatFromClass(TIFFFormat.class);
+        else if (formatName.equals("image/png")) format = scifio.format().getFormatFromClass(APNGFormat.class);
         else format = scifio.format().getFormatFromClass(JPEGFormat.class);
         final Reader reader = format.createReader();
         reader.setSource(new BytesLocation(data));
